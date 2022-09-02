@@ -2,7 +2,7 @@ COMPILE_CMD = x86_64-w64-mingw32-g++
 LINK_CMD = x86_64-w64-mingw32-g++
 OBJ_DIR = bin/obj
 OUT_DIR = bin/out
-DEBUG_CC_FLAGS = -ggdb -c -Wall -D cdwDebugMode
+DEBUG_CC_FLAGS = -ggdb -c -Wall -D cdwDebugMode -D cdwTestBuild
 RELEASE_CC_FLAGS = -O3 -c -Wall
 DEBUG_LNK_FLAGS_POST = -ggdb -static-libgcc -static-libstdc++ -static
 RELEASE_LNK_FLAGS_POST = -static-libgcc -static-libstdc++ -static
@@ -30,7 +30,9 @@ dirs:
 # crayon
 
 CRAYON_SRC = \
+	src/crayon/lexor.cpp \
 	src/crayon/main.cpp \
+	src/crayon/test.cpp \
 
 CRAYON_DEBUG_OBJ = $(subst src,$(OBJ_DIR)/debug,$(patsubst %.cpp,%.o,$(CRAYON_SRC)))
 

@@ -1,3 +1,17 @@
+#include "ast.hpp"
+#include "lexor.hpp"
+#include "parser.hpp"
+#include "test.hpp"
+
+int main(int,const char *[])
+{
+   basicAsserter ba;
+   testBase::runAll(ba);
+
+   return 0;
+}
+
+#if 0
 #define WIN32_LEAN_AND_MEAN
 #include "windows.h"
 #include <stdio.h>
@@ -118,3 +132,4 @@ int main(int,const char *[])
 
    return 0;
 }
+#endif
