@@ -1,5 +1,5 @@
+#include "../crayon/test.hpp"
 #include "lexor.hpp"
-#include "test.hpp"
 #include <cstring>
 
 static const char *gTokenNames[] = {

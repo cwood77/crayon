@@ -1,7 +1,7 @@
-#include "ast.hpp"
-#include "dumpVisitor.hpp"
-#include "lexor.hpp"
-#include "parser.hpp"
+#include "../frontend/ast.hpp"
+#include "../frontend/dumpVisitor.hpp"
+#include "../frontend/lexor.hpp"
+#include "../frontend/parser.hpp"
 #include "test.hpp"
 #include <iostream>
 #include <memory>

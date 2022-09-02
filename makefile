@@ -20,7 +20,11 @@ clean:
 
 dirs:
 	@mkdir -p $(OBJ_DIR)/debug/crayon
+	@mkdir -p $(OBJ_DIR)/debug/frontend
+	@mkdir -p $(OBJ_DIR)/debug/graphics
 	@mkdir -p $(OBJ_DIR)/release/crayon
+	@mkdir -p $(OBJ_DIR)/release/frontend
+	@mkdir -p $(OBJ_DIR)/release/graphics
 	@mkdir -p $(OUT_DIR)/debug
 	@mkdir -p $(OUT_DIR)/release
 
@@ -30,13 +34,13 @@ dirs:
 # crayon
 
 CRAYON_SRC = \
-	src/crayon/ast.cpp \
-	src/crayon/dumpVisitor.cpp \
-	src/crayon/graphicsApi.cpp \
-	src/crayon/lexor.cpp \
 	src/crayon/main.cpp \
-	src/crayon/parser.cpp \
 	src/crayon/test.cpp \
+	src/frontend/ast.cpp \
+	src/frontend/dumpVisitor.cpp \
+	src/frontend/lexor.cpp \
+	src/frontend/parser.cpp \
+	src/graphics/graphicsApi.cpp \
 
 CRAYON_DEBUG_OBJ = $(subst src,$(OBJ_DIR)/debug,$(patsubst %.cpp,%.o,$(CRAYON_SRC)))
 
