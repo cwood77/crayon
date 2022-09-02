@@ -32,6 +32,7 @@ dirs:
 CRAYON_SRC = \
 	src/crayon/ast.cpp \
 	src/crayon/dumpVisitor.cpp \
+	src/crayon/graphicsApi.cpp \
 	src/crayon/lexor.cpp \
 	src/crayon/main.cpp \
 	src/crayon/parser.cpp \
