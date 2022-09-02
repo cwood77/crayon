@@ -30,8 +30,11 @@ dirs:
 # crayon
 
 CRAYON_SRC = \
+	src/crayon/ast.cpp \
+	src/crayon/dumpVisitor.cpp \
 	src/crayon/lexor.cpp \
 	src/crayon/main.cpp \
+	src/crayon/parser.cpp \
 	src/crayon/test.cpp \
 
 CRAYON_DEBUG_OBJ = $(subst src,$(OBJ_DIR)/debug,$(patsubst %.cpp,%.o,$(CRAYON_SRC)))
