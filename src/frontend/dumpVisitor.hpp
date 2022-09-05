@@ -2,14 +2,16 @@
 #include "ast.hpp"
 #include <ostream>
 
+class log;
+
 class dumpVisitor : public iNodeVisitor {
 public:
-   explicit dumpVisitor(std::ostream& s) : m_s(s) {}
+   explicit dumpVisitor(log& l) : m_l(l) {}
 
    virtual void visit(loadImageNode& n);
    virtual void visit(saveImageNode& n);
    virtual void visit(closeImageNode& n);
 
 private:
-   std::ostream& m_s;
+   log& m_l;
 };

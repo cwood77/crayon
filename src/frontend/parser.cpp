@@ -4,6 +4,12 @@
 #include <memory>
 #include <stdexcept>
 
+#ifdef cdwTestBuild
+#include "../crayon/log.hpp"
+#include "../crayon/test.hpp"
+#include "dumpVisitor.hpp"
+#endif // cdwTestBuild
+
 scriptNode *parser::parseFile()
 {
    std::unique_ptr<scriptNode> pRoot;
@@ -45,3 +51,35 @@ void parser::parseImageBlock(scriptNode& n)
       parseImageBlock(n);
    }
 }
+
+#ifdef cdwTestBuild
+
+cdwTest(loadsaveimage_parser_acceptance)
+{
+   std::stringstream program,expected;
+   program
+      << "load-image \"foo\":" << std::endl
+      << "   save-image \"bar\"" << std::endl
+      << "   save-image \"bar\"" << std::endl
+   ;
+   expected
+      << "loadImageNode(foo)" << std::endl
+      << "saveImageNode(bar)" << std::endl
+      << "saveImageNode(bar)" << std::endl
+      << "closeImageNode" << std::endl
+   ;
+
+   auto copy = program.str();
+   lexor l(copy.c_str());
+   parser p(l);
+   std::unique_ptr<scriptNode> pTree(p.parseFile());
+
+   bufferLog logSink;
+   log Log(logSink);
+   dumpVisitor dumper(Log);
+   pTree->acceptVisitor(dumper);
+
+   cdwAssertEqu(expected.str(),logSink.buffer.str());
+}
+
+#endif // cdwTestBuild

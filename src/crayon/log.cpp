@@ -20,24 +20,13 @@ void coutLog::write(const char *msg)
 
 #ifdef cdwTestBuild
 
-namespace _test {
-
-class testLog : public iLog {
-public:
-   virtual void write(const char *msg) { v << msg; }
-
-   std::stringstream v;
-};
-
-} // namespace _test
-
 cdwTest(log_acceptance)
 {
-   _test::testLog sink;
+   bufferLog sink;
    log l(sink);
    l.s().s() << "foo";
 
-   cdwAssertEqu("foo",sink.v.str());
+   cdwAssertEqu("foo",sink.buffer.str());
 }
 
 #endif // cdwTestBuild

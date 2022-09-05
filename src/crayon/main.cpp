@@ -12,19 +12,6 @@ int main(int,const char *[])
    basicAsserter ba;
    testBase::runAll(ba);
 
-   std::stringstream program;
-   program
-      << "load-image \"foo\":" << std::endl
-      << "   save-image \"bar\"" << std::endl
-      << "   save-image \"bar\"" << std::endl
-   ;
-   auto copy = program.str();
-   lexor l(copy.c_str());
-   parser p(l);
-   std::unique_ptr<scriptNode> pTree(p.parseFile());
-   dumpVisitor dumper(std::cout);
-   pTree->acceptVisitor(dumper);
-
    return 0;
 }
 

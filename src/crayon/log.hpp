@@ -56,6 +56,13 @@ private:
    log& m_l;
 };
 
+class bufferLog : public iLog {
+public:
+   virtual void write(const char *msg) { buffer << msg; }
+
+   std::stringstream buffer;
+};
+
 class coutLog : public iLog {
 public:
    virtual void write(const char *msg);
