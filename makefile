@@ -34,6 +34,8 @@ dirs:
 # crayon
 
 CRAYON_SRC = \
+	src/crayon/cfile.cpp \
+	src/crayon/executor.cpp \
 	src/crayon/log.cpp \
 	src/crayon/main.cpp \
 	src/crayon/test.cpp \

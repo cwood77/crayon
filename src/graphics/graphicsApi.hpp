@@ -58,13 +58,13 @@ public:
    virtual ~iGraphicsApi() {}
    virtual void addref() = 0;
    virtual void release() = 0;
-   virtual iFileType *createFileType() = 0;
+   virtual iFileType *createFileType(size_t i) = 0;
    virtual iFont *createFont(const char *face, size_t size) = 0;
 };
 
 class graphicsApiFactory {
 public:
-   iGraphicsApi *open();
+   iGraphicsApi *open(size_t i);
 };
 
 class objectFinder {
@@ -73,5 +73,24 @@ public:
 };
 
 template<class T>
-class autoreleasePtr {
+class autoReleasePtr {
+public:
+   explicit autoReleasePtr(T *pPtr = NULL) : m_pPtr(pPtr)
+   { m_pPtr->addref(); }
+
+   void reset(T *pPtr = NULL)
+   {
+      if(pPtr)
+         pPtr->addref();
+      if(m_pPtr)
+         m_pPtr->release();
+      m_pPtr = pPtr;
+   }
+
+   operator bool() { return !!m_pPtr; }
+
+   T *operator->() { return m_pPtr; }
+
+private:
+   T *m_pPtr;
 };
