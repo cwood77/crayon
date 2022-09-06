@@ -27,12 +27,12 @@ void dumpVisitor::visit(closeImageNode& n)
 
 void dumpVisitor::visit(snipNode& n)
 {
-   m_l.s().s() << "snipNode" << std::endl;
+   m_l.s().s() << "snipNode(" << n.varName << ")" << std::endl;
    visitChildren(n);
 }
 
 void dumpVisitor::visit(overlayNode& n)
 {
-   m_l.s().s() << "overlayNode" << std::endl;
+   m_l.s().s() << "overlayNode(" << n.varName << "," << n.transparent << ")" << std::endl;
    visitChildren(n);
 }

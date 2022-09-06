@@ -89,9 +89,14 @@ public:
 class snipNode : public scriptNode {
 public:
    virtual void acceptVisitor(iNodeVisitor& v) { v.visit(*this); }
+
+   std::string varName;
 };
 
 class overlayNode : public scriptNode {
 public:
    virtual void acceptVisitor(iNodeVisitor& v) { v.visit(*this); }
+
+   std::string varName;
+   size_t transparent;
 };

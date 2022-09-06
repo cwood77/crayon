@@ -14,24 +14,25 @@ scriptNode *parser::parseFile()
 {
    std::unique_ptr<scriptNode> pRoot;
 
-   if(m_l.getCurrentToken() == lexor::kHyphenatedWord && m_l.getCurrentLexeme() == "load-image")
+   while(m_l.getCurrentToken() != lexor::kEOI)
    {
-      m_l.advance();
-      auto *pNoob = new loadImageNode;
+      if(m_l.getCurrentToken() == lexor::kHyphenatedWord && m_l.getCurrentLexeme() == "load-image")
+      {
+         m_l.advance();
+         auto *pNoob = new loadImageNode;
 
-      m_l.demand(lexor::kQuotedText);
-      pNoob->path = m_l.getCurrentLexeme();
-      adjustPathIf(pNoob->path);
-      m_l.advance();
+         m_l.demand(lexor::kQuotedText);
+         pNoob->path = m_l.getCurrentLexeme();
+         adjustPathIf(pNoob->path);
+         m_l.advance();
 
-      m_l.demandAndEat(lexor::kColon);
-      pRoot.reset(pNoob);
-      parseImageBlock(*pRoot.get());
+         m_l.demandAndEat(lexor::kColon);
+         pRoot.reset(pNoob);
+         parseImageBlock(*pRoot.get());
+      }
+      else
+         throw std::runtime_error("parser error");
    }
-   else
-      throw std::runtime_error("parser error");
-
-   m_l.demand(lexor::kEOI);
 
    return pRoot.release();
 }
@@ -55,6 +56,36 @@ void parser::parseImageBlock(scriptNode& n)
       m_l.demand(lexor::kQuotedText);
       pNoob->path = m_l.getCurrentLexeme();
       adjustPathIf(pNoob->path);
+      m_l.advance();
+
+      n.addChild(*pNoob);
+      parseImageBlock(n);
+   }
+   else if(m_l.getCurrentToken() == lexor::kHyphenatedWord && m_l.getCurrentLexeme() == "snip")
+   {
+      m_l.advance();
+      auto *pNoob = new snipNode;
+
+      m_l.demandAndEat(lexor::kArrow);
+
+      m_l.demand(lexor::kQuotedText);
+      pNoob->varName = m_l.getCurrentLexeme();
+      m_l.advance();
+
+      n.addChild(*pNoob);
+      parseImageBlock(n);
+   }
+   else if(m_l.getCurrentToken() == lexor::kHyphenatedWord && m_l.getCurrentLexeme() == "overlay")
+   {
+      m_l.advance();
+      auto *pNoob = new overlayNode;
+
+      m_l.demand(lexor::kQuotedText);
+      pNoob->varName = m_l.getCurrentLexeme();
+      m_l.advance();
+
+      m_l.demand(lexor::kColor);
+      pNoob->transparent = m_l.getCurrentColorRef();
       m_l.advance();
 
       n.addChild(*pNoob);

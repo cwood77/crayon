@@ -5,6 +5,8 @@
 class lexor {
 public:
    enum tokens {
+      kArrow,
+      kColor,
       kHyphenatedWord,
       kQuotedText,
       kColon,
@@ -18,6 +20,7 @@ public:
 
    tokens getCurrentToken() const { return m_token; }
    const std::string& getCurrentLexeme() const { return m_lexeme; }
+   size_t getCurrentColorRef() const { return m_color; }
 
    void advance();
 
@@ -29,4 +32,5 @@ private:
    const char *m_pThumb;
    tokens m_token;
    std::string m_lexeme;
+   size_t m_color;
 };

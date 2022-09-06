@@ -9,6 +9,11 @@ class scriptNode;
 // <file> ::== 'load-image' <string> ':' <image-block>
 //
 // <image-block> ::== <indent> 'save-image' <string> <image-block>
+//                  | <indent> 'snip' '->' <string> <image-block>
+//                  | <indent> 'overlay' <string> <color> <image-block>
+//                  | e
+//
+// <color> ::== 'rgb{' <num> ',' <num> ',' <num> '}'
 //
 class parser {
 public:
