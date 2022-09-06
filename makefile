@@ -11,6 +11,7 @@ debug: \
 	dirs \
 	$(OUT_DIR)/debug/crayon.exe \
 	$(OUT_DIR)/debug/gdiapi.dll \
+	systemtest \
 
 all: \
 	debug \
@@ -34,7 +35,7 @@ dirs:
 	@mkdir -p $(OUT_DIR)/debug
 	@mkdir -p $(OUT_DIR)/release
 
-.PHONY: debug all clean dirs
+.PHONY: debug all clean dirs systemtest
 
 # ----------------------------------------------------------------------
 # cmn
@@ -123,3 +124,6 @@ $(OUT_DIR)/release/gdiapi.dll: $(GDIAPI_RELEASE_OBJ) $(OUT_DIR)/release/cmn.lib
 $(GDIAPI_RELEASE_OBJ): $(OBJ_DIR)/release/%.o: src/%.cpp
 	$(info $< --> $@)
 	@$(COMPILE_CMD) $(RELEASE_CC_FLAGS) $< -o $@
+
+systemtest:
+	@cmd.exe /c systemtest.bat

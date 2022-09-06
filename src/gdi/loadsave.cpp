@@ -30,13 +30,57 @@ iBitmap *bmpFileType::loadBitmap(const char *path)
    return pBitmap.leak();
 }
 
-void bmpFileType::saveBitmap(iBitmap& b, const char *path)
+void bmpFileType::saveBitmap(iBitmap& _b, const char *path)
 {
-   throw std::runtime_error("unimpled 3");
+   auto& b = dynamic_cast<bitmap&>(_b);
+   size_t imageSize = b.width * b.height * 3;
+
+   BITMAPFILEHEADER fHdr;
+   BITMAPINFO iHdrEtc;
+   populateStructs(b.width,b.height,fHdr,iHdrEtc.bmiHeader);
+
+   auto *pBlock = new char[imageSize];
+   auto hBitmap = (HBITMAP)::GetCurrentObject(Api.dc,OBJ_BITMAP);
+   auto success = ::GetDIBits(
+      Api.dc,
+      hBitmap,
+      0,        // start
+      b.height, // #lines
+      pBlock,
+      &iHdrEtc,
+      DIB_RGB_COLORS);
+   if(!success)
+      throw std::runtime_error("failed to acquire bits from GDI");
+   checkCompatible(iHdrEtc.bmiHeader);
+
+   outCFile f(path);
+   f.writeType(fHdr);
+   f.writeType(iHdrEtc.bmiHeader);
+   f.writeBytes(pBlock,imageSize);
+   delete [] pBlock;
 }
 
 void bmpFileType::populateStructs(long w, long h, BITMAPFILEHEADER& fHdr, BITMAPINFOHEADER& iHdr)
 {
+   fHdr.bfType = 19778;
+   fHdr.bfSize = w * h * 3 + 14 + 40;
+   fHdr.bfReserved1 = 0;
+   fHdr.bfReserved2 = 0;
+   fHdr.bfOffBits = 14 + 40;
+   checkCompatible(fHdr);
+
+   iHdr.biSize = 40;
+   iHdr.biWidth = w;
+   iHdr.biHeight = h;
+   iHdr.biPlanes = 1;
+   iHdr.biBitCount = 24;
+   iHdr.biCompression = 0;
+   iHdr.biSizeImage = w * h * 3;
+   iHdr.biXPelsPerMeter = 0;
+   iHdr.biYPelsPerMeter = 0;
+   iHdr.biClrUsed = 0;
+   iHdr.biClrImportant = 0;
+   checkCompatible(iHdr);
 }
 
 #define cdwRequireField(__field__,__value__) \
@@ -51,6 +95,8 @@ void bmpFileType::checkCompatible(BITMAPFILEHEADER& hdr)
    //::printf("sizeof(header) = %llu\n",sizeof(BITMAPFILEHEADER));
 
    cdwRequireField(bfType,19778);
+   cdwRequireField(bfReserved1,0);
+   cdwRequireField(bfReserved2,0);
    cdwRequireField(bfOffBits,(14 + 40));
 }
 

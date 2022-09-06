@@ -21,6 +21,11 @@ void executor::visit(loadImageNode& n)
 void executor::visit(saveImageNode& n)
 {
    m_log.s().s() << "saving image '" << n.path << "'" << std::endl;
+   auto& attr = n.root().fetch<graphicsAttribute>();
+
+   autoReleasePtr<iFileType> pBmpFmt(attr.pApi->createFileType(0));
+   pBmpFmt->saveBitmap(attr.pImage,n.path.c_str());
+
    visitChildren(n);
 }
 

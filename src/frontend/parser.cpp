@@ -52,6 +52,7 @@ void parser::parseImageBlock(scriptNode& n)
 
       m_l.demand(lexor::kQuotedText);
       pNoob->path = m_l.getCurrentLexeme();
+      adjustPathIf(pNoob->path);
       m_l.advance();
 
       n.addChild(*pNoob);
@@ -76,14 +77,14 @@ cdwTest(loadsaveimage_parser_acceptance)
 {
    std::stringstream program,expected;
    program
-      << "load-image \"foo\":" << std::endl
-      << "   save-image \"bar\"" << std::endl
+      << "load-image \"Q:\\foo\":" << std::endl
+      << "   save-image \"Q:\\bar\"" << std::endl
       << "   save-image \"bar\"" << std::endl
    ;
    expected
-      << "loadImageNode(foo)" << std::endl
-      << "saveImageNode(bar)" << std::endl
-      << "saveImageNode(bar)" << std::endl
+      << "loadImageNode(Q:\\foo)" << std::endl
+      << "saveImageNode(Q:\\bar)" << std::endl
+      << "saveImageNode(<mythological script file path>\\..\\bar)" << std::endl
       << "closeImageNode" << std::endl
    ;
 

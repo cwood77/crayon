@@ -15,7 +15,7 @@ inCFile::inCFile(const std::string& path)
 {
    m_fp = ::fopen(path.c_str(),"rb");
    if(!m_fp)
-      throw std::runtime_error("failed to open file");
+      throw std::runtime_error("failed to open file for read");
 }
 
 inCFile::~inCFile()
@@ -52,4 +52,21 @@ void inCFile::read(size_t n, cFileBlock& blk)
    blk.pBlock = new char [n];
 
    ::fread(blk.pBlock,n,1,m_fp);
+}
+
+outCFile::outCFile(const std::string& path)
+{
+   m_fp = ::fopen(path.c_str(),"wb");
+   if(!m_fp)
+      throw std::runtime_error("failed to open file for write");
+}
+
+outCFile::~outCFile()
+{
+   ::fclose(m_fp);
+}
+
+void outCFile::writeBytes(const void *pPtr, size_t n)
+{
+   ::fwrite(pPtr,n,1,m_fp);
 }

@@ -117,6 +117,7 @@ public:
    }
 
    operator bool() { return !!m_pPtr; }
+   operator T&() { return *m_pPtr; }
 
    T *operator->() { return m_pPtr; }
 
