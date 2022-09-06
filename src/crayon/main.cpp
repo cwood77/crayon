@@ -35,9 +35,12 @@ int main(int argc, const char *argv[])
          // execute
          attributeStore attrs;
          attributeStoreBinding _asb(*pRoot.get(),attrs);
-         graphicsApiFactory graf;
+         graphicsApiFactory graf(lSink);
          executor xfrm(Log,graf);
          pRoot->acceptVisitor(xfrm);
+
+         // teardown
+         graf.markSuccess();
       }
       else if(argc == (1+1) && argv[1] == std::string("test"))
       {

@@ -1,5 +1,9 @@
 #pragma once
+#define WIN32_LEAN_AND_MEAN
 #include <cstdlib>
+#include <windows.h>
+
+class iLog;
 
 class iBlock;
 
@@ -64,7 +68,22 @@ public:
 
 class graphicsApiFactory {
 public:
+   explicit graphicsApiFactory(iLog& l);
+   ~graphicsApiFactory();
+
    iGraphicsApi *open(size_t i);
+
+   void markSuccess() { m_success = true; }
+
+private:
+   typedef iGraphicsApi *(*fac_t)(iLog& l);
+
+   iLog& m_log;
+   HMODULE m_api0;
+   fac_t m_func0;
+   HMODULE m_api1;
+   fac_t m_func1;
+   bool m_success;
 };
 
 class objectFinder {
@@ -76,7 +95,7 @@ template<class T>
 class autoReleasePtr {
 public:
    explicit autoReleasePtr(T *pPtr = NULL) : m_pPtr(pPtr)
-   { m_pPtr->addref(); }
+   { if(m_pPtr) m_pPtr->addref(); }
 
    void reset(T *pPtr = NULL)
    {

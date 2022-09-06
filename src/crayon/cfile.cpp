@@ -49,7 +49,7 @@ size_t inCFile::tell()
 void inCFile::read(size_t n, cFileBlock& blk)
 {
    delete blk.pBlock;
-   blk.pBlock = new unsigned char [n];
+   blk.pBlock = new char [n];
 
    ::fread(blk.pBlock,n,1,m_fp);
 }

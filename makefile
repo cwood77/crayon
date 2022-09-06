@@ -10,10 +10,12 @@ RELEASE_LNK_FLAGS_POST = -static-libgcc -static-libstdc++ -static
 debug: \
 	dirs \
 	$(OUT_DIR)/debug/crayon.exe \
+	$(OUT_DIR)/debug/gdiapi.dll \
 
 all: \
 	debug \
 	$(OUT_DIR)/release/crayon.exe \
+	$(OUT_DIR)/release/gdiapi.dll \
 
 clean:
 	rm -rf bin
@@ -21,9 +23,11 @@ clean:
 dirs:
 	@mkdir -p $(OBJ_DIR)/debug/crayon
 	@mkdir -p $(OBJ_DIR)/debug/frontend
+	@mkdir -p $(OBJ_DIR)/debug/gdi
 	@mkdir -p $(OBJ_DIR)/debug/graphics
 	@mkdir -p $(OBJ_DIR)/release/crayon
 	@mkdir -p $(OBJ_DIR)/release/frontend
+	@mkdir -p $(OBJ_DIR)/release/gdi
 	@mkdir -p $(OBJ_DIR)/release/graphics
 	@mkdir -p $(OUT_DIR)/debug
 	@mkdir -p $(OUT_DIR)/release
@@ -50,7 +54,7 @@ CRAYON_DEBUG_OBJ = $(subst src,$(OBJ_DIR)/debug,$(patsubst %.cpp,%.o,$(CRAYON_SR
 
 $(OUT_DIR)/debug/crayon.exe: $(CRAYON_DEBUG_OBJ)
 	$(info $< --> $@)
-	@$(LINK_CMD) -o $@ $(CRAYON_DEBUG_OBJ) $(DEBUG_LNK_FLAGS_POST) -lgdi32
+	@$(LINK_CMD) -o $@ $(CRAYON_DEBUG_OBJ) $(DEBUG_LNK_FLAGS_POST)
 
 $(CRAYON_DEBUG_OBJ): $(OBJ_DIR)/debug/%.o: src/%.cpp
 	$(info $< --> $@)
@@ -63,5 +67,31 @@ $(OUT_DIR)/release/crayon.exe: $(CRAYON_RELEASE_OBJ)
 	@$(LINK_CMD) -o $@ $(CRAYON_RELEASE_OBJ) $(RELEASE_LNK_FLAGS_POST)
 
 $(CRAYON_RELEASE_OBJ): $(OBJ_DIR)/release/%.o: src/%.cpp
+	$(info $< --> $@)
+	@$(COMPILE_CMD) $(RELEASE_CC_FLAGS) $< -o $@
+
+# ----------------------------------------------------------------------
+# gdiapi
+
+GDIAPI_SRC = \
+	src/gdi/api.cpp \
+
+GDIAPI_DEBUG_OBJ = $(subst src,$(OBJ_DIR)/debug,$(patsubst %.cpp,%.o,$(GDIAPI_SRC)))
+
+$(OUT_DIR)/debug/gdiapi.dll: $(GDIAPI_DEBUG_OBJ)
+	$(info $< --> $@)
+	@$(LINK_CMD) -shared -o $@ $(GDIAPI_DEBUG_OBJ) $(DEBUG_LNK_FLAGS_POST) -lgdi32
+
+$(GDIAPI_DEBUG_OBJ): $(OBJ_DIR)/debug/%.o: src/%.cpp
+	$(info $< --> $@)
+	@$(COMPILE_CMD) $(DEBUG_CC_FLAGS) $< -o $@
+
+GDIAPI_RELEASE_OBJ = $(subst src,$(OBJ_DIR)/release,$(patsubst %.cpp,%.o,$(GDIAPI_SRC)))
+
+$(OUT_DIR)/release/gdiapi.dll: $(GDIAPI_RELEASE_OBJ)
+	$(info $< --> $@)
+	@$(LINK_CMD) -shared -o $@ $(GDIAPI_RELEASE_OBJ) $(RELEASE_LNK_FLAGS_POST)
+
+$(GDIAPI_RELEASE_OBJ): $(OBJ_DIR)/release/%.o: src/%.cpp
 	$(info $< --> $@)
 	@$(COMPILE_CMD) $(RELEASE_CC_FLAGS) $< -o $@
