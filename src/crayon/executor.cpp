@@ -1,5 +1,8 @@
+#include "../graphics/snippet.hpp"
 #include "executor.hpp"
 #include "log.hpp"
+#include "symbolTable.hpp"
+#include <memory>
 
 void executor::visit(loadImageNode& n)
 {
@@ -42,10 +45,25 @@ void executor::visit(closeImageNode& n)
 
 void executor::visit(snipNode& n)
 {
-   throw std::runtime_error("unimpled");
+   m_log.s().s() << "snipping image" << std::endl;
+   auto& attr = n.root().fetch<graphicsAttribute>();
+
+   std::unique_ptr<snipSymbol> pVar(new snipSymbol());
+
+   snippetAllocator sAlloc;
+   nullTransform nullXfrm;
+   pVar->pSnippet.reset(attr.pImage->snip(sAlloc,nullXfrm));
+
+   m_sTable.overwrite(n.varName,*pVar.release());
+   m_log.s().s() << "saved to " << n.varName << std::endl;
 }
 
 void executor::visit(overlayNode& n)
 {
-   throw std::runtime_error("unimpled");
+   m_log.s().s() << "overlaying image from var " << n.varName  << std::endl;
+   auto& attr = n.root().fetch<graphicsAttribute>();
+
+   auto& pSnip = m_sTable.demand(n.varName).as<snipSymbol>().pSnippet;
+
+   attr.pImage->overlay(pSnip,n.transparent);
 }

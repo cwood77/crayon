@@ -5,6 +5,7 @@
 #include "cfile.hpp"
 #include "executor.hpp"
 #include "log.hpp"
+#include "symbolTable.hpp"
 #include "test.hpp"
 #include <iostream>
 #include <memory>
@@ -36,7 +37,8 @@ int main(int argc, const char *argv[])
          attributeStore attrs;
          attributeStoreBinding _asb(*pRoot.get(),attrs);
          graphicsApiFactory graf(lSink);
-         executor xfrm(Log,graf);
+         symbolTable sTable;
+         executor xfrm(Log,graf,sTable);
          pRoot->acceptVisitor(xfrm);
 
          // teardown

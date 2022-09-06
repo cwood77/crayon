@@ -3,6 +3,7 @@
 #include "../graphics/graphicsApi.hpp"
 
 class log;
+class symbolTable;
 
 class graphicsAttribute : public attribute {
 public:
@@ -12,7 +13,8 @@ public:
 
 class executor : public iNodeVisitor {
 public:
-   executor(log& l, graphicsApiFactory& g) : m_log(l), m_gFac(g) {}
+   executor(log& l, graphicsApiFactory& g, symbolTable& sTable)
+   : m_log(l), m_gFac(g), m_sTable(sTable) {}
 
    virtual void visit(scriptNode& n) { visitChildren(n); }
    virtual void visit(loadImageNode& n);
@@ -24,4 +26,5 @@ public:
 private:
    log& m_log;
    graphicsApiFactory& m_gFac;
+   symbolTable& m_sTable;
 };

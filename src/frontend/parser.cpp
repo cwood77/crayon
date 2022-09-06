@@ -12,7 +12,7 @@
 
 scriptNode *parser::parseFile()
 {
-   std::unique_ptr<scriptNode> pRoot;
+   std::unique_ptr<scriptNode> pRoot(new scriptNode());
 
    while(m_l.getCurrentToken() != lexor::kEOI)
    {
@@ -27,8 +27,8 @@ scriptNode *parser::parseFile()
          m_l.advance();
 
          m_l.demandAndEat(lexor::kColon);
-         pRoot.reset(pNoob);
-         parseImageBlock(*pRoot.get());
+         pRoot->addChild(*pNoob);
+         parseImageBlock(*pNoob);
       }
       else
          throw std::runtime_error("parser error");
@@ -115,10 +115,11 @@ cdwTest(loadsaveimage_parser_acceptance)
       << "   save-image \"bar\"" << std::endl
    ;
    expected
-      << "loadImageNode(Q:\\foo)" << std::endl
-      << "saveImageNode(Q:\\bar)" << std::endl
-      << "saveImageNode(<mythological script file path>\\..\\bar)" << std::endl
-      << "closeImageNode" << std::endl
+      << "scriptNode" << std::endl
+      << "   loadImageNode(Q:\\foo)" << std::endl
+      << "      saveImageNode(Q:\\bar)" << std::endl
+      << "      saveImageNode(<mythological script file path>\\..\\bar)" << std::endl
+      << "      closeImageNode" << std::endl
    ;
 
    auto copy = program.str();

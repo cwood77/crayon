@@ -2,5 +2,5 @@ load-image "proof-overlay.bmp":
    snip -> g
 
 load-image "scribble.bmp":
-   overlay $g rgb{0,0,0}
+   overlay $g rgb{255,255,255}
    save-image "out-scribbleWithOverlay.bmp"

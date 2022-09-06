@@ -70,6 +70,7 @@ CRAYON_SRC = \
 	src/crayon/executor.cpp \
 	src/crayon/log.cpp \
 	src/crayon/main.cpp \
+	src/crayon/symbolTable.cpp \
 	src/crayon/test.cpp \
 	src/frontend/ast.cpp \
 	src/frontend/attr.cpp \
