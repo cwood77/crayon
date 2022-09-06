@@ -110,6 +110,12 @@ public:
       m_pPtr = pPtr;
    }
 
+   T *leak()
+   {
+      m_pPtr->addref();
+      return m_pPtr;
+   }
+
    operator bool() { return !!m_pPtr; }
 
    T *operator->() { return m_pPtr; }

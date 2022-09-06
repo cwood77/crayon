@@ -131,6 +131,7 @@ int main(int,const char *[])
 
    auto *pFileHdr = (BITMAPFILEHEADER*)pBlock;
    ::printf("\n");
+   ::printf("bfType = %d\n",pFileHdr->bfType);
    ::printf("bfSize = %lu\n",pFileHdr->bfSize);
    ::printf("bfOffBits = %lu\n",pFileHdr->bfOffBits);
    ::printf("sizeof(header) = %llu\n",sizeof(BITMAPFILEHEADER));

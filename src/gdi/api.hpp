@@ -37,6 +37,9 @@ class bitmap : public iBitmap, public subObject {
 public:
    virtual iBlock *copy(iBlockFactory& f, iTransform *pT);
 
+   long width;
+   long height;
+
 cdwImplSubObject(bitmap);
 cdwImplAddrefRelease();
 };
@@ -45,6 +48,11 @@ class bmpFileType : public iFileType, public subObject {
 public:
    virtual iBitmap *loadBitmap(const char *path);
    virtual void saveBitmap(iBitmap& b, const char *path);
+
+private:
+   void populateStructs(long w, long h, BITMAPFILEHEADER& fHdr, BITMAPINFOHEADER& iHdr);
+   void checkCompatible(BITMAPFILEHEADER& hdr);
+   void checkCompatible(BITMAPINFOHEADER& hdr);
 
 cdwImplSubObject(bmpFileType);
 cdwImplAddrefRelease();
