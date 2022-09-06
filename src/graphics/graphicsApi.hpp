@@ -12,14 +12,14 @@ class iBlockFactory {
 
 class iTransform; // i.e. rotation
 
-class rect;
+/*class rect;
 
 class iFont {
 public:
    virtual ~iFont() {}
    virtual void addref() = 0;
    virtual void release() = 0;
-};
+};*/
 
 class iCanvas {
 public:
@@ -31,10 +31,12 @@ public:
 
    // draw text
 
+   /*
    virtual iCanvas *subset(rect& r) = 0; // bounds/remaps coordinates
+   */
 
    virtual iBlock *copy(iBlockFactory& f, iTransform *pT) = 0; // rotate (or not)
-   virtual void paste(iBlock *pB, size_t x, size_t y) = 0;
+   //virtual void paste(iBlock *pB, size_t x, size_t y) = 0;
 };
 
 class iBitmap : public iCanvas {
@@ -63,7 +65,7 @@ public:
    virtual void addref() = 0;
    virtual void release() = 0;
    virtual iFileType *createFileType(size_t i) = 0;
-   virtual iFont *createFont(const char *face, size_t size) = 0;
+   //virtual iFont *createFont(const char *face, size_t size) = 0;
 };
 
 class graphicsApiFactory {

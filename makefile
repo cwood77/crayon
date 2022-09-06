@@ -74,7 +74,7 @@ $(CRAYON_RELEASE_OBJ): $(OBJ_DIR)/release/%.o: src/%.cpp
 # gdiapi
 
 GDIAPI_SRC = \
-	src/gdi/api.cpp \
+	src/gdi/main.cpp \
 
 GDIAPI_DEBUG_OBJ = $(subst src,$(OBJ_DIR)/debug,$(patsubst %.cpp,%.o,$(GDIAPI_SRC)))
 

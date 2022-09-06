@@ -6,8 +6,8 @@ class api : public iGraphicsApi {
 public:
    virtual iFileType *createFileType(size_t i) { return NULL; }
 
-   virtual iFont *createFont(const char *face, size_t size)
-   { throw std::runtime_error("font not yet supported"); }
+   /*virtual iFont *createFont(const char *face, size_t size)
+   { throw std::runtime_error("font not yet supported"); }*/
 
 cdwImplAddrefRelease();
 };
