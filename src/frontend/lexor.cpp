@@ -27,13 +27,14 @@ lexor::lexor(const char *pText)
 , m_token(kEOI)
 , m_color(0)
 {
-   m_words["load-image"] = kHyphenatedWord;
-   m_words["save-image"] = kHyphenatedWord;
-   m_words["snip"]       = kHyphenatedWord;
-   m_words["overlay"]    = kHyphenatedWord;
-   m_words["->"]         = kArrow;
-   m_words["rgb{"]       = kColor;
-   m_words["   "]        = kIndent;
+   m_words["load-image"]      = kHyphenatedWord;
+   m_words["save-image"]      = kHyphenatedWord;
+   m_words["snip"]            = kHyphenatedWord;
+   m_words["overlay"]         = kHyphenatedWord;
+   m_words["remove-frame"]    = kHyphenatedWord;
+   m_words["->"]              = kArrow;
+   m_words["rgb{"]            = kColor;
+   m_words["   "]             = kIndent;
 
    advance();
 }

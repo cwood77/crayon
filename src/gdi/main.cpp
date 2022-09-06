@@ -21,6 +21,16 @@ iFileType *api::createFileType(size_t i)
    return new bmpFileType(*this);
 }
 
+COLORREF bitmap::getPixel(const point& p)
+{
+   return ::GetPixel(Api.dc,p.x,p.y);
+}
+
+void bitmap::setPixel(const point& p, COLORREF r)
+{
+   ::SetPixel(Api.dc,p.x,p.y,r);
+}
+
 iSnippet *bitmap::snip(iSnippetAllocator& a, iTransform& t)
 {
    long w = width;
@@ -32,7 +42,7 @@ iSnippet *bitmap::snip(iSnippetAllocator& a, iTransform& t)
    {
       for(long y=0;y<height;y++)
       {
-         COLORREF srcPix = ::GetPixel(Api.dc,x,y);
+         COLORREF srcPix = getPixel(point(x,y));
 
          point p(x,y);
          t.translateCoords(p);
@@ -55,7 +65,7 @@ void bitmap::overlay(iSnippet& s, COLORREF transparent)
       {
          auto& over = s.index(point(x,y));
          if(!over.is(transparent))
-            ::SetPixel(Api.dc,x,y,over.toColorref());
+            setPixel(point(x,y),over.toColorref());
       }
    }
 }

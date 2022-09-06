@@ -42,3 +42,10 @@ void dumpVisitor::visit(overlayNode& n)
    autoIndent _i(m_l);
    visitChildren(n);
 }
+
+void dumpVisitor::visit(removeFrameNode& n)
+{
+   m_l.s().s() << indent(m_l) << "removeFrameNode" << std::endl;
+   autoIndent _i(m_l);
+   visitChildren(n);
+}

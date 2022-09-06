@@ -16,6 +16,8 @@ bin\out\debug\crayon testdata\snip+overlay.cray > nul
 if not errorlevel 0 goto fail
 fc /b testdata\expected-scribbleWithOverlay.bmp testdata\out-scribbleWithOverlay.bmp > nul
 if not errorlevel 0 goto fail
+fc /b testdata\expected-scribbleWithOverlayDeFramed.bmp testdata\out-scribbleWithOverlayDeFramed.bmp > nul
+if not errorlevel 0 goto fail
 
 :win
 echo all clear

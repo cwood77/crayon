@@ -13,6 +13,19 @@ public:
    long y;
 };
 
+inline bool operator<(const point& lhs, const point& rhs)
+{
+   return (lhs.x == rhs.x) ? lhs.y < rhs.y : lhs.x < rhs.x;
+}
+
+class rect {
+public:
+   long x;
+   long y;
+   long w;
+   long h;
+};
+
 #pragma pack(push,1)
 class pixel {
 public:
@@ -80,9 +93,12 @@ public:
    virtual void addref() = 0;
    virtual void release() = 0;
 
-   // ?get dims
+   // get dims
+   virtual void getDims(long& w, long& h) = 0;
 
    // get/set pixel
+   virtual COLORREF getPixel(const point& p) = 0;
+   virtual void setPixel(const point& p, COLORREF r) = 0;
 
    // draw text - can't be done on a snippet!
 

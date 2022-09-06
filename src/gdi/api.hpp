@@ -35,6 +35,9 @@ public: \
 
 class bitmap : public iBitmap, public subObject {
 public:
+   virtual void getDims(long& w, long& h) { w = width; h = height; }
+   virtual COLORREF getPixel(const point& p);
+   virtual void setPixel(const point& p, COLORREF r);
    virtual iSnippet *snip(iSnippetAllocator& a, iTransform& t);
    virtual void overlay(iSnippet& s, COLORREF transparent);
 

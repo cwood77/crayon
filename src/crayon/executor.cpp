@@ -1,3 +1,4 @@
+#include "../graphics/algorithm.hpp"
 #include "../graphics/snippet.hpp"
 #include "executor.hpp"
 #include "log.hpp"
@@ -66,4 +67,12 @@ void executor::visit(overlayNode& n)
    auto& pSnip = m_sTable.demand(n.varName).as<snipSymbol>().pSnippet;
 
    attr.pImage->overlay(pSnip,n.transparent);
+}
+
+void executor::visit(removeFrameNode& n)
+{
+   m_log.s().s() << "removing frame" << std::endl;
+   auto& attr = n.root().fetch<graphicsAttribute>();
+
+   frameRemover::run(attr.pImage);
 }

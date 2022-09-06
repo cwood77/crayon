@@ -10,6 +10,7 @@ class saveImageNode;
 class closeImageNode;
 class snipNode;
 class overlayNode;
+class removeFrameNode;
 
 class iNodeVisitor {
 public:
@@ -19,6 +20,7 @@ public:
    virtual void visit(closeImageNode& n) = 0;
    virtual void visit(snipNode& n) = 0;
    virtual void visit(overlayNode& n) = 0;
+   virtual void visit(removeFrameNode& n) = 0;
 
 protected:
    void visitChildren(scriptNode& n);
@@ -99,4 +101,9 @@ public:
 
    std::string varName;
    size_t transparent;
+};
+
+class removeFrameNode : public scriptNode {
+public:
+   virtual void acceptVisitor(iNodeVisitor& v) { v.visit(*this); }
 };
