@@ -1,0 +1,3 @@
+load-image "x.bmp":
+   select-object 0 hilight
+   save-image "out-found.bmp"

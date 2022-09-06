@@ -40,6 +40,13 @@ lexor::lexor(const char *pText)
    advance();
 }
 
+size_t lexor::getCurrentLexemeAsNum() const
+{
+   size_t x;
+   ::sscanf(m_lexeme.c_str(),"%llu",&x);
+   return x;
+}
+
 void lexor::advance()
 {
    m_lexeme.clear();

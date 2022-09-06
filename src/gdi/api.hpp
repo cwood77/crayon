@@ -57,6 +57,7 @@ private:
    void populateStructs(long w, long h, BITMAPFILEHEADER& fHdr, BITMAPINFOHEADER& iHdr);
    void checkCompatible(BITMAPFILEHEADER& hdr);
    void checkCompatible(BITMAPINFOHEADER& hdr);
+   DWORD calculateMagicSize(long w, long h);
 
 cdwImplSubObject(bmpFileType);
 cdwImplAddrefRelease();

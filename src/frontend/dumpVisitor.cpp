@@ -52,7 +52,7 @@ void dumpVisitor::visit(removeFrameNode& n)
 
 void dumpVisitor::visit(selectObjectNode& n)
 {
-   m_l.s().s() << indent(m_l) << "selectObjectNode(" << n.n << ")" << std::endl;
+   m_l.s().s() << indent(m_l) << "selectObjectNode(" << n.n << "," << n.dbgHilight << ")" << std::endl;
    autoIndent _i(m_l);
    visitChildren(n);
 }

@@ -2,6 +2,27 @@
 #include <stdexcept>
 #include <string>
 
+void rect::growToInclude(const point& p)
+{
+   // X
+   if(p.x < x)
+   {
+      w += (x-p.x);
+      x = p.x;
+   }
+   else if(p.x > x+w)
+      w += (p.x - (x+w));
+
+   // Y
+   if(p.y < y)
+   {
+      h += (y-p.y);
+      y = p.y;
+   }
+   else if(p.y > y+h)
+      h += (p.y - (y+h));
+}
+
 graphicsApiFactory::graphicsApiFactory(iLog& l)
 : m_log(l)
 , m_api0(NULL)

@@ -33,7 +33,7 @@ iBitmap *bmpFileType::loadBitmap(const char *path)
 void bmpFileType::saveBitmap(iBitmap& _b, const char *path)
 {
    auto& b = dynamic_cast<bitmap&>(_b);
-   size_t imageSize = b.width * b.height * 3;
+   size_t imageSize = calculateMagicSize(b.width,b.height);
 
    BITMAPFILEHEADER fHdr;
    BITMAPINFO iHdrEtc;
@@ -63,7 +63,7 @@ void bmpFileType::saveBitmap(iBitmap& _b, const char *path)
 void bmpFileType::populateStructs(long w, long h, BITMAPFILEHEADER& fHdr, BITMAPINFOHEADER& iHdr)
 {
    fHdr.bfType = 19778;
-   fHdr.bfSize = w * h * 3 + 14 + 40;
+   fHdr.bfSize = calculateMagicSize(w,h) + 14 + 40;
    fHdr.bfReserved1 = 0;
    fHdr.bfReserved2 = 0;
    fHdr.bfOffBits = 14 + 40;
@@ -75,7 +75,7 @@ void bmpFileType::populateStructs(long w, long h, BITMAPFILEHEADER& fHdr, BITMAP
    iHdr.biPlanes = 1;
    iHdr.biBitCount = 24;
    iHdr.biCompression = 0;
-   iHdr.biSizeImage = w * h * 3;
+   iHdr.biSizeImage = calculateMagicSize(w,h);
    iHdr.biXPelsPerMeter = 0;
    iHdr.biYPelsPerMeter = 0;
    iHdr.biClrUsed = 0;
@@ -111,8 +111,7 @@ void bmpFileType::checkCompatible(BITMAPINFOHEADER& hdr)
    cdwRequireField(biClrUsed,0);
    cdwRequireField(biClrImportant,0);
 
-   // 24-bit BMP means 3 bytes per pixel
-   cdwRequireField(biSizeImage,(3ul * hdr.biWidth * hdr.biHeight));
+   cdwRequireField(biSizeImage,calculateMagicSize(hdr.biWidth,hdr.biHeight));
 
    //::printf("biSize = %ld\n",hdr.biSize);
    //::printf("biWidth = %ld\n",hdr.biWidth);
@@ -125,4 +124,12 @@ void bmpFileType::checkCompatible(BITMAPINFOHEADER& hdr)
    //::printf("biYPelsPerMeter = %ld\n",hdr.biYPelsPerMeter);
    //::printf("biClrUsed = %ld\n",hdr.biClrUsed);
    //::printf("biClrImportant = %ld\n",hdr.biClrImportant);
+}
+
+DWORD bmpFileType::calculateMagicSize(long w, long h)
+{
+   // for performance reasons, BMPs have a width that is DWORD-aligned
+   unsigned long stride = 3 * w; // 3 for 24-bits (i.e. 3 bytes)
+   unsigned long strideAligned = (stride + 0xE) & ~0xF;
+   return strideAligned * h;
 }

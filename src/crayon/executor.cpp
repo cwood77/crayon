@@ -82,4 +82,7 @@ void executor::visit(removeFrameNode& n)
 void executor::visit(selectObjectNode& n)
 {
    m_log.s().s() << "selecting object " << std::endl;
+   auto& attr = n.root().fetch<graphicsAttribute>();
+
+   objectFinder::run(attr.pCanvas,n.dbgHilight,m_log);
 }

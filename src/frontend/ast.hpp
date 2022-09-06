@@ -112,9 +112,10 @@ public:
 
 class selectObjectNode : public scriptNode {
 public:
-   selectObjectNode() : n(0) {}
+   selectObjectNode() : n(0), dbgHilight(false) {}
 
    virtual void acceptVisitor(iNodeVisitor& v) { v.visit(*this); }
 
    size_t n;
+   bool dbgHilight;
 };

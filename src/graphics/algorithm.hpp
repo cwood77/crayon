@@ -25,15 +25,19 @@ private:
 
 class objectFinder {
 public:
-   static void run(iCanvas& c, log& Log);
+   static void run(iCanvas& c, bool dbgHilight, log& Log);
 
 private:
    objectFinder(iCanvas& c, log& l);
 
-   void _run();
+   void _run(bool dbgHilight);
    size_t findAdjacentMembership(const point& p);
    void addToObject(const point& p, size_t i);
    size_t mergeObjectsIf(size_t oldObj, size_t newObj);
+
+   void makeBounds(size_t id, const point& p);
+
+   void hilight(const rect& r, COLORREF c);
 
    iCanvas& m_canvas;
    log& m_log;
@@ -43,4 +47,5 @@ private:
    size_t m_nextObjId;
    std::map<size_t,std::set<point> > m_objects;
    std::map<point,size_t> m_map;
+   std::map<size_t,rect> m_bounds;
 };

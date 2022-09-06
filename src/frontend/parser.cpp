@@ -103,7 +103,20 @@ void parser::parseImageBlock(scriptNode& n)
    {
       m_l.advance();
       auto *pNoob = new selectObjectNode;
-      pNoob->n = 0;
+
+      if(m_l.getCurrentToken() == lexor::kQuotedText)
+      {
+         pNoob->n = m_l.getCurrentLexemeAsNum();
+         m_l.advance();
+      }
+
+      if(m_l.getCurrentToken() == lexor::kQuotedText)
+      {
+         if(m_l.getCurrentLexeme() != "hilight")
+            throw std::runtime_error("usage: select-object [#] [hilight]");
+         pNoob->dbgHilight = true;
+         m_l.advance();
+      }
 
       n.addChild(*pNoob);
       parseImageBlock(n);
