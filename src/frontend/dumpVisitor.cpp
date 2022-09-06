@@ -1,6 +1,12 @@
 #include "../crayon/log.hpp"
 #include "dumpVisitor.hpp"
 
+void dumpVisitor::visit(scriptNode& n)
+{
+   m_l.s().s() << "scriptNode" << std::endl;
+   visitChildren(n);
+}
+
 void dumpVisitor::visit(loadImageNode& n)
 {
    m_l.s().s() << "loadImageNode(" << n.path << ")" << std::endl;

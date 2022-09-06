@@ -1,4 +1,5 @@
 #pragma once
+#include "attr.hpp"
 #include <stdexcept>
 #include <string>
 #include <vector>
@@ -10,6 +11,7 @@ class closeImageNode;
 
 class iNodeVisitor {
 public:
+   virtual void visit(scriptNode& n) = 0;
    virtual void visit(loadImageNode& n) = 0;
    virtual void visit(saveImageNode& n) = 0;
    virtual void visit(closeImageNode& n) = 0;
@@ -20,13 +22,20 @@ protected:
 
 class scriptNode {
 public:
-   scriptNode() : m_pParent(NULL) {}
+   scriptNode() : pAttrs(NULL), m_pParent(NULL) {}
    virtual ~scriptNode();
 
    scriptNode *getParent() { return m_pParent; }
    void addChild(scriptNode& n);
 
-   virtual void acceptVisitor(iNodeVisitor& v) = 0;
+   virtual void acceptVisitor(iNodeVisitor& v) { v.visit(*this); }
+
+   scriptNode& root()
+   {
+      if(!m_pParent)
+         return *this;
+      return m_pParent->root();
+   }
 
    template<class T>
    T& demandAncestor()
@@ -41,6 +50,11 @@ public:
    }
 
    std::vector<scriptNode*>& getChildren() { return m_children; }
+
+   attributeStore *pAttrs;
+
+   template<class A>
+   A& fetch() { return root().pAttrs->fetch<A>(*this); }
 
 private:
    scriptNode *m_pParent;

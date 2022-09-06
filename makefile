@@ -38,6 +38,7 @@ CRAYON_SRC = \
 	src/crayon/main.cpp \
 	src/crayon/test.cpp \
 	src/frontend/ast.cpp \
+	src/frontend/attr.cpp \
 	src/frontend/dumpVisitor.cpp \
 	src/frontend/lexor.cpp \
 	src/frontend/parser.cpp \
