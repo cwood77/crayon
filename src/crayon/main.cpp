@@ -28,7 +28,7 @@ int main(int argc, const char *argv[])
          std::unique_ptr<scriptNode> pRoot;
          {
             lexor l(blk.pBlock);
-            parser p(l);
+            parser p(l,argv[1]);
             pRoot.reset(p.parseFile());
          }
 

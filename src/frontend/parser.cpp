@@ -18,14 +18,18 @@ scriptNode *parser::parseFile()
    {
       m_l.advance();
       auto *pNoob = new loadImageNode;
+
+      m_l.demand(lexor::kQuotedText);
       pNoob->path = m_l.getCurrentLexeme();
+      adjustPathIf(pNoob->path);
       m_l.advance();
-      m_l.advance();
+
+      m_l.demandAndEat(lexor::kColon);
       pRoot.reset(pNoob);
       parseImageBlock(*pRoot.get());
    }
    else
-      throw std::runtime_error("ise");
+      throw std::runtime_error("parser error");
 
    return pRoot.release();
 }
@@ -45,11 +49,25 @@ void parser::parseImageBlock(scriptNode& n)
    {
       m_l.advance();
       auto *pNoob = new saveImageNode;
+
+      m_l.demand(lexor::kQuotedText);
       pNoob->path = m_l.getCurrentLexeme();
       m_l.advance();
+
       n.addChild(*pNoob);
       parseImageBlock(n);
    }
+}
+
+void parser::adjustPathIf(std::string& p)
+{
+   if(p.empty())
+      return;
+   if(p.length() > 2 && p.c_str()[1] == ':')
+      return; // absolute path
+
+   std::string fullPath = m_scriptPath + "\\..\\" + p;
+   p = fullPath;
 }
 
 #ifdef cdwTestBuild
@@ -71,7 +89,7 @@ cdwTest(loadsaveimage_parser_acceptance)
 
    auto copy = program.str();
    lexor l(copy.c_str());
-   parser p(l);
+   parser p(l,"<mythological script file path>");
    std::unique_ptr<scriptNode> pTree(p.parseFile());
 
    bufferLog logSink;

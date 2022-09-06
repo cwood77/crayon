@@ -21,6 +21,9 @@ public:
 
    void advance();
 
+   void demand(tokens t);
+   void demandAndEat(tokens t) { demand(t); advance(); }
+
 private:
    std::map<std::string,tokens> m_words;
    const char *m_pThumb;

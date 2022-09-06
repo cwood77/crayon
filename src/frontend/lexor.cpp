@@ -73,6 +73,17 @@ void lexor::advance()
    }
 }
 
+void lexor::demand(tokens t)
+{
+   if(t != getCurrentToken())
+   {
+      std::stringstream msg;
+      msg << "parser error: expected token " << getTokenName(t)
+         << ", but got token " << getTokenName(getCurrentToken());
+      throw std::runtime_error(msg.str().c_str());
+   }
+}
+
 #ifdef cdwTestBuild
 
 namespace _test {
