@@ -2,12 +2,14 @@
 #include "../graphics/graphicsApi.hpp"
 #include <stdexcept>
 
-class api : iGraphicsApi {
+class api : public iGraphicsApi {
 public:
-   virtual void addref() {}
-   virtual void release() {}
    virtual iFileType *createFileType(size_t i) { return NULL; }
-   virtual iFont *createFont(const char *face, size_t size) { return NULL; }
+
+   virtual iFont *createFont(const char *face, size_t size)
+   { throw std::runtime_error("font not yet supported"); }
+
+cdwImplAddrefRelease();
 };
 
 __declspec(dllexport) iGraphicsApi *create(iLog& l)

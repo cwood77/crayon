@@ -113,3 +113,22 @@ public:
 private:
    T *m_pPtr;
 };
+
+class refCnter {
+public:
+   refCnter() : m_rc(0) {}
+
+   void addref() { m_rc++; }
+   bool release() { return --m_rc == 0; }
+
+private:
+   size_t m_rc;
+};
+
+#define cdwImplAddrefRelease() \
+public: \
+   virtual void addref() { m_rc.addref(); } \
+   virtual void release() { if(m_rc.release()) delete this; } \
+private: \
+   refCnter m_rc; \
+
