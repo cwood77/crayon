@@ -99,6 +99,15 @@ void parser::parseImageBlock(scriptNode& n)
       n.addChild(*pNoob);
       parseImageBlock(n);
    }
+   else if(m_l.getCurrentToken() == lexor::kHyphenatedWord && m_l.getCurrentLexeme() == "select-object")
+   {
+      m_l.advance();
+      auto *pNoob = new selectObjectNode;
+      pNoob->n = 0;
+
+      n.addChild(*pNoob);
+      parseImageBlock(n);
+   }
 }
 
 void parser::adjustPathIf(std::string& p)

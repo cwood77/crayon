@@ -11,6 +11,7 @@ class closeImageNode;
 class snipNode;
 class overlayNode;
 class removeFrameNode;
+class selectObjectNode;
 
 class iNodeVisitor {
 public:
@@ -21,6 +22,7 @@ public:
    virtual void visit(snipNode& n) = 0;
    virtual void visit(overlayNode& n) = 0;
    virtual void visit(removeFrameNode& n) = 0;
+   virtual void visit(selectObjectNode& n) = 0;
 
 protected:
    void visitChildren(scriptNode& n);
@@ -106,4 +108,13 @@ public:
 class removeFrameNode : public scriptNode {
 public:
    virtual void acceptVisitor(iNodeVisitor& v) { v.visit(*this); }
+};
+
+class selectObjectNode : public scriptNode {
+public:
+   selectObjectNode() : n(0) {}
+
+   virtual void acceptVisitor(iNodeVisitor& v) { v.visit(*this); }
+
+   size_t n;
 };

@@ -49,3 +49,10 @@ void dumpVisitor::visit(removeFrameNode& n)
    autoIndent _i(m_l);
    visitChildren(n);
 }
+
+void dumpVisitor::visit(selectObjectNode& n)
+{
+   m_l.s().s() << indent(m_l) << "selectObjectNode(" << n.n << ")" << std::endl;
+   autoIndent _i(m_l);
+   visitChildren(n);
+}

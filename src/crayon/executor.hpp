@@ -9,6 +9,7 @@ class graphicsAttribute : public attribute {
 public:
    autoReleasePtr<iGraphicsApi> pApi;
    autoReleasePtr<iBitmap> pImage;
+   autoReleasePtr<iCanvas> pCanvas;
 };
 
 class executor : public iNodeVisitor {
@@ -23,6 +24,7 @@ public:
    virtual void visit(snipNode& n);
    virtual void visit(overlayNode& n);
    virtual void visit(removeFrameNode& n);
+   virtual void visit(selectObjectNode& n);
 
 private:
    log& m_log;

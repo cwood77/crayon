@@ -185,6 +185,8 @@ public:
       return m_pPtr;
    }
 
+   T *get() { return m_pPtr; }
+
    operator bool() { return !!m_pPtr; }
    operator T&() { return *m_pPtr; }
 
