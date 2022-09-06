@@ -31,6 +31,8 @@ scriptNode *parser::parseFile()
    else
       throw std::runtime_error("parser error");
 
+   m_l.demand(lexor::kEOI);
+
    return pRoot.release();
 }
 

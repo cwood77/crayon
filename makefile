@@ -77,6 +77,7 @@ CRAYON_SRC = \
 	src/frontend/lexor.cpp \
 	src/frontend/parser.cpp \
 	src/graphics/graphicsApi.cpp \
+	src/graphics/snippet.cpp \
 
 CRAYON_DEBUG_OBJ = $(subst src,$(OBJ_DIR)/debug,$(patsubst %.cpp,%.o,$(CRAYON_SRC)))
 

@@ -12,6 +12,8 @@ public:
    virtual void visit(loadImageNode& n);
    virtual void visit(saveImageNode& n);
    virtual void visit(closeImageNode& n);
+   virtual void visit(snipNode& n);
+   virtual void visit(overlayNode& n);
 
 private:
    log& m_l;

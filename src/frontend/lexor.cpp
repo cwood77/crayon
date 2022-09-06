@@ -79,7 +79,8 @@ void lexor::demand(tokens t)
    {
       std::stringstream msg;
       msg << "parser error: expected token " << getTokenName(t)
-         << ", but got token " << getTokenName(getCurrentToken());
+         << ", but got token " << getTokenName(getCurrentToken())
+         << " with '" << getCurrentLexeme() << "'";
       throw std::runtime_error(msg.str().c_str());
    }
 }

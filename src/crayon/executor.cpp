@@ -39,3 +39,13 @@ void executor::visit(closeImageNode& n)
 
    visitChildren(n);
 }
+
+void executor::visit(snipNode& n)
+{
+   throw std::runtime_error("unimpled");
+}
+
+void executor::visit(overlayNode& n)
+{
+   throw std::runtime_error("unimpled");
+}

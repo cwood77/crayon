@@ -24,3 +24,15 @@ void dumpVisitor::visit(closeImageNode& n)
    m_l.s().s() << "closeImageNode" << std::endl;
    visitChildren(n);
 }
+
+void dumpVisitor::visit(snipNode& n)
+{
+   m_l.s().s() << "snipNode" << std::endl;
+   visitChildren(n);
+}
+
+void dumpVisitor::visit(overlayNode& n)
+{
+   m_l.s().s() << "overlayNode" << std::endl;
+   visitChildren(n);
+}

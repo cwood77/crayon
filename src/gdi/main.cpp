@@ -21,9 +21,43 @@ iFileType *api::createFileType(size_t i)
    return new bmpFileType(*this);
 }
 
-iBlock *bitmap::copy(iBlockFactory& f, iTransform *pT)
+iSnippet *bitmap::snip(iSnippetAllocator& a, iTransform& t)
 {
-   throw std::runtime_error("unimpled 1");
+   long w = width;
+   long h = height;
+   t.translateDims(w,h);
+   autoReleasePtr<iSnippet> pSnippet(a.allocate(w,h));
+
+   for(long x=0;x<width;x++)
+   {
+      for(long y=0;y<height;y++)
+      {
+         COLORREF srcPix = ::GetPixel(Api.dc,x,y);
+
+         point p(x,y);
+         t.translateCoords(p);
+         auto& destPix = pSnippet->index(p);
+
+         destPix.set(srcPix);
+      }
+   }
+
+   return pSnippet.leak();
+}
+
+void bitmap::overlay(iSnippet& s, COLORREF transparent)
+{
+   long w,h;
+   s.getDims(w,h);
+   for(long x=0;x<w;x++)
+   {
+      for(long y=0;y<h;y++)
+      {
+         auto& over = s.index(point(x,y));
+         if(!over.is(transparent))
+            ::SetPixel(Api.dc,x,y,over.toColorref());
+      }
+   }
 }
 
 __declspec(dllexport) iGraphicsApi *create(iLog& l)

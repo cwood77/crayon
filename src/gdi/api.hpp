@@ -35,7 +35,8 @@ public: \
 
 class bitmap : public iBitmap, public subObject {
 public:
-   virtual iBlock *copy(iBlockFactory& f, iTransform *pT);
+   virtual iSnippet *snip(iSnippetAllocator& a, iTransform& t);
+   virtual void overlay(iSnippet& s, COLORREF transparent);
 
    long width;
    long height;

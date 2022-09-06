@@ -49,7 +49,8 @@ size_t inCFile::tell()
 void inCFile::read(size_t n, cFileBlock& blk)
 {
    delete blk.pBlock;
-   blk.pBlock = new char [n];
+   blk.pBlock = new char [n+1];
+   blk.pBlock[n] = 0;
 
    ::fread(blk.pBlock,n,1,m_fp);
 }

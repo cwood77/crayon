@@ -5,12 +5,63 @@
 
 class iLog;
 
-class iBlock;
+class point {
+public:
+   point(long _x, long _y) : x(_x), y(_y) {}
 
-class iBlockFactory {
+   long x;
+   long y;
 };
 
-class iTransform; // i.e. rotation
+#pragma pack(push,1)
+class pixel {
+public:
+   bool is(COLORREF c) const
+   {
+      return
+         r == GetRValue(c) &&
+         g == GetGValue(c) &&
+         b == GetBValue(c) ;
+   }
+
+   void set(COLORREF c)
+   {
+      r = GetRValue(c);
+      g = GetGValue(c);
+      b = GetBValue(c);
+   }
+
+   COLORREF toColorref()
+   {
+      return RGB(r,g,b);
+   }
+
+   unsigned char b;
+   unsigned char g;
+   unsigned char r;
+};
+#pragma pack(pop)
+
+class iSnippet {
+public:
+   virtual ~iSnippet() {}
+   virtual void addref() = 0;
+   virtual void release() = 0;
+
+   virtual void getDims(long& w, long& h) = 0;
+   virtual pixel& index(const point& p) = 0;
+};
+
+class iSnippetAllocator {
+public:
+   virtual iSnippet *allocate(long w, long h);
+};
+
+class iTransform {
+public:
+   virtual void translateDims(long& w, long& h) = 0;
+   virtual void translateCoords(point& p) = 0;
+};
 
 /*class rect;
 
@@ -21,22 +72,28 @@ public:
    virtual void release() = 0;
 };*/
 
+// anything with dimension and pixels
+// could be a bitmap, a snippet, or a subset of either
 class iCanvas {
 public:
    virtual ~iCanvas() {}
    virtual void addref() = 0;
    virtual void release() = 0;
 
+   // ?get dims
+
    // get/set pixel
 
-   // draw text
+   // draw text - can't be done on a snippet!
 
    /*
    virtual iCanvas *subset(rect& r) = 0; // bounds/remaps coordinates
    */
 
-   virtual iBlock *copy(iBlockFactory& f, iTransform *pT) = 0; // rotate (or not)
+   virtual iSnippet *snip(iSnippetAllocator& a, iTransform& t) = 0;
    //virtual void paste(iBlock *pB, size_t x, size_t y) = 0;
+
+   virtual void overlay(iSnippet& s, COLORREF transparent) = 0;
 };
 
 class iBitmap : public iCanvas {
@@ -44,10 +101,6 @@ public:
    virtual ~iBitmap() {}
    virtual void addref() = 0;
    virtual void release() = 0;
-
-   // get color depth
-
-   // get DPI
 };
 
 class iFileType {
