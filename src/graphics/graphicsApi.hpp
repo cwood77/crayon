@@ -88,10 +88,12 @@ private:
    bool m_success;
 };
 
+/*
 class objectFinder {
 public:
    static void find(iCanvas& c, rect& r);
 };
+*/
 
 template<class T>
 class autoReleasePtr {

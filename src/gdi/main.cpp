@@ -1,18 +1,32 @@
-#include "../crayon/log.hpp"
-#include "../graphics/graphicsApi.hpp"
-#include <stdexcept>
+#include "api.hpp"
 
-class api : public iGraphicsApi {
-public:
-   virtual iFileType *createFileType(size_t i) { return NULL; }
+api::api(iLog& l)
+: Log(l,"[gdi] "), dc(NULL)
+{
+   dc = ::CreateCompatibleDC(NULL);
+   Log.s().s() << "created DC " << (size_t)dc << std::endl;
+}
 
-   /*virtual iFont *createFont(const char *face, size_t size)
-   { throw std::runtime_error("font not yet supported"); }*/
+api::~api()
+{
+   Log.s().s() << "closing API" << std::endl;
+   if(dc)
+      ::DeleteDC(dc);
+}
 
-cdwImplAddrefRelease();
-};
+iFileType *api::createFileType(size_t i)
+{
+   if(i!=0)
+      throw std::runtime_error("don't know this file type");
+   return new bmpFileType(*this);
+}
+
+iBlock *bitmap::copy(iBlockFactory& f, iTransform *pT)
+{
+   throw std::runtime_error("unimpled 1");
+}
 
 __declspec(dllexport) iGraphicsApi *create(iLog& l)
 {
-   throw std::runtime_error("unsupported");
+   return new api(l);
 }

@@ -23,13 +23,15 @@ public:
 
 class log {
 public:
-   explicit log(iLog& l) : m_log(l), m_n(0) {}
+   explicit log(iLog& l, const std::string& prefix = "")
+   : m_prefix(prefix), m_log(l), m_n(0) {}
 
    tmpLog s() { return tmpLog(*this); }
 
-   void write(const std::string& msg) { m_log.write(msg.c_str()); }
+   void write(const std::string& msg) { m_log.write((m_prefix + msg).c_str()); }
 
 private:
+   const std::string m_prefix;
    iLog& m_log;
    size_t m_n;
 
@@ -45,7 +47,11 @@ public:
    log& m_l;
 };
 
-std::ostream& operator<<(std::ostream& s, const indent& i);
+inline std::ostream& operator<<(std::ostream& s, const indent& i)
+{
+   s << std::string(i.getN(),' ');
+   return s;
+}
 
 class autoIndent {
 public:
@@ -67,3 +73,8 @@ class coutLog : public iLog {
 public:
    virtual void write(const char *msg);
 };
+
+inline tmpLog::~tmpLog()
+{
+   m_log.write(m_s.str());
+}
