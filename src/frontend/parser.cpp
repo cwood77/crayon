@@ -135,4 +135,39 @@ cdwTest(loadsaveimage_parser_acceptance)
    cdwAssertEqu(expected.str(),logSink.buffer.str());
 }
 
+cdwTest(parser_indent)
+{
+   std::stringstream program,expected;
+   program
+      << "load-image \"Q:\\foo\":" << std::endl
+      << "   save-image \"Q:\\bar\"" << std::endl
+      << "load-image \"Q:\\foo\":" << std::endl
+      << "load-image \"Q:\\foo\":" << std::endl
+      << "   save-image \"Q:\\bar\"" << std::endl
+   ;
+   expected
+      << "scriptNode" << std::endl
+      << "   loadImageNode(Q:\\foo)" << std::endl
+      << "      saveImageNode(Q:\\bar)" << std::endl
+      << "      closeImageNode" << std::endl
+      << "   loadImageNode(Q:\\foo)" << std::endl
+      << "      closeImageNode" << std::endl
+      << "   loadImageNode(Q:\\foo)" << std::endl
+      << "      saveImageNode(Q:\\bar)" << std::endl
+      << "      closeImageNode" << std::endl
+   ;
+
+   auto copy = program.str();
+   lexor l(copy.c_str());
+   parser p(l,"<mythological script file path>");
+   std::unique_ptr<scriptNode> pTree(p.parseFile());
+
+   bufferLog logSink;
+   log Log(logSink);
+   dumpVisitor dumper(Log);
+   pTree->acceptVisitor(dumper);
+
+   cdwAssertEqu(expected.str(),logSink.buffer.str());
+}
+
 #endif // cdwTestBuild
