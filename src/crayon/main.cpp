@@ -1,13 +1,60 @@
-#include "ast.hpp"
-#include "lexor.hpp"
-#include "parser.hpp"
+#include "../frontend/ast.hpp"
+#include "../frontend/lexor.hpp"
+#include "../frontend/parser.hpp"
+#include "../graphics/graphicsApi.hpp"
+#include "cfile.hpp"
+#include "executor.hpp"
+#include "log.hpp"
 #include "test.hpp"
+#include <iostream>
+#include <memory>
 
-int main(int,const char *[])
+int main(int argc, const char *argv[])
 {
-   basicAsserter ba;
-   testBase::runAll(ba);
+   try
+   {
+      coutLog lSink;
+      log Log(lSink);
 
+      if(argc == (1+1) && argv[1] != std::string("test"))
+      {
+         // run script
+
+         // read file
+         cFileBlock blk;
+         inCFile::readAllContents(argv[1],blk);
+
+         // parse
+         std::unique_ptr<scriptNode> pRoot;
+         {
+            lexor l(blk.pBlock);
+            parser p(l);
+            pRoot.reset(p.parseFile());
+         }
+
+         // execute
+         attributeStore attrs;
+         attributeStoreBinding _asb(*pRoot.get(),attrs);
+         graphicsApiFactory graf(lSink);
+         executor xfrm(Log,graf);
+         pRoot->acceptVisitor(xfrm);
+
+         // teardown
+         graf.markSuccess();
+      }
+      else if(argc == (1+1) && argv[1] == std::string("test"))
+      {
+         // run tests
+         basicAsserter ba;
+         testBase::runAll(ba);
+      }
+      else
+         throw std::runtime_error("usage: crayon.exe <script> or crayon.exe 'test'");
+   }
+   catch(std::exception& x)
+   {
+      std::cout << "ERROR: " << x.what() << std::endl;
+   }
    return 0;
 }
 
