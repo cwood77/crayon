@@ -23,6 +23,7 @@ public:
    void advance();
 
    void demand(tokens t);
+   void demand(tokens t, const std::string& lexeme);
    void demandAndEat(tokens t) { demand(t); advance(); }
 
 private:

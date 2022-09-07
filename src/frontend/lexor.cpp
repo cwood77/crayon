@@ -32,6 +32,7 @@ lexor::lexor(const char *pText)
    m_words["remove-frame"]    = kHyphenatedWord;
    m_words["select-object"]   = kHyphenatedWord;
    m_words["crop"]            = kHyphenatedWord;
+   m_words["define"]          = kHyphenatedWord;
    m_words["->"]              = kArrow;
    m_words["   "]             = kIndent;
 
@@ -93,6 +94,18 @@ void lexor::demand(tokens t)
       msg << "parser error: expected token " << getTokenName(t)
          << ", but got token " << getTokenName(getCurrentToken())
          << " with '" << getCurrentLexeme() << "'";
+      throw std::runtime_error(msg.str().c_str());
+   }
+}
+
+void lexor::demand(tokens t, const std::string& lexeme)
+{
+   demand(t);
+   if(lexeme != getCurrentLexeme())
+   {
+      std::stringstream msg;
+      msg << "parser error: expected lexeme " << lexeme
+         << ", but got lexeme " << getCurrentLexeme();
       throw std::runtime_error(msg.str().c_str());
    }
 }

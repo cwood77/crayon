@@ -12,6 +12,15 @@ public:
    virtual std::string asString() const = 0;
 };
 
+class stringSymbol : public iSymbol {
+public:
+   explicit stringSymbol(const std::string& v) : value(v) {}
+
+   std::string value;
+
+   virtual std::string asString() const { return value; }
+};
+
 class snipSymbol : public iSymbol {
 public:
    autoReleasePtr<iSnippet> pSnippet;

@@ -14,7 +14,24 @@ void parser::parseFile()
 {
    while(m_l.getCurrentToken() != lexor::kEOI)
    {
-      if(m_l.getCurrentToken() == lexor::kHyphenatedWord && m_l.getCurrentLexeme() == "load-image")
+      if(m_l.getCurrentToken() == lexor::kHyphenatedWord && m_l.getCurrentLexeme() == "define")
+      {
+         m_l.advance();
+         auto *pNoob = new defineNode;
+
+         m_l.demand(lexor::kQuotedText);
+         pNoob->varName = m_l.getCurrentLexeme();
+         m_l.advance();
+
+         m_l.demand(lexor::kQuotedText,"=");
+         m_l.advance();
+
+         m_l.demand(lexor::kQuotedText);
+         pNoob->value = m_l.getCurrentLexeme();
+         m_l.advance();
+         m_root.addChild(*pNoob);
+      }
+      else if(m_l.getCurrentToken() == lexor::kHyphenatedWord && m_l.getCurrentLexeme() == "load-image")
       {
          m_l.advance();
          auto *pNoob = new loadImageNode;

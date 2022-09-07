@@ -58,7 +58,7 @@ std::string argEvaluator::getString()
    for(auto part : parts)
    {
       if(part.length() > 1 && part.c_str()[0] == '$')
-         out << m_sTable.demand(part.c_str()+1).asString();
+         out << m_sTable.demand(part.c_str()).asString();
       else
          out << part;
    }
