@@ -6,6 +6,7 @@
 
 static const char *gTokenNames[] = {
    "arrow",
+   "comment",
    "hyphenword",
    "quotedtext",
    "colon",
@@ -24,6 +25,7 @@ const char *lexor::getTokenName(tokens t)
 lexor::lexor(const char *pText)
 : m_pThumb(pText)
 , m_token(kEOI)
+, m_mode(kSuppressComments)
 {
    m_words["load-image"]      = kHyphenatedWord;
    m_words["save-image"]      = kHyphenatedWord;
@@ -39,7 +41,7 @@ lexor::lexor(const char *pText)
    advance();
 }
 
-void lexor::advance()
+void lexor::advance(modes m)
 {
    m_lexeme.clear();
 
@@ -69,6 +71,21 @@ void lexor::advance()
          }
 
          for(;*m_pThumb==' ';++m_pThumb); // eat whitespace
+      }
+
+      // comments
+      if(*m_pThumb == '#')
+      {
+         m_pThumb++;
+         // eat until newline
+         for(;*m_pThumb!=0&&*m_pThumb!='\r'&&*m_pThumb!='\n';++m_pThumb);
+         for(;*m_pThumb=='\r'||*m_pThumb=='\n';++m_pThumb); // eat newlines
+         m_token = kComment;
+
+         if(m == kSuppressComments)
+            advance(m);
+
+         return;
       }
 
       // assume quoted string
@@ -175,6 +192,50 @@ cdwTest(lexor_color_good)
    lexor l(copy.c_str());
    _test::lexorToString(l,actual);
    cdwAssertEqu(expected.str(),actual.str());
+}
+
+cdwTest(lexor_spacesnewlinescomments)
+{
+   std::stringstream program;
+   program
+      << "" << std::endl
+      << "   # aposdaposdok lkj l " << std::endl
+      << "foo # laks" << std::endl
+      << "" << std::endl
+      << "" << std::endl
+      << "bar" << std::endl
+   ;
+
+   std::stringstream expectedAllow,expectedSuppress;
+   expectedAllow
+      << "indent(   )" << std::endl
+      << "comment()" << std::endl
+      << "quotedtext(foo)" << std::endl
+      << "comment()" << std::endl
+      << "quotedtext(bar)" << std::endl
+      << "eoi()" << std::endl
+   ;
+   expectedSuppress
+      << "indent(   )" << std::endl
+      << "quotedtext(foo)" << std::endl
+      << "quotedtext(bar)" << std::endl
+      << "eoi()" << std::endl
+   ;
+
+   std::string copy = program.str();
+   {
+      std::stringstream actual;
+      lexor l(copy.c_str());
+      _test::lexorToString(l,actual);
+      cdwAssertEqu(expectedSuppress.str(),actual.str());
+   }
+   {
+      std::stringstream actual;
+      lexor l(copy.c_str());
+      l.setAdvanceMode(lexor::kAllowComments);
+      _test::lexorToString(l,actual);
+      cdwAssertEqu(expectedAllow.str(),actual.str());
+   }
 }
 
 #endif // cdwTestBuild

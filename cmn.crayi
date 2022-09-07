@@ -1,1 +1,2 @@
+# intrinsic colors
 define col.white = rgb{255,255,255}

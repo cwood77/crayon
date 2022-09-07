@@ -6,11 +6,17 @@ class lexor {
 public:
    enum tokens {
       kArrow,
+      kComment,
       kHyphenatedWord,
       kQuotedText,
       kColon,
       kIndent,
       kEOI
+   };
+
+   enum modes {
+      kAllowComments,
+      kSuppressComments
    };
 
    static const char *getTokenName(tokens t);
@@ -20,7 +26,9 @@ public:
    tokens getCurrentToken() const { return m_token; }
    const std::string& getCurrentLexeme() const { return m_lexeme; }
 
-   void advance();
+   void setAdvanceMode(modes m) { m_mode = m; }
+   void advance(modes m);
+   void advance() { advance(m_mode); }
 
    void demand(tokens t);
    void demand(tokens t, const std::string& lexeme);
@@ -31,4 +39,5 @@ private:
    const char *m_pThumb;
    tokens m_token;
    std::string m_lexeme;
+   modes m_mode;
 };

@@ -59,8 +59,13 @@ void parser::parseImageBlock(scriptNode& n)
       n.addChild(*pClose);
       return;
    }
-   m_l.advance();
+   m_l.advance(lexor::kAllowComments);
 
+   if(m_l.getCurrentToken() == lexor::kComment)
+   {
+      m_l.advance();
+      parseImageBlock(n);
+   }
    if(m_l.getCurrentToken() == lexor::kHyphenatedWord && m_l.getCurrentLexeme() == "save-image")
    {
       m_l.advance();
