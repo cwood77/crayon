@@ -27,6 +27,12 @@ if not errorlevel 0 goto fail
 fc /b testdata\expected-found3.bmp testdata\out-found3.bmp
 if not errorlevel 0 goto fail
 
+rem tick rects
+bin\out\debug\crayon testdata\place-glyph.cray > nul
+if not errorlevel 0 goto fail
+   rem calc-tick-rect / rgb{255,0,0} -> r
+   rem overlay $g rgb(255,255,255) $r
+
 :win
 echo all clear
 goto end
