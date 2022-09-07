@@ -1,0 +1,9 @@
+load-image "proof-overlay.bmp":
+   snip -> g
+
+load-image "scribble.bmp":
+   overlay $g rgb{255,255,255}
+   save-image "out-scribbleWithOverlay.bmp"
+
+   remove-frame
+   save-image "out-scribbleWithOverlayDeFramed.bmp"

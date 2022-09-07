@@ -1,1 +1,2 @@
-load-image "C:\Users\cwood\Desktop\game15 - dogwater\templates done\wind sketch.bmp":
+load-image "scribble.bmp":
+   save-image "out-scribble.bmp"

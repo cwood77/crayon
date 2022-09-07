@@ -1,0 +1,6 @@
+load-image "proof-overlay.bmp":
+   snip -> g
+
+load-image "card-template.bmp":
+   select-object 0 hilight
+   save-image "out-cardTemplateHilight.bmp"

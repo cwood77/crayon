@@ -8,6 +8,11 @@ class scriptNode;
 class loadImageNode;
 class saveImageNode;
 class closeImageNode;
+class snipNode;
+class overlayNode;
+class removeFrameNode;
+class selectObjectNode;
+class cropNode;
 
 class iNodeVisitor {
 public:
@@ -15,6 +20,11 @@ public:
    virtual void visit(loadImageNode& n) = 0;
    virtual void visit(saveImageNode& n) = 0;
    virtual void visit(closeImageNode& n) = 0;
+   virtual void visit(snipNode& n) = 0;
+   virtual void visit(overlayNode& n) = 0;
+   virtual void visit(removeFrameNode& n) = 0;
+   virtual void visit(selectObjectNode& n) = 0;
+   virtual void visit(cropNode& n) = 0;
 
 protected:
    void visitChildren(scriptNode& n);
@@ -78,6 +88,41 @@ public:
 };
 
 class closeImageNode : public scriptNode {
+public:
+   virtual void acceptVisitor(iNodeVisitor& v) { v.visit(*this); }
+};
+
+class snipNode : public scriptNode {
+public:
+   virtual void acceptVisitor(iNodeVisitor& v) { v.visit(*this); }
+
+   std::string varName;
+};
+
+class overlayNode : public scriptNode {
+public:
+   virtual void acceptVisitor(iNodeVisitor& v) { v.visit(*this); }
+
+   std::string varName;
+   size_t transparent;
+};
+
+class removeFrameNode : public scriptNode {
+public:
+   virtual void acceptVisitor(iNodeVisitor& v) { v.visit(*this); }
+};
+
+class selectObjectNode : public scriptNode {
+public:
+   selectObjectNode() : n(0), dbgHilight(false) {}
+
+   virtual void acceptVisitor(iNodeVisitor& v) { v.visit(*this); }
+
+   size_t n;
+   bool dbgHilight;
+};
+
+class cropNode : public scriptNode {
 public:
    virtual void acceptVisitor(iNodeVisitor& v) { v.visit(*this); }
 };

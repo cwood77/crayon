@@ -1,8 +1,12 @@
+#define WIN32_LEAN_AND_MEAN
 #include "../crayon/test.hpp"
 #include "lexor.hpp"
 #include <cstring>
+#include <windows.h>
 
 static const char *gTokenNames[] = {
+   "arrow",
+   "color",
    "hyphenword",
    "quotedtext",
    "colon",
@@ -21,12 +25,27 @@ const char *lexor::getTokenName(tokens t)
 lexor::lexor(const char *pText)
 : m_pThumb(pText)
 , m_token(kEOI)
+, m_color(0)
 {
-   m_words["load-image"] = kHyphenatedWord;
-   m_words["save-image"] = kHyphenatedWord;
-   m_words["   "] = kIndent;
+   m_words["load-image"]      = kHyphenatedWord;
+   m_words["save-image"]      = kHyphenatedWord;
+   m_words["snip"]            = kHyphenatedWord;
+   m_words["overlay"]         = kHyphenatedWord;
+   m_words["remove-frame"]    = kHyphenatedWord;
+   m_words["select-object"]   = kHyphenatedWord;
+   m_words["crop"]            = kHyphenatedWord;
+   m_words["->"]              = kArrow;
+   m_words["rgb{"]            = kColor;
+   m_words["   "]             = kIndent;
 
    advance();
+}
+
+size_t lexor::getCurrentLexemeAsNum() const
+{
+   size_t x;
+   ::sscanf(m_lexeme.c_str(),"%llu",&x);
+   return x;
 }
 
 void lexor::advance()
@@ -44,19 +63,34 @@ void lexor::advance()
       m_token = kEOI;
    else
    {
-      // check word bank
-      for(auto it=m_words.begin();it!=m_words.end();++it)
+      for(size_t i=0;i<2;i++)
       {
-         if(::strncmp(m_pThumb,it->first.c_str(),it->first.length())==0)
+         // check word bank
+         for(auto it=m_words.begin();it!=m_words.end();++it)
          {
-            m_pThumb += it->first.length();
-            m_lexeme = it->first;
-            m_token = it->second;
-            return;
+            if(::strncmp(m_pThumb,it->first.c_str(),it->first.length())==0)
+            {
+               m_pThumb += it->first.length();
+               m_lexeme = it->first;
+               m_token = it->second;
+               if(m_token == kColor)
+               {
+                  // extra post-processing for colors
+                  const char *pEnd = m_pThumb;
+                  for(;*pEnd&&*pEnd!='}';++pEnd);
+                  if(*pEnd!='}') throw std::runtime_error("unterminated color");
+                  unsigned long r,g,b;
+                  auto rval = ::sscanf(m_pThumb,"%lu,%lu,%lu",&r,&g,&b);
+                  if(rval != 3) throw std::runtime_error("can't parse color");
+                  m_color = RGB(r,g,b);
+                  m_pThumb = pEnd+1;
+               }
+               return;
+            }
          }
-      }
 
-      for(;*m_pThumb==' ';++m_pThumb); // eat whitespace
+         for(;*m_pThumb==' ';++m_pThumb); // eat whitespace
+      }
 
       // assume quoted string
       m_token = kQuotedText;
@@ -65,11 +99,23 @@ void lexor::advance()
          m_pThumb++;
       char term = hasQuote ? '"' : ' ';
       const char *pEnd = m_pThumb;
-      for(;*pEnd!=0&&*pEnd!=term;++pEnd);
+      for(;*pEnd!=0&&*pEnd!='\r'&&*pEnd!='\n'&&*pEnd!=term;++pEnd);
       m_lexeme = std::string(m_pThumb,pEnd-m_pThumb);
       if(hasQuote && *pEnd != '"')
             throw std::runtime_error("unterminated string literal");
       m_pThumb = hasQuote ? pEnd+1 : pEnd;
+   }
+}
+
+void lexor::demand(tokens t)
+{
+   if(t != getCurrentToken())
+   {
+      std::stringstream msg;
+      msg << "parser error: expected token " << getTokenName(t)
+         << ", but got token " << getTokenName(getCurrentToken())
+         << " with '" << getCurrentLexeme() << "'";
+      throw std::runtime_error(msg.str().c_str());
    }
 }
 
@@ -117,6 +163,28 @@ cdwTest(loadsaveimage_lexor_acceptance)
    lexor l(copy.c_str());
    _test::lexorToString(l,actual);
    cdwAssertEqu(expected.str(),actual.str());
+}
+
+cdwTest(lexor_color_good)
+{
+   std::stringstream program;
+   program
+      << "rgb{1,2,3} -> foo" << std::endl
+   ;
+
+   std::stringstream expected,actual;
+   expected
+      << "color(rgb{)" << std::endl
+      << "arrow(->)" << std::endl
+      << "quotedtext(foo)" << std::endl
+      << "eoi()" << std::endl
+   ;
+
+   std::string copy = program.str();
+   lexor l(copy.c_str());
+   _test::lexorToString(l,actual);
+   cdwAssertEqu(expected.str(),actual.str());
+   cdwAssertEqu((size_t)RGB(1,2,3),l.getCurrentColorRef());
 }
 
 #endif // cdwTestBuild

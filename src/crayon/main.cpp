@@ -5,6 +5,7 @@
 #include "cfile.hpp"
 #include "executor.hpp"
 #include "log.hpp"
+#include "symbolTable.hpp"
 #include "test.hpp"
 #include <iostream>
 #include <memory>
@@ -28,7 +29,7 @@ int main(int argc, const char *argv[])
          std::unique_ptr<scriptNode> pRoot;
          {
             lexor l(blk.pBlock);
-            parser p(l);
+            parser p(l,argv[1]);
             pRoot.reset(p.parseFile());
          }
 
@@ -36,7 +37,8 @@ int main(int argc, const char *argv[])
          attributeStore attrs;
          attributeStoreBinding _asb(*pRoot.get(),attrs);
          graphicsApiFactory graf(lSink);
-         executor xfrm(Log,graf);
+         symbolTable sTable;
+         executor xfrm(Log,graf,sTable);
          pRoot->acceptVisitor(xfrm);
 
          // teardown
@@ -53,7 +55,8 @@ int main(int argc, const char *argv[])
    }
    catch(std::exception& x)
    {
-      std::cout << "ERROR: " << x.what() << std::endl;
+      std::cerr << "ERROR: " << x.what() << std::endl;
+      return -1;
    }
    return 0;
 }
@@ -131,6 +134,7 @@ int main(int,const char *[])
 
    auto *pFileHdr = (BITMAPFILEHEADER*)pBlock;
    ::printf("\n");
+   ::printf("bfType = %d\n",pFileHdr->bfType);
    ::printf("bfSize = %lu\n",pFileHdr->bfSize);
    ::printf("bfOffBits = %lu\n",pFileHdr->bfOffBits);
    ::printf("sizeof(header) = %llu\n",sizeof(BITMAPFILEHEADER));
