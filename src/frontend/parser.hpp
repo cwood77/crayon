@@ -17,9 +17,10 @@ class scriptNode;
 //
 class parser {
 public:
-   parser(lexor& l, const std::string& scriptPath) : m_l(l), m_scriptPath(scriptPath) {}
+   parser(lexor& l, const std::string& scriptPath, scriptNode& root)
+   : m_l(l), m_scriptPath(scriptPath), m_root(root) {}
 
-   scriptNode *parseFile();
+   void parseFile();
 
 private:
    void parseImageBlock(scriptNode& n);
@@ -28,4 +29,5 @@ private:
 
    lexor& m_l;
    std::string m_scriptPath;
+   scriptNode& m_root;
 };

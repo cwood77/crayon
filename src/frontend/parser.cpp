@@ -10,10 +10,8 @@
 #include "dumpVisitor.hpp"
 #endif // cdwTestBuild
 
-scriptNode *parser::parseFile()
+void parser::parseFile()
 {
-   std::unique_ptr<scriptNode> pRoot(new scriptNode());
-
    while(m_l.getCurrentToken() != lexor::kEOI)
    {
       if(m_l.getCurrentToken() == lexor::kHyphenatedWord && m_l.getCurrentLexeme() == "load-image")
@@ -27,14 +25,12 @@ scriptNode *parser::parseFile()
          m_l.advance();
 
          m_l.demandAndEat(lexor::kColon);
-         pRoot->addChild(*pNoob);
+         m_root.addChild(*pNoob);
          parseImageBlock(*pNoob);
       }
       else
          throw std::runtime_error("parser error");
    }
-
-   return pRoot.release();
 }
 
 void parser::parseImageBlock(scriptNode& n)
@@ -162,8 +158,9 @@ cdwTest(loadsaveimage_parser_acceptance)
 
    auto copy = program.str();
    lexor l(copy.c_str());
-   parser p(l,"<mythological script file path>");
-   std::unique_ptr<scriptNode> pTree(p.parseFile());
+   std::unique_ptr<scriptNode> pTree(new scriptNode());
+   parser p(l,"<mythological script file path>",*pTree.get());
+   p.parseFile();
 
    bufferLog logSink;
    log Log(logSink);
@@ -197,8 +194,9 @@ cdwTest(parser_indent)
 
    auto copy = program.str();
    lexor l(copy.c_str());
-   parser p(l,"<mythological script file path>");
-   std::unique_ptr<scriptNode> pTree(p.parseFile());
+   std::unique_ptr<scriptNode> pTree(new scriptNode());
+   parser p(l,"<mythological script file path>",*pTree.get());
+   p.parseFile();
 
    bufferLog logSink;
    log Log(logSink);
