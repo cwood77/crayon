@@ -76,6 +76,7 @@ CRAYON_SRC = \
 	src/frontend/attr.cpp \
 	src/frontend/crawler.cpp \
 	src/frontend/dumpVisitor.cpp \
+	src/frontend/eval.cpp \
 	src/frontend/lexor.cpp \
 	src/frontend/parser.cpp \
 	src/graphics/algorithm.cpp \

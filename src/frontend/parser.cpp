@@ -80,8 +80,8 @@ void parser::parseImageBlock(scriptNode& n)
       pNoob->varName = m_l.getCurrentLexeme();
       m_l.advance();
 
-      m_l.demand(lexor::kColor);
-      pNoob->transparent = m_l.getCurrentColorRef();
+      m_l.demand(lexor::kQuotedText);
+      pNoob->transparent = m_l.getCurrentLexeme();
       m_l.advance();
 
       n.addChild(*pNoob);
@@ -102,7 +102,7 @@ void parser::parseImageBlock(scriptNode& n)
 
       if(m_l.getCurrentToken() == lexor::kQuotedText)
       {
-         pNoob->n = m_l.getCurrentLexemeAsNum();
+         pNoob->n = m_l.getCurrentLexeme();
          m_l.advance();
       }
 

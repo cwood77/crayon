@@ -1,3 +1,4 @@
+#include "../frontend/eval.hpp"
 #include "../graphics/algorithm.hpp"
 #include "../graphics/snippet.hpp"
 #include "executor.hpp"
@@ -68,7 +69,7 @@ void executor::visit(overlayNode& n)
 
    auto& pSnip = m_sTable.demand(n.varName).as<snipSymbol>().pSnippet;
 
-   attr.pCanvas->overlay(pSnip,n.transparent);
+   attr.pCanvas->overlay(pSnip,argEvaluator(m_sTable,n.transparent).getColor());
 }
 
 void executor::visit(removeFrameNode& n)
@@ -84,7 +85,11 @@ void executor::visit(selectObjectNode& n)
    m_log.s().s() << "selecting object " << std::endl;
    auto& attr = n.root().fetch<graphicsAttribute>();
 
-   rect r = objectFinder::run(attr.pCanvas,n.n,n.dbgHilight,m_log);
+   rect r = objectFinder::run(
+      attr.pCanvas,
+      argEvaluator(m_sTable,n.n).getNum(),
+      n.dbgHilight,
+      m_log);
    attr.pCanvas.reset(attr.pCanvas->subset(r));
 }
 

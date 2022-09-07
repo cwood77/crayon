@@ -104,7 +104,7 @@ public:
    virtual void acceptVisitor(iNodeVisitor& v) { v.visit(*this); }
 
    std::string varName;
-   size_t transparent;
+   std::string transparent;
 };
 
 class removeFrameNode : public scriptNode {
@@ -114,11 +114,11 @@ public:
 
 class selectObjectNode : public scriptNode {
 public:
-   selectObjectNode() : n(0), dbgHilight(false) {}
+   selectObjectNode() : n("0"), dbgHilight(false) {}
 
    virtual void acceptVisitor(iNodeVisitor& v) { v.visit(*this); }
 
-   size_t n;
+   std::string n;
    bool dbgHilight;
 };
 

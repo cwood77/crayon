@@ -1,6 +1,11 @@
 #include "symbolTable.hpp"
 #include <stdexcept>
 
+std::string snipSymbol::asString() const
+{
+   throw std::runtime_error("can't convert a snippet to a string");
+}
+
 symbolTable::~symbolTable()
 {
    for(auto it=m_pSymbols.begin();it!=m_pSymbols.end();++it)
