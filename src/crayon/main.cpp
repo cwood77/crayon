@@ -1,4 +1,5 @@
 #include "../frontend/ast.hpp"
+#include "../frontend/crawler.hpp"
 #include "../frontend/lexor.hpp"
 #include "../frontend/parser.hpp"
 #include "../graphics/graphicsApi.hpp"
@@ -21,28 +22,42 @@ int main(int argc, const char *argv[])
       {
          // run script
 
-         // read file
-         cFileBlock blk;
-         inCFile::readAllContents(argv[1],blk);
+         // setup root
+         graphicsApiFactory graf(lSink);
+         attributeStore attrs;
+         std::unique_ptr<scriptNode> pRoot(new scriptNode());
+         attributeStoreBinding _asb(*pRoot.get(),attrs);
 
-         // parse
-         std::unique_ptr<scriptNode> pRoot;
+         // find all scripts
+         std::list<std::string> allScriptPaths;
+         crawler::crawl(argv[1],allScriptPaths,Log);
+         allScriptPaths.push_back(argv[1]);
+
+         for(auto scriptPath : allScriptPaths)
          {
-            lexor l(blk.pBlock);
-            parser p(l,argv[1]);
-            pRoot.reset(p.parseFile());
+            Log.s().s() << "parsing " << scriptPath << std::endl;
+
+            // read file
+            cFileBlock blk;
+            inCFile::readAllContents(scriptPath,blk);
+
+            // parse
+            {
+               lexor l(blk.pBlock);
+               parser p(l,scriptPath,*pRoot.get());
+               p.parseFile();
+            }
          }
 
          // execute
-         attributeStore attrs;
-         attributeStoreBinding _asb(*pRoot.get(),attrs);
-         graphicsApiFactory graf(lSink);
          symbolTable sTable;
          executor xfrm(Log,graf,sTable);
          pRoot->acceptVisitor(xfrm);
 
          // teardown
          graf.markSuccess();
+
+         Log.s().s() << "leaving" << std::endl;
       }
       else if(argc == (1+1) && argv[1] == std::string("test"))
       {

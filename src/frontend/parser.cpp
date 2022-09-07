@@ -10,13 +10,28 @@
 #include "dumpVisitor.hpp"
 #endif // cdwTestBuild
 
-scriptNode *parser::parseFile()
+void parser::parseFile()
 {
-   std::unique_ptr<scriptNode> pRoot(new scriptNode());
-
    while(m_l.getCurrentToken() != lexor::kEOI)
    {
-      if(m_l.getCurrentToken() == lexor::kHyphenatedWord && m_l.getCurrentLexeme() == "load-image")
+      if(m_l.getCurrentToken() == lexor::kHyphenatedWord && m_l.getCurrentLexeme() == "define")
+      {
+         m_l.advance();
+         auto *pNoob = new defineNode;
+
+         m_l.demand(lexor::kQuotedText);
+         pNoob->varName = m_l.getCurrentLexeme();
+         m_l.advance();
+
+         m_l.demand(lexor::kQuotedText,"=");
+         m_l.advance();
+
+         m_l.demand(lexor::kQuotedText);
+         pNoob->value = m_l.getCurrentLexeme();
+         m_l.advance();
+         m_root.addChild(*pNoob);
+      }
+      else if(m_l.getCurrentToken() == lexor::kHyphenatedWord && m_l.getCurrentLexeme() == "load-image")
       {
          m_l.advance();
          auto *pNoob = new loadImageNode;
@@ -27,14 +42,12 @@ scriptNode *parser::parseFile()
          m_l.advance();
 
          m_l.demandAndEat(lexor::kColon);
-         pRoot->addChild(*pNoob);
+         m_root.addChild(*pNoob);
          parseImageBlock(*pNoob);
       }
       else
          throw std::runtime_error("parser error");
    }
-
-   return pRoot.release();
 }
 
 void parser::parseImageBlock(scriptNode& n)
@@ -46,8 +59,13 @@ void parser::parseImageBlock(scriptNode& n)
       n.addChild(*pClose);
       return;
    }
-   m_l.advance();
+   m_l.advance(lexor::kAllowComments);
 
+   if(m_l.getCurrentToken() == lexor::kComment)
+   {
+      m_l.advance();
+      parseImageBlock(n);
+   }
    if(m_l.getCurrentToken() == lexor::kHyphenatedWord && m_l.getCurrentLexeme() == "save-image")
    {
       m_l.advance();
@@ -84,8 +102,8 @@ void parser::parseImageBlock(scriptNode& n)
       pNoob->varName = m_l.getCurrentLexeme();
       m_l.advance();
 
-      m_l.demand(lexor::kColor);
-      pNoob->transparent = m_l.getCurrentColorRef();
+      m_l.demand(lexor::kQuotedText);
+      pNoob->transparent = m_l.getCurrentLexeme();
       m_l.advance();
 
       n.addChild(*pNoob);
@@ -106,7 +124,7 @@ void parser::parseImageBlock(scriptNode& n)
 
       if(m_l.getCurrentToken() == lexor::kQuotedText)
       {
-         pNoob->n = m_l.getCurrentLexemeAsNum();
+         pNoob->n = m_l.getCurrentLexeme();
          m_l.advance();
       }
 
@@ -162,8 +180,9 @@ cdwTest(loadsaveimage_parser_acceptance)
 
    auto copy = program.str();
    lexor l(copy.c_str());
-   parser p(l,"<mythological script file path>");
-   std::unique_ptr<scriptNode> pTree(p.parseFile());
+   std::unique_ptr<scriptNode> pTree(new scriptNode());
+   parser p(l,"<mythological script file path>",*pTree.get());
+   p.parseFile();
 
    bufferLog logSink;
    log Log(logSink);
@@ -197,8 +216,9 @@ cdwTest(parser_indent)
 
    auto copy = program.str();
    lexor l(copy.c_str());
-   parser p(l,"<mythological script file path>");
-   std::unique_ptr<scriptNode> pTree(p.parseFile());
+   std::unique_ptr<scriptNode> pTree(new scriptNode());
+   parser p(l,"<mythological script file path>",*pTree.get());
+   p.parseFile();
 
    bufferLog logSink;
    log Log(logSink);

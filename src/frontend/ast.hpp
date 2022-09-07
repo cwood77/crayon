@@ -13,6 +13,7 @@ class overlayNode;
 class removeFrameNode;
 class selectObjectNode;
 class cropNode;
+class defineNode;
 
 class iNodeVisitor {
 public:
@@ -25,6 +26,7 @@ public:
    virtual void visit(removeFrameNode& n) = 0;
    virtual void visit(selectObjectNode& n) = 0;
    virtual void visit(cropNode& n) = 0;
+   virtual void visit(defineNode& n) = 0;
 
 protected:
    void visitChildren(scriptNode& n);
@@ -104,7 +106,7 @@ public:
    virtual void acceptVisitor(iNodeVisitor& v) { v.visit(*this); }
 
    std::string varName;
-   size_t transparent;
+   std::string transparent;
 };
 
 class removeFrameNode : public scriptNode {
@@ -114,15 +116,23 @@ public:
 
 class selectObjectNode : public scriptNode {
 public:
-   selectObjectNode() : n(0), dbgHilight(false) {}
+   selectObjectNode() : n("0"), dbgHilight(false) {}
 
    virtual void acceptVisitor(iNodeVisitor& v) { v.visit(*this); }
 
-   size_t n;
+   std::string n;
    bool dbgHilight;
 };
 
 class cropNode : public scriptNode {
 public:
    virtual void acceptVisitor(iNodeVisitor& v) { v.visit(*this); }
+};
+
+class defineNode : public scriptNode {
+public:
+   virtual void acceptVisitor(iNodeVisitor& v) { v.visit(*this); }
+
+   std::string varName;
+   std::string value;
 };

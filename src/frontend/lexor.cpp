@@ -6,7 +6,7 @@
 
 static const char *gTokenNames[] = {
    "arrow",
-   "color",
+   "comment",
    "hyphenword",
    "quotedtext",
    "colon",
@@ -25,7 +25,7 @@ const char *lexor::getTokenName(tokens t)
 lexor::lexor(const char *pText)
 : m_pThumb(pText)
 , m_token(kEOI)
-, m_color(0)
+, m_mode(kSuppressComments)
 {
    m_words["load-image"]      = kHyphenatedWord;
    m_words["save-image"]      = kHyphenatedWord;
@@ -34,21 +34,14 @@ lexor::lexor(const char *pText)
    m_words["remove-frame"]    = kHyphenatedWord;
    m_words["select-object"]   = kHyphenatedWord;
    m_words["crop"]            = kHyphenatedWord;
+   m_words["define"]          = kHyphenatedWord;
    m_words["->"]              = kArrow;
-   m_words["rgb{"]            = kColor;
    m_words["   "]             = kIndent;
 
    advance();
 }
 
-size_t lexor::getCurrentLexemeAsNum() const
-{
-   size_t x;
-   ::sscanf(m_lexeme.c_str(),"%llu",&x);
-   return x;
-}
-
-void lexor::advance()
+void lexor::advance(modes m)
 {
    m_lexeme.clear();
 
@@ -73,23 +66,26 @@ void lexor::advance()
                m_pThumb += it->first.length();
                m_lexeme = it->first;
                m_token = it->second;
-               if(m_token == kColor)
-               {
-                  // extra post-processing for colors
-                  const char *pEnd = m_pThumb;
-                  for(;*pEnd&&*pEnd!='}';++pEnd);
-                  if(*pEnd!='}') throw std::runtime_error("unterminated color");
-                  unsigned long r,g,b;
-                  auto rval = ::sscanf(m_pThumb,"%lu,%lu,%lu",&r,&g,&b);
-                  if(rval != 3) throw std::runtime_error("can't parse color");
-                  m_color = RGB(r,g,b);
-                  m_pThumb = pEnd+1;
-               }
                return;
             }
          }
 
          for(;*m_pThumb==' ';++m_pThumb); // eat whitespace
+      }
+
+      // comments
+      if(*m_pThumb == '#')
+      {
+         m_pThumb++;
+         // eat until newline
+         for(;*m_pThumb!=0&&*m_pThumb!='\r'&&*m_pThumb!='\n';++m_pThumb);
+         for(;*m_pThumb=='\r'||*m_pThumb=='\n';++m_pThumb); // eat newlines
+         m_token = kComment;
+
+         if(m == kSuppressComments)
+            advance(m);
+
+         return;
       }
 
       // assume quoted string
@@ -115,6 +111,18 @@ void lexor::demand(tokens t)
       msg << "parser error: expected token " << getTokenName(t)
          << ", but got token " << getTokenName(getCurrentToken())
          << " with '" << getCurrentLexeme() << "'";
+      throw std::runtime_error(msg.str().c_str());
+   }
+}
+
+void lexor::demand(tokens t, const std::string& lexeme)
+{
+   demand(t);
+   if(lexeme != getCurrentLexeme())
+   {
+      std::stringstream msg;
+      msg << "parser error: expected lexeme " << lexeme
+         << ", but got lexeme " << getCurrentLexeme();
       throw std::runtime_error(msg.str().c_str());
    }
 }
@@ -174,7 +182,7 @@ cdwTest(lexor_color_good)
 
    std::stringstream expected,actual;
    expected
-      << "color(rgb{)" << std::endl
+      << "quotedtext(rgb{1,2,3})" << std::endl
       << "arrow(->)" << std::endl
       << "quotedtext(foo)" << std::endl
       << "eoi()" << std::endl
@@ -184,7 +192,50 @@ cdwTest(lexor_color_good)
    lexor l(copy.c_str());
    _test::lexorToString(l,actual);
    cdwAssertEqu(expected.str(),actual.str());
-   cdwAssertEqu((size_t)RGB(1,2,3),l.getCurrentColorRef());
+}
+
+cdwTest(lexor_spacesnewlinescomments)
+{
+   std::stringstream program;
+   program
+      << "" << std::endl
+      << "   # aposdaposdok lkj l " << std::endl
+      << "foo # laks" << std::endl
+      << "" << std::endl
+      << "" << std::endl
+      << "bar" << std::endl
+   ;
+
+   std::stringstream expectedAllow,expectedSuppress;
+   expectedAllow
+      << "indent(   )" << std::endl
+      << "comment()" << std::endl
+      << "quotedtext(foo)" << std::endl
+      << "comment()" << std::endl
+      << "quotedtext(bar)" << std::endl
+      << "eoi()" << std::endl
+   ;
+   expectedSuppress
+      << "indent(   )" << std::endl
+      << "quotedtext(foo)" << std::endl
+      << "quotedtext(bar)" << std::endl
+      << "eoi()" << std::endl
+   ;
+
+   std::string copy = program.str();
+   {
+      std::stringstream actual;
+      lexor l(copy.c_str());
+      _test::lexorToString(l,actual);
+      cdwAssertEqu(expectedSuppress.str(),actual.str());
+   }
+   {
+      std::stringstream actual;
+      lexor l(copy.c_str());
+      l.setAdvanceMode(lexor::kAllowComments);
+      _test::lexorToString(l,actual);
+      cdwAssertEqu(expectedAllow.str(),actual.str());
+   }
 }
 
 #endif // cdwTestBuild

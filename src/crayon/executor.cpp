@@ -1,3 +1,4 @@
+#include "../frontend/eval.hpp"
 #include "../graphics/algorithm.hpp"
 #include "../graphics/snippet.hpp"
 #include "executor.hpp"
@@ -59,6 +60,8 @@ void executor::visit(snipNode& n)
 
    m_sTable.overwrite(n.varName,*pVar.release());
    m_log.s().s() << "saved to " << n.varName << std::endl;
+
+   visitChildren(n);
 }
 
 void executor::visit(overlayNode& n)
@@ -68,7 +71,9 @@ void executor::visit(overlayNode& n)
 
    auto& pSnip = m_sTable.demand(n.varName).as<snipSymbol>().pSnippet;
 
-   attr.pCanvas->overlay(pSnip,n.transparent);
+   attr.pCanvas->overlay(pSnip,argEvaluator(m_sTable,n.transparent).getColor());
+
+   visitChildren(n);
 }
 
 void executor::visit(removeFrameNode& n)
@@ -77,6 +82,8 @@ void executor::visit(removeFrameNode& n)
    auto& attr = n.root().fetch<graphicsAttribute>();
 
    frameRemover::run(attr.pCanvas);
+
+   visitChildren(n);
 }
 
 void executor::visit(selectObjectNode& n)
@@ -84,8 +91,14 @@ void executor::visit(selectObjectNode& n)
    m_log.s().s() << "selecting object " << std::endl;
    auto& attr = n.root().fetch<graphicsAttribute>();
 
-   rect r = objectFinder::run(attr.pCanvas,n.n,n.dbgHilight,m_log);
+   rect r = objectFinder::run(
+      attr.pCanvas,
+      argEvaluator(m_sTable,n.n).getNum(),
+      n.dbgHilight,
+      m_log);
    attr.pCanvas.reset(attr.pCanvas->subset(r));
+
+   visitChildren(n);
 }
 
 void executor::visit(cropNode& n)
@@ -121,4 +134,14 @@ void executor::visit(cropNode& n)
    // resize image
    attr.pImage->setDims(sw,sh);
    attr.pCanvas.reset(attr.pImage.get());
+
+   visitChildren(n);
+}
+
+void executor::visit(defineNode& n)
+{
+   m_log.s().s() << "defining user constant " << n.varName << std::endl;
+   m_sTable.overwrite(n.varName,*new stringSymbol(n.value));
+
+   visitChildren(n);
 }

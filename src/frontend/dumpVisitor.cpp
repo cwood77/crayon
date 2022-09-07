@@ -63,3 +63,10 @@ void dumpVisitor::visit(cropNode& n)
    autoIndent _i(m_l);
    visitChildren(n);
 }
+
+void dumpVisitor::visit(defineNode& n)
+{
+   m_l.s().s() << indent(m_l) << "defineNode(" << n.varName << "," << n.value << ")" << std::endl;
+   autoIndent _i(m_l);
+   visitChildren(n);
+}
