@@ -33,13 +33,39 @@ public:
 public: \
    __type__(api& a) : subObject(a) {}
 
+class canvas : public iCanvas, public subObject {
+public:
+   canvas(api& a, iCanvas& c, const rect& dims);
+   virtual void getDims(long& w, long& h) { w = m_dims.w; h = m_dims.h; }
+   virtual COLORREF getPixel(const point& p) { return m_pInner->getPixel(translate(p)); }
+   virtual void setPixel(const point& p, COLORREF r) { m_pInner->setPixel(translate(p),r); }
+   virtual iCanvas *subset(const rect& r) { return new canvas(Api,*this,r); }
+   virtual iSnippet *snip(iSnippetAllocator& a, iTransform& t) { return Snip(a,t,*this); }
+   virtual void overlay(iSnippet& s, COLORREF transparent) { Overlay(s,transparent,*this); }
+
+   static iSnippet *Snip(iSnippetAllocator& a, iTransform& t, iCanvas& c);
+   static void Overlay(iSnippet& s, COLORREF transparent, iCanvas& c);
+
+private:
+   point translate(const point& p) { return point(m_dims.x+p.x,m_dims.y+p.y); }
+
+   rect m_dims;
+   autoReleasePtr<iCanvas> m_pInner;
+
+cdwImplAddrefRelease();
+};
+
 class bitmap : public iBitmap, public subObject {
 public:
+   virtual ~bitmap();
    virtual void getDims(long& w, long& h) { w = width; h = height; }
    virtual COLORREF getPixel(const point& p);
    virtual void setPixel(const point& p, COLORREF r);
-   virtual iSnippet *snip(iSnippetAllocator& a, iTransform& t);
-   virtual void overlay(iSnippet& s, COLORREF transparent);
+   virtual iCanvas *subset(const rect& r) { return new canvas(Api,*this,r); }
+   virtual iSnippet *snip(iSnippetAllocator& a, iTransform& t)
+   { return canvas::Snip(a,t,*this); }
+   virtual void overlay(iSnippet& s, COLORREF transparent)
+   { canvas::Overlay(s,transparent,*this); }
 
    long width;
    long height;

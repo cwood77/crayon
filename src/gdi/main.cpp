@@ -21,28 +21,27 @@ iFileType *api::createFileType(size_t i)
    return new bmpFileType(*this);
 }
 
-COLORREF bitmap::getPixel(const point& p)
+canvas::canvas(api& a, iCanvas& c, const rect& dims)
+: subObject(a), m_dims(dims), m_pInner(&c)
 {
-   return ::GetPixel(Api.dc,p.x,p.y);
+   m_dims.w -= m_dims.x;
+   m_dims.x = 0;
+   m_dims.h -= m_dims.y;
+   m_dims.y = 0;
 }
 
-void bitmap::setPixel(const point& p, COLORREF r)
+iSnippet *canvas::Snip(iSnippetAllocator& a, iTransform& t, iCanvas& c)
 {
-   ::SetPixel(Api.dc,p.x,p.y,r);
-}
-
-iSnippet *bitmap::snip(iSnippetAllocator& a, iTransform& t)
-{
-   long w = width;
-   long h = height;
+   long w,h;
+   c.getDims(w,h);
    t.translateDims(w,h);
    autoReleasePtr<iSnippet> pSnippet(a.allocate(w,h));
 
-   for(long x=0;x<width;x++)
+   for(long x=0;x<w;x++)
    {
-      for(long y=0;y<height;y++)
+      for(long y=0;y<h;y++)
       {
-         COLORREF srcPix = getPixel(point(x,y));
+         COLORREF srcPix = c.getPixel(point(x,y));
 
          point p(x,y);
          t.translateCoords(p);
@@ -55,7 +54,7 @@ iSnippet *bitmap::snip(iSnippetAllocator& a, iTransform& t)
    return pSnippet.leak();
 }
 
-void bitmap::overlay(iSnippet& s, COLORREF transparent)
+void canvas::Overlay(iSnippet& s, COLORREF transparent, iCanvas& c)
 {
    long w,h;
    s.getDims(w,h);
@@ -65,9 +64,24 @@ void bitmap::overlay(iSnippet& s, COLORREF transparent)
       {
          auto& over = s.index(point(x,y));
          if(!over.is(transparent))
-            setPixel(point(x,y),over.toColorref());
+            c.setPixel(point(x,y),over.toColorref());
       }
    }
+}
+
+bitmap::~bitmap()
+{
+   Api.Log.s().s() << "bitmap closing" << std::endl;
+}
+
+COLORREF bitmap::getPixel(const point& p)
+{
+   return ::GetPixel(Api.dc,p.x,p.y);
+}
+
+void bitmap::setPixel(const point& p, COLORREF r)
+{
+   ::SetPixel(Api.dc,p.x,p.y,r);
 }
 
 __declspec(dllexport) iGraphicsApi *create(iLog& l)

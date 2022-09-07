@@ -25,12 +25,12 @@ private:
 
 class objectFinder {
 public:
-   static void run(iCanvas& c, bool dbgHilight, log& Log);
+   static rect run(iCanvas& c, size_t n, bool dbgHilight, log& Log);
 
 private:
    objectFinder(iCanvas& c, log& l);
 
-   void _run(bool dbgHilight);
+   rect _run(size_t n, bool dbgHilight);
    size_t findAdjacentMembership(const point& p);
    void addToObject(const point& p, size_t i);
    size_t mergeObjectsIf(size_t oldObj, size_t newObj);

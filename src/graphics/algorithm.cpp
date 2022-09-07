@@ -53,10 +53,10 @@ void frameRemover::markIn(const point& p)
    m_inFrame.insert(p);
 }
 
-void objectFinder::run(iCanvas& c, bool dbgHilight, log& l)
+rect objectFinder::run(iCanvas& c, size_t n, bool dbgHilight, log& l)
 {
    objectFinder self(c,l);
-   self._run(dbgHilight);
+   return self._run(n,dbgHilight);
 }
 
 objectFinder::objectFinder(iCanvas& c, log& l)
@@ -67,7 +67,7 @@ objectFinder::objectFinder(iCanvas& c, log& l)
    m_canvas.getDims(m_w,m_h);
 }
 
-void objectFinder::_run(bool dbgHilight)
+rect objectFinder::_run(size_t n, bool dbgHilight)
 {
    for(long y=0;y<m_h;y++)
    {
@@ -97,6 +97,16 @@ void objectFinder::_run(bool dbgHilight)
 
       if(dbgHilight)
          hilight(r,RGB(0,255,0));
+   }
+
+   if(n >= m_bounds.size())
+      throw std::runtime_error("object index out of bounds");
+   else
+   {
+      auto it = m_bounds.begin();
+      for(size_t i=0;i<n;i++)
+         ++it;
+      return it->second;
    }
 }
 

@@ -107,9 +107,7 @@ public:
 
    // draw text - can't be done on a snippet!
 
-   /*
-   virtual iCanvas *subset(rect& r) = 0; // bounds/remaps coordinates
-   */
+   virtual iCanvas *subset(const rect& r) = 0; // bounds/remaps coordinates
 
    virtual iSnippet *snip(iSnippetAllocator& a, iTransform& t) = 0;
    //virtual void paste(iBlock *pB, size_t x, size_t y) = 0;
