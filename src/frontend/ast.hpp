@@ -12,6 +12,7 @@ class snipNode;
 class overlayNode;
 class removeFrameNode;
 class selectObjectNode;
+class cropNode;
 
 class iNodeVisitor {
 public:
@@ -23,6 +24,7 @@ public:
    virtual void visit(overlayNode& n) = 0;
    virtual void visit(removeFrameNode& n) = 0;
    virtual void visit(selectObjectNode& n) = 0;
+   virtual void visit(cropNode& n) = 0;
 
 protected:
    void visitChildren(scriptNode& n);
@@ -118,4 +120,9 @@ public:
 
    size_t n;
    bool dbgHilight;
+};
+
+class cropNode : public scriptNode {
+public:
+   virtual void acceptVisitor(iNodeVisitor& v) { v.visit(*this); }
 };

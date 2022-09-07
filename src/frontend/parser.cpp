@@ -121,6 +121,14 @@ void parser::parseImageBlock(scriptNode& n)
       n.addChild(*pNoob);
       parseImageBlock(n);
    }
+   else if(m_l.getCurrentToken() == lexor::kHyphenatedWord && m_l.getCurrentLexeme() == "crop")
+   {
+      m_l.advance();
+      auto *pNoob = new cropNode;
+
+      n.addChild(*pNoob);
+      parseImageBlock(n);
+   }
 }
 
 void parser::adjustPathIf(std::string& p)

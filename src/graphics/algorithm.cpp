@@ -195,16 +195,16 @@ void objectFinder::makeBounds(size_t id, const point& p)
 void objectFinder::hilight(const rect& r, COLORREF c)
 {
    // h lines
-   for(long x=r.x;x<=r.x+r.w;x++)
+   for(long x=r.x;x<r.x+r.w;x++)
    {
       m_canvas.setPixel(point(x,r.y),c);
-      m_canvas.setPixel(point(x,r.y+r.h),c);
+      m_canvas.setPixel(point(x,r.y+r.h-1),c);
    }
 
    // vlines
-   for(long y=r.y;y<=r.y+r.h;y++)
+   for(long y=r.y;y<r.y+r.h;y++)
    {
       m_canvas.setPixel(point(r.x,y),c);
-      m_canvas.setPixel(point(r.x+r.w,y),c);
+      m_canvas.setPixel(point(r.x+r.w-1,y),c);
    }
 }

@@ -66,6 +66,7 @@ public:
    { return canvas::Snip(a,t,*this); }
    virtual void overlay(iSnippet& s, COLORREF transparent)
    { canvas::Overlay(s,transparent,*this); }
+   virtual void setDims(long w, long h) { width = w; height = h; }
 
    long width;
    long height;

@@ -33,6 +33,7 @@ lexor::lexor(const char *pText)
    m_words["overlay"]         = kHyphenatedWord;
    m_words["remove-frame"]    = kHyphenatedWord;
    m_words["select-object"]   = kHyphenatedWord;
+   m_words["crop"]            = kHyphenatedWord;
    m_words["->"]              = kArrow;
    m_words["rgb{"]            = kColor;
    m_words["   "]             = kIndent;

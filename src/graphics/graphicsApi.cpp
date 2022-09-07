@@ -10,8 +10,8 @@ void rect::growToInclude(const point& p)
       w += (x-p.x);
       x = p.x;
    }
-   else if(p.x > x+w)
-      w += (p.x - (x+w));
+   else if(p.x > x+w-1)
+      w += (p.x - (x+w-1));
 
    // Y
    if(p.y < y)
@@ -19,8 +19,8 @@ void rect::growToInclude(const point& p)
       h += (y-p.y);
       y = p.y;
    }
-   else if(p.y > y+h)
-      h += (p.y - (y+h));
+   else if(p.y > y+h-1)
+      h += (p.y - (y+h-1));
 }
 
 graphicsApiFactory::graphicsApiFactory(iLog& l)

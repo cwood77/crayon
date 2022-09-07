@@ -24,10 +24,6 @@ iFileType *api::createFileType(size_t i)
 canvas::canvas(api& a, iCanvas& c, const rect& dims)
 : subObject(a), m_dims(dims), m_pInner(&c)
 {
-   m_dims.w -= m_dims.x;
-   m_dims.x = 0;
-   m_dims.h -= m_dims.y;
-   m_dims.y = 0;
 }
 
 iSnippet *canvas::Snip(iSnippetAllocator& a, iTransform& t, iCanvas& c)

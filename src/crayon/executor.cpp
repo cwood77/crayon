@@ -87,3 +87,38 @@ void executor::visit(selectObjectNode& n)
    rect r = objectFinder::run(attr.pCanvas,n.n,n.dbgHilight,m_log);
    attr.pCanvas.reset(attr.pCanvas->subset(r));
 }
+
+void executor::visit(cropNode& n)
+{
+   m_log.s().s() << "cropping" << std::endl;
+   auto& attr = n.root().fetch<graphicsAttribute>();
+
+   // stash dims
+   long sw,sh;
+   attr.pCanvas->getDims(sw,sh);
+   m_log.s().s() << "selection dims {" << sw << "," << sh << "}" << std::endl;
+
+   // make a copy
+   autoReleasePtr<iSnippet> pSnip;
+   snippetAllocator sAlloc;
+   nullTransform nullXfrm;
+   pSnip.reset(attr.pCanvas->snip(sAlloc,nullXfrm));
+
+   // clear all the canvas(es)
+   attr.pCanvas.reset();
+
+   // clear the entire image
+   long w,h;
+   attr.pImage->getDims(w,h);
+   m_log.s().s() << "clearing canvas {" << w << "," << h << "}" << std::endl;
+   for(long x=0;x<w;x++)
+      for(long y=0;y<h;y++)
+         attr.pImage->setPixel(point(x,y),RGB(0,0,255));
+
+   // restore the copy at (0,0)
+   attr.pImage->overlay(pSnip,RGB(255,255,255));
+
+   // resize image
+   attr.pImage->setDims(sw,sh);
+   attr.pCanvas.reset(attr.pImage.get());
+}

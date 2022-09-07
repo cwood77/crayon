@@ -120,6 +120,8 @@ public:
    virtual ~iBitmap() {}
    virtual void addref() = 0;
    virtual void release() = 0;
+
+   virtual void setDims(long w, long h) = 0;
 };
 
 class iFileType {

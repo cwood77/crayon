@@ -16,6 +16,7 @@ public:
    virtual void visit(overlayNode& n);
    virtual void visit(removeFrameNode& n);
    virtual void visit(selectObjectNode& n);
+   virtual void visit(cropNode& n);
 
 private:
    log& m_l;

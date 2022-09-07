@@ -85,7 +85,10 @@ void bmpFileType::populateStructs(long w, long h, BITMAPFILEHEADER& fHdr, BITMAP
 
 #define cdwRequireField(__field__,__value__) \
    if(hdr.__field__ != __value__) \
-      throw std::runtime_error("unsupported field value for " #__field__);
+   { \
+      Api.Log.s().s() << "expected " << __value__ << " but got " << hdr.__field__ << std::endl; \
+      throw std::runtime_error("unsupported field value for " #__field__); \
+   }
 
 void bmpFileType::checkCompatible(BITMAPFILEHEADER& hdr)
 {
@@ -130,6 +133,8 @@ DWORD bmpFileType::calculateMagicSize(long w, long h)
 {
    // for performance reasons, BMPs have a width that is DWORD-aligned
    unsigned long stride = 3 * w; // 3 for 24-bits (i.e. 3 bytes)
-   unsigned long strideAligned = (stride + 0xE) & ~0xF;
+   unsigned long strideAligned = stride;
+   if(strideAligned & 0x3)
+      strideAligned = (stride + 0x4) & ~0x3;
    return strideAligned * h;
 }
