@@ -100,7 +100,7 @@ cdwTest(stringFileParser_acceptance)
    schema.push_back("bar");
 
    std::list<std::list<std::string> > set,expected;
-   stringFileParser::parse("testdata\\strings.txt",schema,set);
+   stringFileParser::parse("testdata\\unittest-strings.txt",schema,set);
 
    {
       std::list<std::string> x;
