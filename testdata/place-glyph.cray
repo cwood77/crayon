@@ -1,24 +1,24 @@
 define myRed = rgb{237,28,36}
 
 load-image r"glyphs.bmp":
-   select-object 0
-   snip -> centerGlyph
+   select-object "0":
+      snip -> centerGlyph
 
 load-image r"glyphs.bmp":
-   select-object 1
-   snip -> pntGlyph
+   select-object "1":
+      snip -> pntGlyph
 
 load-image r"card-template.bmp":
-   select-object 0
-   find-whiskers $myRed $myRed -> rXY
-   find-whiskers rgb{0,0,0} rgb{0,0,0} -> bXY
-   find-whiskers / / -> cen
+   select-object "0":
+      find-whiskers $myRed $myRed -> rXY
+      find-whiskers rgb{0,0,0} rgb{0,0,0} -> bXY
+      find-whiskers / / -> cen
 
-   overlay $pntGlyph $rXY
-   overlay $pntGlyph $bXY
-   overlay $centerGlyph $cen
+      overlay $pntGlyph $rXY
+      overlay $pntGlyph $bXY
+      overlay $centerGlyph $cen
 
-   trim-whiskers
-   select-object 0
-   crop
-   save-image r"out-cardWithGlyph.bmp"
+      trim-whiskers
+   select-object "0":
+      crop
+      save-image r"out-cardWithGlyph.bmp"

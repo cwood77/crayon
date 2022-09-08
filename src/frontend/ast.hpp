@@ -13,6 +13,7 @@ class snipNode;
 class overlayNode;
 class removeFrameNode;
 class selectObjectNode;
+class deselectObjectNode;
 class cropNode;
 class defineNode;
 class findWhiskersNode;
@@ -29,6 +30,7 @@ public:
    virtual void visit(overlayNode& n) = 0;
    virtual void visit(removeFrameNode& n) = 0;
    virtual void visit(selectObjectNode& n) = 0;
+   virtual void visit(deselectObjectNode& n) = 0;
    virtual void visit(cropNode& n) = 0;
    virtual void visit(defineNode& n) = 0;
    virtual void visit(findWhiskersNode& n) = 0;
@@ -79,6 +81,11 @@ private:
    std::vector<scriptNode*> m_children;
 };
 
+class iBlockNode {
+public:
+   virtual scriptNode *createCloseNode() = 0;
+};
+
 class fileNode : public scriptNode {
 public:
    virtual void acceptVisitor(iNodeVisitor& v) { v.visit(*this); }
@@ -86,9 +93,9 @@ public:
    std::string scriptPath;
 };
 
-class loadImageNode : public scriptNode {
+class loadImageNode : public scriptNode, public iBlockNode {
 public:
-   closeImageNode *createCloseNode();
+   virtual scriptNode *createCloseNode();
 
    virtual void acceptVisitor(iNodeVisitor& v) { v.visit(*this); }
 
@@ -130,14 +137,20 @@ public:
    virtual void acceptVisitor(iNodeVisitor& v) { v.visit(*this); }
 };
 
-class selectObjectNode : public scriptNode {
+class selectObjectNode : public scriptNode, public iBlockNode {
 public:
    selectObjectNode() : n("0") {}
 
+   virtual scriptNode *createCloseNode();
    virtual void acceptVisitor(iNodeVisitor& v) { v.visit(*this); }
 
    std::string n;
    std::string hilight;
+};
+
+class deselectObjectNode : public scriptNode {
+public:
+   virtual void acceptVisitor(iNodeVisitor& v) { v.visit(*this); }
 };
 
 class cropNode : public scriptNode {

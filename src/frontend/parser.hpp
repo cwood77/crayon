@@ -24,12 +24,14 @@ class scriptNode;
 class parser {
 public:
    parser(lexor& l, const std::string& scriptPath, scriptNode& root)
-   : m_l(l), m_scriptPath(scriptPath), m_root(root) {}
+   : m_l(l), m_scriptPath(scriptPath), m_root(root), m_indent(0), m_indentsEaten(0) {}
 
    void parseFile();
 
 private:
    void parseImageBlock(scriptNode& n);
+
+   bool closeOrContinueBlock(scriptNode& n);
 
    void parseArgReq(std::string& arg);
    void parsePathReq(std::string& arg);
@@ -40,4 +42,6 @@ private:
    lexor& m_l;
    std::string m_scriptPath;
    scriptNode& m_root;
+   size_t m_indent;
+   size_t m_indentsEaten;
 };

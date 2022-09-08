@@ -107,6 +107,16 @@ void executor::visit(selectObjectNode& n)
    visitChildren(n);
 }
 
+void executor::visit(deselectObjectNode& n)
+{
+   m_log.s().s() << "deselecting object " << std::endl;
+   auto& attr = n.root().fetch<graphicsAttribute>();
+
+   attr.pCanvas.reset(attr.pCanvas->superset());
+
+   visitChildren(n);
+}
+
 void executor::visit(cropNode& n)
 {
    m_log.s().s() << "cropping" << std::endl;
@@ -170,6 +180,8 @@ void executor::visit(findWhiskersNode& n)
    std::stringstream varBody;
    varBody << "pnt{" << pnt.x << "," << pnt.y << "}";
    m_sTable.overwrite(n.varName,*new stringSymbol(varBody.str()));
+
+   visitChildren(n);
 }
 
 void executor::visit(trimWhiskersNode& n)
@@ -178,4 +190,6 @@ void executor::visit(trimWhiskersNode& n)
    auto& attr = n.root().fetch<graphicsAttribute>();
 
    whiskerFinder::clear(attr.pCanvas,m_log);
+
+   visitChildren(n);
 }

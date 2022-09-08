@@ -26,6 +26,7 @@ public:
    virtual void visit(overlayNode& n);
    virtual void visit(removeFrameNode& n);
    virtual void visit(selectObjectNode& n);
+   virtual void visit(deselectObjectNode& n);
    virtual void visit(cropNode& n);
    virtual void visit(defineNode& n);
    virtual void visit(findWhiskersNode& n);

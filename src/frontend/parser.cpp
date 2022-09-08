@@ -40,6 +40,7 @@ void parser::parseFile()
 
          m_l.demandAndEat(lexor::kColon);
          pFile->addChild(*pNoob);
+         m_indent++;
          parseImageBlock(*pNoob);
       }
       else
@@ -49,21 +50,12 @@ void parser::parseFile()
 
 void parser::parseImageBlock(scriptNode& n)
 {
-   if(m_l.getCurrentToken() != lexor::kIndent)
-   {
-      // close the block
-      auto *pClose = dynamic_cast<loadImageNode&>(n).createCloseNode();
-      n.addChild(*pClose);
-      return;
-   }
-   m_l.advance(lexor::kAllowComments);
+   const size_t myIndent = m_indent;
 
-   if(m_l.getCurrentToken() == lexor::kComment)
-   {
-      m_l.advance();
-      parseImageBlock(n);
-   }
-   else if(m_l.isHText("save-image"))
+   if(closeOrContinueBlock(n))
+      return;
+
+   if(m_l.isHText("save-image"))
    {
       m_l.advance();
       auto *pNoob = new saveImageNode;
@@ -116,8 +108,10 @@ void parser::parseImageBlock(scriptNode& n)
 
       parseArgOpt(pNoob->hilight);
 
+      m_l.demandAndEat(lexor::kColon);
       n.addChild(*pNoob);
-      parseImageBlock(n);
+      m_indent++;
+      parseImageBlock(*pNoob);
    }
    else if(m_l.isHText("crop"))
    {
@@ -151,6 +145,36 @@ void parser::parseImageBlock(scriptNode& n)
       n.addChild(*pNoob);
       parseImageBlock(n);
    }
+   else
+      throw std::runtime_error("ise 153");
+
+   if(m_indent == myIndent)
+      parseImageBlock(n);
+}
+
+bool parser::closeOrContinueBlock(scriptNode& n)
+{
+   for(;m_indentsEaten<m_indent;m_indentsEaten++)
+   {
+      if(m_l.getCurrentToken() != lexor::kIndent)
+      {
+         // close the block(s)
+         auto *pClose = dynamic_cast<iBlockNode&>(n).createCloseNode();
+         n.addChild(*pClose);
+         m_indent--;
+         return true; // remember the indents I've already eaten
+                      // this is only save if m_indent was > 1
+                      // if indent = 1, that indentsEaten wil be at most 0 here, so ok!
+      }
+      m_l.advance(lexor::kAllowComments);
+      if(m_l.getCurrentToken() == lexor::kComment)
+      {
+         m_l.advance();
+         m_indentsEaten = -1;
+      }
+   }
+   m_indentsEaten = 0;
+   return false;
 }
 
 void parser::parseArgReq(std::string& arg)
@@ -229,6 +253,11 @@ cdwTest(parser_indent)
       << "load-image \"Q:\\foo\":" << std::endl
       << "load-image \"Q:\\foo\":" << std::endl
       << "   save-image \"Q:\\bar\"" << std::endl
+      << "load-image \"Q:\\foo\":" << std::endl
+      << "   select-object \"0\":" << std::endl
+      << "      select-object \"0\":" << std::endl
+      << "         select-object \"0\":" << std::endl
+      << "   save-image \"Q:\\bar\"" << std::endl
    ;
    expected
       << "scriptNode" << std::endl
@@ -239,6 +268,15 @@ cdwTest(parser_indent)
       << "      loadImageNode(Q:\\foo)" << std::endl
       << "         closeImageNode" << std::endl
       << "      loadImageNode(Q:\\foo)" << std::endl
+      << "         saveImageNode(Q:\\bar)" << std::endl
+      << "         closeImageNode" << std::endl
+      << "      loadImageNode(Q:\\foo)" << std::endl
+      << "         selectObjectNode(0,)" << std::endl
+      << "            selectObjectNode(0,)" << std::endl
+      << "               selectObjectNode(0,)" << std::endl
+      << "                  deselectObjectNode" << std::endl
+      << "               deselectObjectNode" << std::endl
+      << "            deselectObjectNode" << std::endl
       << "         saveImageNode(Q:\\bar)" << std::endl
       << "         closeImageNode" << std::endl
    ;
