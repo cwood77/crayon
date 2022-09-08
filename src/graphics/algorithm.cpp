@@ -216,6 +216,13 @@ point whiskerFinder::run(iCanvas& c, COLORREF x, COLORREF y, log& Log)
    return self.find(x,y);
 }
 
+void whiskerFinder::clear(iCanvas& c, log& Log)
+{
+   whiskerFinder self(c,Log);
+   self.m_clearWhiskers = true;
+   self.categorize();
+}
+
 whiskerFinder::whiskerFinder(iCanvas& c, log& l)
 : m_canvas(c), m_log(l), m_clearWhiskers(false)
 {
@@ -276,7 +283,7 @@ void whiskerFinder::categorizeHoriz()
             else if(last != RGB(255,255,255))
             {
                // consider last a whisker
-               markHorizWhisker(x-1,y,last);
+               markHorizWhisker(x,y-1,last);
 
                if(m_clearWhiskers)
                   m_canvas.setPixel(point(x,y-1),RGB(255,255,255));
@@ -315,6 +322,5 @@ point whiskerFinder::find(COLORREF x, COLORREF y)
    if(hit == m_horizWhiskers.end() || vit == m_vertWhiskers.end())
       throw std::runtime_error("whisker not found");
 
-   //return point(vit->second,hit->second-1); // WTF?
-   return point(vit->second,hit->second); // WTF?
+   return point(vit->second,hit->second);
 }

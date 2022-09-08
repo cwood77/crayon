@@ -132,7 +132,7 @@ void executor::visit(cropNode& n)
    m_log.s().s() << "clearing canvas {" << w << "," << h << "}" << std::endl;
    for(long x=0;x<w;x++)
       for(long y=0;y<h;y++)
-         attr.pImage->setPixel(point(x,y),RGB(0,0,255));
+         attr.pImage->setPixel(point(x,y),RGB(255,255,255));
 
    // restore the copy at (0,0)
    attr.pImage->overlay(pSnip,RGB(255,255,255));
@@ -166,4 +166,12 @@ void executor::visit(findWhiskersNode& n)
    std::stringstream varBody;
    varBody << "pnt{" << pnt.x << "," << pnt.y << "}";
    m_sTable.overwrite(n.varName,*new stringSymbol(varBody.str()));
+}
+
+void executor::visit(trimWhiskersNode& n)
+{
+   m_log.s().s() << "triming whiskers" << std::endl;
+   auto& attr = n.root().fetch<graphicsAttribute>();
+
+   whiskerFinder::clear(attr.pCanvas,m_log);
 }

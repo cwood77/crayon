@@ -19,6 +19,7 @@ public:
    virtual void visit(cropNode& n);
    virtual void visit(defineNode& n);
    virtual void visit(findWhiskersNode& n);
+   virtual void visit(trimWhiskersNode& n);
 
 private:
    log& m_l;

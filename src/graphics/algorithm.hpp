@@ -53,7 +53,7 @@ private:
 class whiskerFinder {
 public:
    static point run(iCanvas& c, COLORREF x, COLORREF y, log& Log);
-   static clear(iCanvas& c, log& Log);
+   static void clear(iCanvas& c, log& Log);
 
 private:
    whiskerFinder(iCanvas& c, log& l);

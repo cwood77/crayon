@@ -1,14 +1,23 @@
 define col.red = rgb{237,28,36}
 
 load-image "proof-overlay.bmp":
-   snip -> g
+   snip -> proof
+
+load-image "scribble.bmp":
+   overlay $proof
+   #remove-frame
+   save-image "out-dbg0.bmp"
+   snip -> glyph
+   save-image "out-dbg1.bmp"
 
 load-image "card-template.bmp":
-   #select-object 0 #hilight
-   #save-image "out-cardTemplateHilight.bmp"
+   find-whiskers $col.red $col.red -> xy
+   trim-whiskers
+   save-image "out-dbg2.bmp"
 
-   find-whiskers $col.red $col.red -> p
+   overlay $glyph $xy
+   save-image "out-dbg3.bmp"
 
-   overlay $g $p
-
+   select-object 0
+   crop
    save-image "out-cardTemplateWhisk.bmp"

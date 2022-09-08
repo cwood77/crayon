@@ -77,3 +77,10 @@ void dumpVisitor::visit(findWhiskersNode& n)
    autoIndent _i(m_l);
    visitChildren(n);
 }
+
+void dumpVisitor::visit(trimWhiskersNode& n)
+{
+   m_l.s().s() << indent(m_l) << "trimWhiskers" << std::endl;
+   autoIndent _i(m_l);
+   visitChildren(n);
+}

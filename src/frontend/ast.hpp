@@ -15,6 +15,7 @@ class selectObjectNode;
 class cropNode;
 class defineNode;
 class findWhiskersNode;
+class trimWhiskersNode;
 
 class iNodeVisitor {
 public:
@@ -29,6 +30,7 @@ public:
    virtual void visit(cropNode& n) = 0;
    virtual void visit(defineNode& n) = 0;
    virtual void visit(findWhiskersNode& n) = 0;
+   virtual void visit(trimWhiskersNode& n) = 0;
 
 protected:
    void visitChildren(scriptNode& n);
@@ -149,4 +151,9 @@ public:
    std::string x;
    std::string y;
    std::string varName;
+};
+
+class trimWhiskersNode : public scriptNode {
+public:
+   virtual void acceptVisitor(iNodeVisitor& v) { v.visit(*this); }
 };
