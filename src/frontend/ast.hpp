@@ -20,6 +20,7 @@ class findWhiskersNode;
 class trimWhiskersNode;
 class foreachStringSetNode;
 class closeStringSetNode;
+class echoNode;
 
 class iNodeVisitor {
 public:
@@ -39,6 +40,7 @@ public:
    virtual void visit(trimWhiskersNode& n) = 0;
    virtual void visit(foreachStringSetNode& n) = 0;
    virtual void visit(closeStringSetNode& n) = 0;
+   virtual void visit(echoNode& n) = 0;
 
 protected:
    void visitChildren(scriptNode& n);
@@ -197,4 +199,11 @@ public:
 class closeStringSetNode : public scriptNode {
 public:
    virtual void acceptVisitor(iNodeVisitor& v) { v.visit(*this); }
+};
+
+class echoNode : public scriptNode {
+public:
+   virtual void acceptVisitor(iNodeVisitor& v) { v.visit(*this); }
+
+   std::string text;
 };

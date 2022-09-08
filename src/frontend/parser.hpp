@@ -24,6 +24,7 @@ class scriptNode;
 //                  | e
 //
 // <anywhere> ::== 'foreach-stringset' <qtext> <qtext> '->' <qtext>
+//               | 'echo' <qtext>
 //               | e
 //
 class parser {

@@ -213,3 +213,9 @@ void executor::visit(closeStringSetNode& n)
    m_log.s().s() << "closing stringset" << std::endl;
    visitChildren(n);
 }
+
+void executor::visit(echoNode& n)
+{
+   m_log.s().s() << argEvaluator(m_sTable,n.text).getString() << std::endl;
+   visitChildren(n);
+}

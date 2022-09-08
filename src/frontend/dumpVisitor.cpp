@@ -112,3 +112,10 @@ void dumpVisitor::visit(closeStringSetNode& n)
    autoIndent _i(m_l);
    visitChildren(n);
 }
+
+void dumpVisitor::visit(echoNode& n)
+{
+   m_l.s().s() << indent(m_l) << "echoNode(" << n.text << ")" << std::endl;
+   autoIndent _i(m_l);
+   visitChildren(n);
+}

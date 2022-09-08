@@ -39,6 +39,7 @@ lexor::lexor(const char *pText)
    m_words["find-whiskers"]     = kHyphenatedWord;
    m_words["trim-whiskers"]     = kHyphenatedWord;
    m_words["foreach-stringset"] = kHyphenatedWord;
+   m_words["echo"]              = kHyphenatedWord;
    m_words["->"]                = kArrow;
    m_words[":"]                 = kColon;
    m_words["   "]               = kIndent;

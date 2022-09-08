@@ -24,6 +24,7 @@ public:
    virtual void visit(trimWhiskersNode& n);
    virtual void visit(foreachStringSetNode& n);
    virtual void visit(closeStringSetNode& n);
+   virtual void visit(echoNode& n);
 
 private:
    log& m_l;
