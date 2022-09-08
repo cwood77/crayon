@@ -148,6 +148,8 @@ void parser::parseImageBlock(scriptNode& n)
    else
       throw std::runtime_error("ise 153");
 
+   // if I just read a line and am still at my same indentation, just
+   // loop
    if(m_indent == myIndent)
       parseImageBlock(n);
 }
@@ -162,14 +164,16 @@ bool parser::closeOrContinueBlock(scriptNode& n)
          auto *pClose = dynamic_cast<iBlockNode&>(n).createCloseNode();
          n.addChild(*pClose);
          m_indent--;
-         return true; // remember the indents I've already eaten
-                      // this is only save if m_indent was > 1
-                      // if indent = 1, that indentsEaten wil be at most 0 here, so ok!
+         return true; // remember the indents I've already eaten (m_indentsEaten)
+                      // this is only meaningful if m_indent was > 1
+                      // if indent = 1, then indentsEaten wil be at most 0 here, so ok!
       }
       m_l.advance(lexor::kAllowComments);
       if(m_l.getCurrentToken() == lexor::kComment)
       {
          m_l.advance();
+         // consider this a new line by reseting m_indentsEaten
+         // this will be incremented shortly, so go to -1 so I end up at 0
          m_indentsEaten = -1;
       }
    }

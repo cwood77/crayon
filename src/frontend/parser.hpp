@@ -30,7 +30,6 @@ public:
 
 private:
    void parseImageBlock(scriptNode& n);
-
    bool closeOrContinueBlock(scriptNode& n);
 
    void parseArgReq(std::string& arg);
