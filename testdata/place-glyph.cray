@@ -1,6 +1,24 @@
-load-image "proof-overlay.bmp":
-   snip -> g
+define myRed = rgb{237,28,36}
+
+load-image "glyphs.bmp":
+   select-object 0
+   snip -> centerGlyph
+
+load-image "glyphs.bmp":
+   select-object 1
+   snip -> pntGlyph
 
 load-image "card-template.bmp":
-   select-object 0 hilight
-   save-image "out-cardTemplateHilight.bmp"
+   select-object 0
+   find-whiskers $myRed $myRed -> rXY
+   find-whiskers rgb{0,0,0} rgb{0,0,0} -> bXY
+   find-whiskers / / -> cen
+
+   overlay $pntGlyph $rXY
+   overlay $pntGlyph $bXY
+   overlay $centerGlyph $cen
+
+   trim-whiskers
+   select-object 0
+   crop
+   save-image "out-cardWithGlyph.bmp"

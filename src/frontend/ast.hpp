@@ -14,6 +14,8 @@ class removeFrameNode;
 class selectObjectNode;
 class cropNode;
 class defineNode;
+class findWhiskersNode;
+class trimWhiskersNode;
 
 class iNodeVisitor {
 public:
@@ -27,6 +29,8 @@ public:
    virtual void visit(selectObjectNode& n) = 0;
    virtual void visit(cropNode& n) = 0;
    virtual void visit(defineNode& n) = 0;
+   virtual void visit(findWhiskersNode& n) = 0;
+   virtual void visit(trimWhiskersNode& n) = 0;
 
 protected:
    void visitChildren(scriptNode& n);
@@ -103,9 +107,12 @@ public:
 
 class overlayNode : public scriptNode {
 public:
+   overlayNode() : pnt("pnt{0,0}"), transparent("rgb{255,255,255}") {}
+
    virtual void acceptVisitor(iNodeVisitor& v) { v.visit(*this); }
 
    std::string varName;
+   std::string pnt;
    std::string transparent;
 };
 
@@ -135,4 +142,18 @@ public:
 
    std::string varName;
    std::string value;
+};
+
+class findWhiskersNode : public scriptNode {
+public:
+   virtual void acceptVisitor(iNodeVisitor& v) { v.visit(*this); }
+
+   std::string x;
+   std::string y;
+   std::string varName;
+};
+
+class trimWhiskersNode : public scriptNode {
+public:
+   virtual void acceptVisitor(iNodeVisitor& v) { v.visit(*this); }
 };

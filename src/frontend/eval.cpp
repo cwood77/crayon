@@ -86,6 +86,18 @@ size_t argEvaluator::getColor()
    return RGB(r,g,b);
 }
 
+point argEvaluator::getPoint()
+{
+   std::string in = getString();
+
+   if(::strncmp(in.c_str(),"pnt{",4)!=0)
+      throw std::runtime_error("invalid point syntax");
+   unsigned long x,y;
+   auto rval = ::sscanf(in.c_str()+4,"%lu,%lu",&x,&y);
+   if(rval != 2) throw std::runtime_error("can't parse point");
+   return point(x,y);
+}
+
 #ifdef cdwTestBuild
 
 cdwTest(interpolation_empty)

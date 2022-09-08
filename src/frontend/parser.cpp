@@ -102,9 +102,17 @@ void parser::parseImageBlock(scriptNode& n)
       pNoob->varName = m_l.getCurrentLexeme();
       m_l.advance();
 
-      m_l.demand(lexor::kQuotedText);
-      pNoob->transparent = m_l.getCurrentLexeme();
-      m_l.advance();
+      if(m_l.getCurrentToken() == lexor::kQuotedText)
+      {
+         pNoob->pnt = m_l.getCurrentLexeme();
+         m_l.advance();
+      }
+
+      if(m_l.getCurrentToken() == lexor::kQuotedText)
+      {
+         pNoob->transparent = m_l.getCurrentLexeme();
+         m_l.advance();
+      }
 
       n.addChild(*pNoob);
       parseImageBlock(n);
@@ -143,6 +151,36 @@ void parser::parseImageBlock(scriptNode& n)
    {
       m_l.advance();
       auto *pNoob = new cropNode;
+
+      n.addChild(*pNoob);
+      parseImageBlock(n);
+   }
+   else if(m_l.getCurrentToken() == lexor::kHyphenatedWord && m_l.getCurrentLexeme() == "find-whiskers")
+   {
+      m_l.advance();
+      auto *pNoob = new findWhiskersNode;
+
+      m_l.demand(lexor::kQuotedText);
+      pNoob->x = m_l.getCurrentLexeme();
+      m_l.advance();
+
+      m_l.demand(lexor::kQuotedText);
+      pNoob->y = m_l.getCurrentLexeme();
+      m_l.advance();
+
+      m_l.demandAndEat(lexor::kArrow);
+
+      m_l.demand(lexor::kQuotedText);
+      pNoob->varName = m_l.getCurrentLexeme();
+      m_l.advance();
+
+      n.addChild(*pNoob);
+      parseImageBlock(n);
+   }
+   else if(m_l.getCurrentToken() == lexor::kHyphenatedWord && m_l.getCurrentLexeme() == "trim-whiskers")
+   {
+      m_l.advance();
+      auto *pNoob = new trimWhiskersNode;
 
       n.addChild(*pNoob);
       parseImageBlock(n);

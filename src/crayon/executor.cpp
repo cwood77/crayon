@@ -70,8 +70,14 @@ void executor::visit(overlayNode& n)
    auto& attr = n.root().fetch<graphicsAttribute>();
 
    auto& pSnip = m_sTable.demand(n.varName).as<snipSymbol>().pSnippet;
+   long w,h;
+   pSnip->getDims(w,h);
 
-   attr.pCanvas->overlay(pSnip,argEvaluator(m_sTable,n.transparent).getColor());
+   auto origin = argEvaluator(m_sTable,n.pnt).getPoint();
+
+   autoReleasePtr<iCanvas> pSubCan(attr.pCanvas->subset(rect(origin.x,origin.y,w,h)));
+   pSubCan->overlay(pSnip,argEvaluator(m_sTable,n.transparent).getColor());
+   pSubCan.reset();
 
    visitChildren(n);
 }
@@ -126,7 +132,7 @@ void executor::visit(cropNode& n)
    m_log.s().s() << "clearing canvas {" << w << "," << h << "}" << std::endl;
    for(long x=0;x<w;x++)
       for(long y=0;y<h;y++)
-         attr.pImage->setPixel(point(x,y),RGB(0,0,255));
+         attr.pImage->setPixel(point(x,y),RGB(255,255,255));
 
    // restore the copy at (0,0)
    attr.pImage->overlay(pSnip,RGB(255,255,255));
@@ -144,4 +150,32 @@ void executor::visit(defineNode& n)
    m_sTable.overwrite(n.varName,*new stringSymbol(n.value));
 
    visitChildren(n);
+}
+
+void executor::visit(findWhiskersNode& n)
+{
+   m_log.s().s() << "finding whiskers" << std::endl;
+   auto& attr = n.root().fetch<graphicsAttribute>();
+
+   COLORREF xColor = whiskerFinder::kCenter;
+   if(argEvaluator(m_sTable,n.x).getString() != "/")
+      xColor = argEvaluator(m_sTable,n.x).getColor();
+   COLORREF yColor = whiskerFinder::kCenter;
+   if(argEvaluator(m_sTable,n.y).getString() != "/")
+      yColor = argEvaluator(m_sTable,n.y).getColor();
+
+   auto pnt = whiskerFinder::run(attr.pCanvas,xColor,yColor,m_log);
+   m_log.s().s() << "  whisker found at (" << pnt.x << "," << pnt.y << ")" << std::endl;
+
+   std::stringstream varBody;
+   varBody << "pnt{" << pnt.x << "," << pnt.y << "}";
+   m_sTable.overwrite(n.varName,*new stringSymbol(varBody.str()));
+}
+
+void executor::visit(trimWhiskersNode& n)
+{
+   m_log.s().s() << "triming whiskers" << std::endl;
+   auto& attr = n.root().fetch<graphicsAttribute>();
+
+   whiskerFinder::clear(attr.pCanvas,m_log);
 }
