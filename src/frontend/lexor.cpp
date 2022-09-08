@@ -39,6 +39,7 @@ lexor::lexor(const char *pText)
    m_words["find-whiskers"]   = kHyphenatedWord;
    m_words["trim-whiskers"]   = kHyphenatedWord;
    m_words["->"]              = kArrow;
+   m_words[":"]               = kColon;
    m_words["   "]             = kIndent;
 
    advance();
@@ -50,12 +51,7 @@ void lexor::advance(modes m)
 
    for(;*m_pThumb=='\r'||*m_pThumb=='\n';++m_pThumb); // eat newlines
 
-   if(*m_pThumb == ':')
-   {
-      m_pThumb++;
-      m_token = kColon;
-   }
-   else if(*m_pThumb == 0)
+   if(*m_pThumb == 0)
       m_token = kEOI;
    else
    {
@@ -166,7 +162,7 @@ cdwTest(loadsaveimage_lexor_acceptance)
    expected
       << "hyphenword(load-image)" << std::endl
       << "quotedtext(foo)" << std::endl
-      << "colon()" << std::endl
+      << "colon(:)" << std::endl
       << "indent(   )" << std::endl
       << "hyphenword(save-image)" << std::endl
       << "relpath(bar)" << std::endl

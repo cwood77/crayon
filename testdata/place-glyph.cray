@@ -1,24 +1,25 @@
 define myRed = rgb{237,28,36}
 
 load-image r"glyphs.bmp":
-   select-object "0":
+   select-object 0 :
       snip -> centerGlyph
-
-load-image r"glyphs.bmp":
-   select-object "1":
+   select-object 1 :
       snip -> pntGlyph
 
 load-image r"card-template.bmp":
-   select-object "0":
-      find-whiskers $myRed $myRed -> rXY
-      find-whiskers rgb{0,0,0} rgb{0,0,0} -> bXY
+   find-whiskers $myRed $myRed -> rXY
+   find-whiskers rgb{0,0,0} rgb{0,0,0} -> bXY
+   select-object 0 : # centering requires I zoom in on the object
       find-whiskers / / -> cen
 
-      overlay $pntGlyph $rXY
-      overlay $pntGlyph $bXY
+   overlay $pntGlyph $rXY
+   overlay $pntGlyph $bXY
+   select-object 0 : # $cen is tied to the selection
       overlay $centerGlyph $cen
 
-      trim-whiskers
-   select-object "0":
+   trim-whiskers
+
+   select-object 0 :
       crop
-      save-image r"out-cardWithGlyph.bmp"
+
+   save-image r"out-cardWithGlyph.bmp"
