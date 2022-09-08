@@ -1,0 +1,21 @@
+this is a string file
+
+{{foo}}
+alas, poor yorick
+I knew him
+
+Horatio
+
+{{bar}}
+Get thee to a Nunnery!
+
+{{baz}}
+
+{{==============================}}
+
+{{bar}}
+
+leigeman to the dane!
+
+{{foo}}
+the sledded pollacks

@@ -193,3 +193,23 @@ void executor::visit(trimWhiskersNode& n)
 
    visitChildren(n);
 }
+
+void executor::visit(foreachStringSetNode& n)
+{
+   auto path = argEvaluator(m_sTable,n.filePath).getString();
+   auto schema = argEvaluator(m_sTable,n.schema).getSet();
+
+   m_log.s().s() << "pulling strings from '" << path << "'" << std::endl;
+   m_log.s().s() << "{" << std::endl;
+   for(auto x : schema)
+      m_log.s().s() << "   " << x << std::endl;
+   m_log.s().s() << "}" << std::endl;
+
+   visitChildren(n);
+}
+
+void executor::visit(closeStringSetNode& n)
+{
+   m_log.s().s() << "closing stringset" << std::endl;
+   visitChildren(n);
+}

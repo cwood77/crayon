@@ -1,0 +1,1 @@
+foreach-stringset r"strings.txt" {a,b} -> str :

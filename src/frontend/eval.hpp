@@ -1,5 +1,6 @@
 #pragma once
 #include "../graphics/graphicsApi.hpp"
+#include <list>
 #include <string>
 
 class symbolTable;
@@ -14,6 +15,7 @@ public:
    size_t getColor();
    point getPoint();
    bool getFlag(const std::string& name);
+   std::list<std::string> getSet();
    // getFont
 
 private:

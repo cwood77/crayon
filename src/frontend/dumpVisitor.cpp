@@ -98,3 +98,17 @@ void dumpVisitor::visit(trimWhiskersNode& n)
    autoIndent _i(m_l);
    visitChildren(n);
 }
+
+void dumpVisitor::visit(foreachStringSetNode& n)
+{
+   m_l.s().s() << indent(m_l) << "foreachStringSetNode(" << n.filePath << "," << n.schema << "," << n.varName << ")" << std::endl;
+   autoIndent _i(m_l);
+   visitChildren(n);
+}
+
+void dumpVisitor::visit(closeStringSetNode& n)
+{
+   m_l.s().s() << indent(m_l) << "closeStringSetNode" << std::endl;
+   autoIndent _i(m_l);
+   visitChildren(n);
+}

@@ -8,6 +8,7 @@ class scriptNode;
 
 // <file> ::== 'define' <qtext> = <qtext> <file>
 //           | 'load-image' <qtext> ':' <image-block> <file>
+//           | <anywhere>
 //           | |-
 //
 // <image-block> ::== <indent> <comment> <image-block>
@@ -19,7 +20,11 @@ class scriptNode;
 //                  | <indent> 'crop' <image-block>
 //                  | <indent> 'find-whiskers' <qtext> <qtext> '->' <qtext> <image-block>
 //                  | <indent> 'trim-whiskers' <image-block>
+//                  | <indent> <anywhere>
 //                  | e
+//
+// <anywhere> ::== 'foreach-stringset' <qtext> <qtext> '->' <qtext>
+//               | e
 //
 class parser {
 public:
@@ -31,6 +36,7 @@ public:
 private:
    void parseImageBlock(scriptNode& n);
    bool closeOrContinueBlock(scriptNode& n);
+   bool parseAnywhere(scriptNode& n);
 
    void parseArgReq(std::string& arg);
    void parsePathReq(std::string& arg);

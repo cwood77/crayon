@@ -43,6 +43,8 @@ void parser::parseFile()
          m_indent++;
          parseImageBlock(*pNoob);
       }
+      else if(parseAnywhere(*pFile))
+         ;
       else
          throw std::runtime_error("parser error");
    }
@@ -146,8 +148,10 @@ void parser::parseImageBlock(scriptNode& n)
       auto *pNoob = new trimWhiskersNode;
 
       n.addChild(*pNoob);
-      parseImageBlock(n);
+      parseImageBlock(n); // TODO do I need this?
    }
+   else if(parseAnywhere(n))
+      ;
    else
       throw std::runtime_error("ise 153");
 
@@ -182,6 +186,31 @@ bool parser::closeOrContinueBlock(scriptNode& n)
    }
    m_indentsEaten = 0;
    return false;
+}
+
+bool parser::parseAnywhere(scriptNode& n)
+{
+   if(m_l.isHText("foreach-stringset"))
+   {
+      m_l.advance();
+      auto *pNoob = new foreachStringSetNode;
+
+      parsePathReq(pNoob->filePath);
+
+      parseArgReq(pNoob->schema);
+
+      m_l.demandAndEat(lexor::kArrow);
+
+      parseArgReq(pNoob->varName);
+
+      m_l.demandAndEat(lexor::kColon);
+      n.addChild(*pNoob);
+      m_indent++;
+      parseImageBlock(*pNoob);
+      return true;
+   }
+   else
+      return false;
 }
 
 void parser::parseArgReq(std::string& arg)

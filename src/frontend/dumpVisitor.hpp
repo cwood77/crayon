@@ -22,6 +22,8 @@ public:
    virtual void visit(defineNode& n);
    virtual void visit(findWhiskersNode& n);
    virtual void visit(trimWhiskersNode& n);
+   virtual void visit(foreachStringSetNode& n);
+   virtual void visit(closeStringSetNode& n);
 
 private:
    log& m_l;

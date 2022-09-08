@@ -29,3 +29,8 @@ scriptNode *selectObjectNode::createCloseNode()
 {
    return new deselectObjectNode();
 }
+
+scriptNode *foreachStringSetNode::createCloseNode()
+{
+   return new closeStringSetNode();
+}

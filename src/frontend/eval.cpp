@@ -104,6 +104,35 @@ bool argEvaluator::getFlag(const std::string& name)
    return in == name;
 }
 
+std::list<std::string> argEvaluator::getSet()
+{
+   std::string in = getString();
+
+   std::list<std::string> set;
+   const char *pThumb = in.c_str();
+   if(*pThumb != '{') throw std::runtime_error("syntax error in set");
+   ++pThumb;
+   const char *pStart = pThumb;
+   while(true)
+   {
+      for(;*pThumb!=0&&*pThumb!=','&&*pThumb!='}';++pThumb); // eat until comma or }
+      if(*pThumb=='}')
+      {
+         set.push_back(std::string(pStart,pThumb-pStart));
+         break;
+      }
+      else if(*pThumb==0)
+         throw std::runtime_error("unterminated set");
+      else if(*pThumb==',')
+      {
+         set.push_back(std::string(pStart,pThumb-pStart));
+         ++pThumb;
+         pStart = pThumb;
+      }
+   }
+   return set;
+}
+
 #ifdef cdwTestBuild
 
 cdwTest(interpolation_empty)

@@ -28,19 +28,20 @@ lexor::lexor(const char *pText)
 , m_token(kEOI)
 , m_mode(kSuppressComments)
 {
-   m_words["load-image"]      = kHyphenatedWord;
-   m_words["save-image"]      = kHyphenatedWord;
-   m_words["snip"]            = kHyphenatedWord;
-   m_words["overlay"]         = kHyphenatedWord;
-   m_words["remove-frame"]    = kHyphenatedWord;
-   m_words["select-object"]   = kHyphenatedWord;
-   m_words["crop"]            = kHyphenatedWord;
-   m_words["define"]          = kHyphenatedWord;
-   m_words["find-whiskers"]   = kHyphenatedWord;
-   m_words["trim-whiskers"]   = kHyphenatedWord;
-   m_words["->"]              = kArrow;
-   m_words[":"]               = kColon;
-   m_words["   "]             = kIndent;
+   m_words["load-image"]        = kHyphenatedWord;
+   m_words["save-image"]        = kHyphenatedWord;
+   m_words["snip"]              = kHyphenatedWord;
+   m_words["overlay"]           = kHyphenatedWord;
+   m_words["remove-frame"]      = kHyphenatedWord;
+   m_words["select-object"]     = kHyphenatedWord;
+   m_words["crop"]              = kHyphenatedWord;
+   m_words["define"]            = kHyphenatedWord;
+   m_words["find-whiskers"]     = kHyphenatedWord;
+   m_words["trim-whiskers"]     = kHyphenatedWord;
+   m_words["foreach-stringset"] = kHyphenatedWord;
+   m_words["->"]                = kArrow;
+   m_words[":"]                 = kColon;
+   m_words["   "]               = kIndent;
 
    advance();
 }
