@@ -66,7 +66,7 @@ void parser::parseImageBlock(scriptNode& n)
       m_l.advance();
       parseImageBlock(n);
    }
-   if(m_l.getCurrentToken() == lexor::kHyphenatedWord && m_l.getCurrentLexeme() == "save-image")
+   else if(m_l.getCurrentToken() == lexor::kHyphenatedWord && m_l.getCurrentLexeme() == "save-image")
    {
       m_l.advance();
       auto *pNoob = new saveImageNode;

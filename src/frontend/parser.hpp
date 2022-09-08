@@ -6,11 +6,19 @@
 class lexor;
 class scriptNode;
 
-// <file> ::== 'load-image' <string> ':' <image-block>
+// <file> ::== 'define' <qtext> = <qtext> <file>
+//           | 'load-image' <qtext> ':' <image-block> <file>
+//           | |-
 //
-// <image-block> ::== <indent> 'save-image' <string> <image-block>
-//                  | <indent> 'snip' '->' <string> <image-block>
-//                  | <indent> 'overlay' <string> <color> <image-block>
+// <image-block> ::== <indent> <comment> <image-block>
+//                  | <indent> 'save-image' <qtext> <image-block>
+//                  | <indent> 'snip' '->' <qtext> <image-block>
+//                  | <indent> 'overlay' <qtext> [<qtext>] [<qtext>] <color> <image-block>
+//                  | <indent> 'remove-frame' <image-block>
+//                  | <indent> 'select-object' [<qtext>] [<qtext>] <image-block>
+//                  | <indent> 'crop' <image-block>
+//                  | <indent> 'find-whiskers' <qtext> <qtext> '->' <qtext> <image-block>
+//                  | <indent> 'trim-whiskers' <image-block>
 //                  | e
 //
 // <color> ::== 'rgb{' <num> ',' <num> ',' <num> '}'
