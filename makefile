@@ -7,11 +7,14 @@ RELEASE_CC_FLAGS = -O3 -c -Wall
 DEBUG_LNK_FLAGS_POST = -ggdb -static-libgcc -static-libstdc++ -static
 RELEASE_LNK_FLAGS_POST = -static-libgcc -static-libstdc++ -static
 
+test: \
+	debug \
+	systemtest
+
 debug: \
 	dirs \
 	$(OUT_DIR)/debug/crayon.exe \
 	$(OUT_DIR)/debug/gdiapi.dll \
-	systemtest \
 
 all: \
 	debug \
@@ -35,7 +38,7 @@ dirs:
 	@mkdir -p $(OUT_DIR)/debug
 	@mkdir -p $(OUT_DIR)/release
 
-.PHONY: debug all clean dirs systemtest
+.PHONY: debug all clean dirs systemtest test
 
 # ----------------------------------------------------------------------
 # cmn

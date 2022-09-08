@@ -35,6 +35,7 @@ lexor::lexor(const char *pText)
    m_words["select-object"]   = kHyphenatedWord;
    m_words["crop"]            = kHyphenatedWord;
    m_words["define"]          = kHyphenatedWord;
+   m_words["find-whiskers"]   = kHyphenatedWord;
    m_words["->"]              = kArrow;
    m_words["   "]             = kIndent;
 

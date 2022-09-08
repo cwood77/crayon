@@ -2,7 +2,7 @@ load-image "proof-overlay.bmp":
    snip -> g
 
 load-image "scribble.bmp":
-   overlay $g $col.white
+   overlay $g
    save-image "out-scribbleWithOverlay.bmp"
 
    remove-frame

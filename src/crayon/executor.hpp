@@ -27,6 +27,7 @@ public:
    virtual void visit(selectObjectNode& n);
    virtual void visit(cropNode& n);
    virtual void visit(defineNode& n);
+   virtual void visit(findWhiskersNode& n);
 
 private:
    log& m_log;

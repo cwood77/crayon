@@ -21,6 +21,7 @@ inline bool operator<(const point& lhs, const point& rhs)
 class rect {
 public:
    rect() : x(0), y(0), w(0), h(0) {}
+   rect(long _x, long _y, long _w, long _h) : x(_x), y(_y), w(_w), h(_h) {}
 
    void setOrigin(const point& p) { x = p.x; y = p.y; }
    void growToInclude(const point& p);

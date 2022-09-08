@@ -1,6 +1,14 @@
+define col.red = rgb{237,28,36}
+
 load-image "proof-overlay.bmp":
    snip -> g
 
 load-image "card-template.bmp":
-   select-object 0 hilight
-   save-image "out-cardTemplateHilight.bmp"
+   #select-object 0 #hilight
+   #save-image "out-cardTemplateHilight.bmp"
+
+   find-whiskers $col.red $col.red -> p
+
+   overlay $g $p
+
+   save-image "out-cardTemplateWhisk.bmp"

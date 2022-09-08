@@ -1,4 +1,5 @@
 #pragma once
+#include "../graphics/graphicsApi.hpp"
 #include <string>
 
 class symbolTable;
@@ -11,6 +12,7 @@ public:
    std::string getString();
    size_t getNum();
    size_t getColor();
+   point getPoint();
    // getFont
 
 private:
