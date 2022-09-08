@@ -13,15 +13,13 @@ class scriptNode;
 // <image-block> ::== <indent> <comment> <image-block>
 //                  | <indent> 'save-image' <qtext> <image-block>
 //                  | <indent> 'snip' '->' <qtext> <image-block>
-//                  | <indent> 'overlay' <qtext> [<qtext>] [<qtext>] <color> <image-block>
+//                  | <indent> 'overlay' <qtext> [<qtext>] [<qtext>] <image-block>
 //                  | <indent> 'remove-frame' <image-block>
 //                  | <indent> 'select-object' [<qtext>] [<qtext>] <image-block>
 //                  | <indent> 'crop' <image-block>
 //                  | <indent> 'find-whiskers' <qtext> <qtext> '->' <qtext> <image-block>
 //                  | <indent> 'trim-whiskers' <image-block>
 //                  | e
-//
-// <color> ::== 'rgb{' <num> ',' <num> ',' <num> '}'
 //
 class parser {
 public:
@@ -34,6 +32,8 @@ private:
    void parseImageBlock(scriptNode& n);
 
    void adjustPathIf(std::string& p);
+   void parseArgReq(std::string& arg);
+   void parseArgOpt(std::string& arg);
 
    lexor& m_l;
    std::string m_scriptPath;

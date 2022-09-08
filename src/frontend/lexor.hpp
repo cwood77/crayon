@@ -25,6 +25,8 @@ public:
 
    tokens getCurrentToken() const { return m_token; }
    const std::string& getCurrentLexeme() const { return m_lexeme; }
+   bool isHText(const std::string& text) const
+   { return getCurrentToken() == kHyphenatedWord && getCurrentLexeme() == text; }
 
    void setAdvanceMode(modes m) { m_mode = m; }
    void advance(modes m);

@@ -14,32 +14,26 @@ void parser::parseFile()
 {
    while(m_l.getCurrentToken() != lexor::kEOI)
    {
-      if(m_l.getCurrentToken() == lexor::kHyphenatedWord && m_l.getCurrentLexeme() == "define")
+      if(m_l.isHText("define"))
       {
          m_l.advance();
          auto *pNoob = new defineNode;
 
-         m_l.demand(lexor::kQuotedText);
-         pNoob->varName = m_l.getCurrentLexeme();
-         m_l.advance();
+         parseArgReq(pNoob->varName);
 
          m_l.demand(lexor::kQuotedText,"=");
          m_l.advance();
 
-         m_l.demand(lexor::kQuotedText);
-         pNoob->value = m_l.getCurrentLexeme();
-         m_l.advance();
+         parseArgReq(pNoob->value);
          m_root.addChild(*pNoob);
       }
-      else if(m_l.getCurrentToken() == lexor::kHyphenatedWord && m_l.getCurrentLexeme() == "load-image")
+      else if(m_l.isHText("load-image"))
       {
          m_l.advance();
          auto *pNoob = new loadImageNode;
 
-         m_l.demand(lexor::kQuotedText);
-         pNoob->path = m_l.getCurrentLexeme();
+         parseArgReq(pNoob->path);
          adjustPathIf(pNoob->path);
-         m_l.advance();
 
          m_l.demandAndEat(lexor::kColon);
          m_root.addChild(*pNoob);
@@ -66,58 +60,44 @@ void parser::parseImageBlock(scriptNode& n)
       m_l.advance();
       parseImageBlock(n);
    }
-   else if(m_l.getCurrentToken() == lexor::kHyphenatedWord && m_l.getCurrentLexeme() == "save-image")
+   else if(m_l.isHText("save-image"))
    {
       m_l.advance();
       auto *pNoob = new saveImageNode;
 
-      m_l.demand(lexor::kQuotedText);
-      pNoob->path = m_l.getCurrentLexeme();
+      parseArgReq(pNoob->path);
       adjustPathIf(pNoob->path);
-      m_l.advance();
 
       n.addChild(*pNoob);
       parseImageBlock(n);
    }
-   else if(m_l.getCurrentToken() == lexor::kHyphenatedWord && m_l.getCurrentLexeme() == "snip")
+   else if(m_l.isHText("snip"))
    {
       m_l.advance();
       auto *pNoob = new snipNode;
 
       m_l.demandAndEat(lexor::kArrow);
 
-      m_l.demand(lexor::kQuotedText);
-      pNoob->varName = m_l.getCurrentLexeme();
-      m_l.advance();
+      parseArgReq(pNoob->varName);
 
       n.addChild(*pNoob);
       parseImageBlock(n);
    }
-   else if(m_l.getCurrentToken() == lexor::kHyphenatedWord && m_l.getCurrentLexeme() == "overlay")
+   else if(m_l.isHText("overlay"))
    {
       m_l.advance();
       auto *pNoob = new overlayNode;
 
-      m_l.demand(lexor::kQuotedText);
-      pNoob->varName = m_l.getCurrentLexeme();
-      m_l.advance();
+      parseArgReq(pNoob->varName);
 
-      if(m_l.getCurrentToken() == lexor::kQuotedText)
-      {
-         pNoob->pnt = m_l.getCurrentLexeme();
-         m_l.advance();
-      }
+      parseArgOpt(pNoob->pnt);
 
-      if(m_l.getCurrentToken() == lexor::kQuotedText)
-      {
-         pNoob->transparent = m_l.getCurrentLexeme();
-         m_l.advance();
-      }
+      parseArgOpt(pNoob->transparent);
 
       n.addChild(*pNoob);
       parseImageBlock(n);
    }
-   else if(m_l.getCurrentToken() == lexor::kHyphenatedWord && m_l.getCurrentLexeme() == "remove-frame")
+   else if(m_l.isHText("remove-frame"))
    {
       m_l.advance();
       auto *pNoob = new removeFrameNode;
@@ -125,17 +105,14 @@ void parser::parseImageBlock(scriptNode& n)
       n.addChild(*pNoob);
       parseImageBlock(n);
    }
-   else if(m_l.getCurrentToken() == lexor::kHyphenatedWord && m_l.getCurrentLexeme() == "select-object")
+   else if(m_l.isHText("select-object"))
    {
       m_l.advance();
       auto *pNoob = new selectObjectNode;
 
-      if(m_l.getCurrentToken() == lexor::kQuotedText)
-      {
-         pNoob->n = m_l.getCurrentLexeme();
-         m_l.advance();
-      }
+      parseArgOpt(pNoob->n);
 
+      // TODO
       if(m_l.getCurrentToken() == lexor::kQuotedText)
       {
          if(m_l.getCurrentLexeme() != "hilight")
@@ -147,7 +124,7 @@ void parser::parseImageBlock(scriptNode& n)
       n.addChild(*pNoob);
       parseImageBlock(n);
    }
-   else if(m_l.getCurrentToken() == lexor::kHyphenatedWord && m_l.getCurrentLexeme() == "crop")
+   else if(m_l.isHText("crop"))
    {
       m_l.advance();
       auto *pNoob = new cropNode;
@@ -155,29 +132,23 @@ void parser::parseImageBlock(scriptNode& n)
       n.addChild(*pNoob);
       parseImageBlock(n);
    }
-   else if(m_l.getCurrentToken() == lexor::kHyphenatedWord && m_l.getCurrentLexeme() == "find-whiskers")
+   else if(m_l.isHText("find-whiskers"))
    {
       m_l.advance();
       auto *pNoob = new findWhiskersNode;
 
-      m_l.demand(lexor::kQuotedText);
-      pNoob->x = m_l.getCurrentLexeme();
-      m_l.advance();
+      parseArgReq(pNoob->x);
 
-      m_l.demand(lexor::kQuotedText);
-      pNoob->y = m_l.getCurrentLexeme();
-      m_l.advance();
+      parseArgReq(pNoob->y);
 
       m_l.demandAndEat(lexor::kArrow);
 
-      m_l.demand(lexor::kQuotedText);
-      pNoob->varName = m_l.getCurrentLexeme();
-      m_l.advance();
+      parseArgReq(pNoob->varName);
 
       n.addChild(*pNoob);
       parseImageBlock(n);
    }
-   else if(m_l.getCurrentToken() == lexor::kHyphenatedWord && m_l.getCurrentLexeme() == "trim-whiskers")
+   else if(m_l.isHText("trim-whiskers"))
    {
       m_l.advance();
       auto *pNoob = new trimWhiskersNode;
@@ -187,6 +158,7 @@ void parser::parseImageBlock(scriptNode& n)
    }
 }
 
+// TODO
 void parser::adjustPathIf(std::string& p)
 {
    if(p.empty())
@@ -196,6 +168,22 @@ void parser::adjustPathIf(std::string& p)
 
    std::string fullPath = m_scriptPath + "\\..\\" + p;
    p = fullPath;
+}
+
+void parser::parseArgReq(std::string& arg)
+{
+   m_l.demand(lexor::kQuotedText);
+   arg = m_l.getCurrentLexeme();
+   m_l.advance();
+}
+
+void parser::parseArgOpt(std::string& arg)
+{
+   if(m_l.getCurrentToken() == lexor::kQuotedText)
+   {
+      arg = m_l.getCurrentLexeme();
+      m_l.advance();
+   }
 }
 
 #ifdef cdwTestBuild
