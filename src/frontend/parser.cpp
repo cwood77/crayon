@@ -115,6 +115,9 @@ void parser::parseImageBlock(scriptNode& n)
    }
    else if(m_l.isHText("crop"))
    {
+      if(!dynamic_cast<selectObjectNode*>(&n))
+         throw std::runtime_error("crop without select-object will have no effect");
+
       m_l.advance();
       auto *pNoob = new cropNode;
 
