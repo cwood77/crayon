@@ -36,8 +36,7 @@ void parser::parseFile()
          m_l.advance();
          auto *pNoob = new loadImageNode;
 
-         parseArgReq(pNoob->path);
-         adjustPathIf(pNoob->path);
+         parsePathReq(pNoob->path);
 
          m_l.demandAndEat(lexor::kColon);
          pFile->addChild(*pNoob);
@@ -69,8 +68,7 @@ void parser::parseImageBlock(scriptNode& n)
       m_l.advance();
       auto *pNoob = new saveImageNode;
 
-      parseArgReq(pNoob->path);
-      adjustPathIf(pNoob->path);
+      parsePathReq(pNoob->path);
 
       n.addChild(*pNoob);
       parseImageBlock(n);
@@ -155,23 +153,23 @@ void parser::parseImageBlock(scriptNode& n)
    }
 }
 
-// TODO
-void parser::adjustPathIf(std::string& p)
-{
-   if(p.empty())
-      return;
-   if(p.length() > 2 && p.c_str()[1] == ':')
-      return; // absolute path
-
-   std::string fullPath = m_scriptPath + "\\..\\" + p;
-   p = fullPath;
-}
-
 void parser::parseArgReq(std::string& arg)
 {
    m_l.demand(lexor::kQuotedText);
    arg = m_l.getCurrentLexeme();
    m_l.advance();
+}
+
+void parser::parsePathReq(std::string& arg)
+{
+   if(m_l.getCurrentToken() == lexor::kRelPath)
+   {
+      arg = m_l.getCurrentLexeme();
+      adjustPath(arg);
+      m_l.advance();
+   }
+   else
+      parseArgReq(arg);
 }
 
 void parser::parseArgOpt(std::string& arg)
@@ -183,6 +181,12 @@ void parser::parseArgOpt(std::string& arg)
    }
 }
 
+void parser::adjustPath(std::string& p)
+{
+   std::string fullPath = m_scriptPath + "\\..\\" + p;
+   p = fullPath;
+}
+
 #ifdef cdwTestBuild
 
 cdwTest(loadsaveimage_parser_acceptance)
@@ -190,14 +194,14 @@ cdwTest(loadsaveimage_parser_acceptance)
    std::stringstream program,expected;
    program
       << "load-image \"Q:\\foo\":" << std::endl
-      << "   save-image \"Q:\\bar\"" << std::endl
       << "   save-image \"bar\"" << std::endl
+      << "   save-image r\"bar\"" << std::endl
    ;
    expected
       << "scriptNode" << std::endl
       << "   fileNode(<mythological script file path>)" << std::endl
       << "      loadImageNode(Q:\\foo)" << std::endl
-      << "         saveImageNode(Q:\\bar)" << std::endl
+      << "         saveImageNode(bar)" << std::endl
       << "         saveImageNode(<mythological script file path>\\..\\bar)" << std::endl
       << "         closeImageNode" << std::endl
    ;

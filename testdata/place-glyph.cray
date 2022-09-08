@@ -1,14 +1,14 @@
 define myRed = rgb{237,28,36}
 
-load-image "glyphs.bmp":
+load-image r"glyphs.bmp":
    select-object 0
    snip -> centerGlyph
 
-load-image "glyphs.bmp":
+load-image r"glyphs.bmp":
    select-object 1
    snip -> pntGlyph
 
-load-image "card-template.bmp":
+load-image r"card-template.bmp":
    select-object 0
    find-whiskers $myRed $myRed -> rXY
    find-whiskers rgb{0,0,0} rgb{0,0,0} -> bXY
@@ -21,4 +21,4 @@ load-image "card-template.bmp":
    trim-whiskers
    select-object 0
    crop
-   save-image "out-cardWithGlyph.bmp"
+   save-image r"out-cardWithGlyph.bmp"

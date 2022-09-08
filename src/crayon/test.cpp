@@ -18,7 +18,10 @@ void testBase::runAll(iAsserter& a)
 {
    std::cout << "running tests" << std::endl;
    for(auto *pTest : getAll())
+   {
+      std::cout << "   " << pTest->getName() << std::endl;
       pTest->run(a);
+   }
    std::cout << "done" << std::endl;
 }
 

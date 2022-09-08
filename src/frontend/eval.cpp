@@ -98,10 +98,6 @@ point argEvaluator::getPoint()
    return point(x,y);
 }
 
-std::string argEvaluator::getPath(scriptNode& n)
-{
-}
-
 bool argEvaluator::getFlag(const std::string& name)
 {
    std::string in = getString();

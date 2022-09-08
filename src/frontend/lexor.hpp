@@ -11,6 +11,7 @@ public:
       kQuotedText,
       kColon,
       kIndent,
+      kRelPath,
       kEOI
    };
 

@@ -3,7 +3,6 @@
 #include <string>
 
 class symbolTable;
-class scriptNode;
 
 class argEvaluator {
 public:
@@ -14,7 +13,6 @@ public:
    size_t getNum();
    size_t getColor();
    point getPoint();
-   std::string getPath(scriptNode& n);
    bool getFlag(const std::string& name);
    // getFont
 

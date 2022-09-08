@@ -31,9 +31,11 @@ public:
 private:
    void parseImageBlock(scriptNode& n);
 
-   void adjustPathIf(std::string& p);
    void parseArgReq(std::string& arg);
+   void parsePathReq(std::string& arg);
    void parseArgOpt(std::string& arg);
+
+   void adjustPath(std::string& p);
 
    lexor& m_l;
    std::string m_scriptPath;
