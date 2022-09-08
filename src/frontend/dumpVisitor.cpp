@@ -8,6 +8,13 @@ void dumpVisitor::visit(scriptNode& n)
    visitChildren(n);
 }
 
+void dumpVisitor::visit(fileNode& n)
+{
+   m_l.s().s() << indent(m_l) << "fileNode(" << n.scriptPath << ")" << std::endl;
+   autoIndent _i(m_l);
+   visitChildren(n);
+}
+
 void dumpVisitor::visit(loadImageNode& n)
 {
    m_l.s().s() << indent(m_l) << "loadImageNode(" << n.path << ")" << std::endl;
@@ -52,7 +59,14 @@ void dumpVisitor::visit(removeFrameNode& n)
 
 void dumpVisitor::visit(selectObjectNode& n)
 {
-   m_l.s().s() << indent(m_l) << "selectObjectNode(" << n.n << "," << n.dbgHilight << ")" << std::endl;
+   m_l.s().s() << indent(m_l) << "selectObjectNode(" << n.n << "," << n.hilight << ")" << std::endl;
+   autoIndent _i(m_l);
+   visitChildren(n);
+}
+
+void dumpVisitor::visit(deselectObjectNode& n)
+{
+   m_l.s().s() << indent(m_l) << "deselectObjectNode" << std::endl;
    autoIndent _i(m_l);
    visitChildren(n);
 }

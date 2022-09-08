@@ -98,6 +98,12 @@ point argEvaluator::getPoint()
    return point(x,y);
 }
 
+bool argEvaluator::getFlag(const std::string& name)
+{
+   std::string in = getString();
+   return in == name;
+}
+
 #ifdef cdwTestBuild
 
 cdwTest(interpolation_empty)

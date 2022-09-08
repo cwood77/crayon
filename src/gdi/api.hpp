@@ -40,6 +40,7 @@ public:
    virtual COLORREF getPixel(const point& p) { return m_pInner->getPixel(translate(p)); }
    virtual void setPixel(const point& p, COLORREF r) { m_pInner->setPixel(translate(p),r); }
    virtual iCanvas *subset(const rect& r) { return new canvas(Api,*this,r); }
+   virtual iCanvas *superset() { return m_pInner.get(); }
    virtual iSnippet *snip(iSnippetAllocator& a, iTransform& t) { return Snip(a,t,*this); }
    virtual void overlay(iSnippet& s, COLORREF transparent) { Overlay(s,transparent,*this); }
 
@@ -62,6 +63,7 @@ public:
    virtual COLORREF getPixel(const point& p);
    virtual void setPixel(const point& p, COLORREF r);
    virtual iCanvas *subset(const rect& r) { return new canvas(Api,*this,r); }
+   virtual iCanvas *superset() { return this; }
    virtual iSnippet *snip(iSnippetAllocator& a, iTransform& t)
    { return canvas::Snip(a,t,*this); }
    virtual void overlay(iSnippet& s, COLORREF transparent)

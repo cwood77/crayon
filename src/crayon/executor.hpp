@@ -18,6 +18,7 @@ public:
    : m_log(l), m_gFac(g), m_sTable(sTable) {}
 
    virtual void visit(scriptNode& n) { visitChildren(n); }
+   virtual void visit(fileNode& n) { visitChildren(n); }
    virtual void visit(loadImageNode& n);
    virtual void visit(saveImageNode& n);
    virtual void visit(closeImageNode& n);
@@ -25,6 +26,7 @@ public:
    virtual void visit(overlayNode& n);
    virtual void visit(removeFrameNode& n);
    virtual void visit(selectObjectNode& n);
+   virtual void visit(deselectObjectNode& n);
    virtual void visit(cropNode& n);
    virtual void visit(defineNode& n);
    virtual void visit(findWhiskersNode& n);

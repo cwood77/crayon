@@ -13,6 +13,7 @@ public:
    size_t getNum();
    size_t getColor();
    point getPoint();
+   bool getFlag(const std::string& name);
    // getFont
 
 private:

@@ -100,9 +100,19 @@ void executor::visit(selectObjectNode& n)
    rect r = objectFinder::run(
       attr.pCanvas,
       argEvaluator(m_sTable,n.n).getNum(),
-      n.dbgHilight,
+      argEvaluator(m_sTable,n.hilight).getFlag("hilight"),
       m_log);
    attr.pCanvas.reset(attr.pCanvas->subset(r));
+
+   visitChildren(n);
+}
+
+void executor::visit(deselectObjectNode& n)
+{
+   m_log.s().s() << "deselecting object " << std::endl;
+   auto& attr = n.root().fetch<graphicsAttribute>();
+
+   attr.pCanvas.reset(attr.pCanvas->superset());
 
    visitChildren(n);
 }
@@ -170,6 +180,8 @@ void executor::visit(findWhiskersNode& n)
    std::stringstream varBody;
    varBody << "pnt{" << pnt.x << "," << pnt.y << "}";
    m_sTable.overwrite(n.varName,*new stringSymbol(varBody.str()));
+
+   visitChildren(n);
 }
 
 void executor::visit(trimWhiskersNode& n)
@@ -178,4 +190,6 @@ void executor::visit(trimWhiskersNode& n)
    auto& attr = n.root().fetch<graphicsAttribute>();
 
    whiskerFinder::clear(attr.pCanvas,m_log);
+
+   visitChildren(n);
 }

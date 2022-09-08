@@ -1,9 +1,9 @@
-load-image "proof-overlay.bmp":
+load-image r"proof-overlay.bmp":
    snip -> g
 
-load-image "scribble.bmp":
+load-image r"scribble.bmp":
    overlay $g
-   save-image "out-scribbleWithOverlay.bmp"
+   save-image r"out-scribbleWithOverlay.bmp"
 
    remove-frame
-   save-image "out-scribbleWithOverlayDeFramed.bmp"
+   save-image r"out-scribbleWithOverlayDeFramed.bmp"

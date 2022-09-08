@@ -20,7 +20,12 @@ void scriptNode::addChild(scriptNode& n)
    n.m_pParent = this;
 }
 
-closeImageNode *loadImageNode::createCloseNode()
+scriptNode *loadImageNode::createCloseNode()
 {
    return new closeImageNode();
+}
+
+scriptNode *selectObjectNode::createCloseNode()
+{
+   return new deselectObjectNode();
 }

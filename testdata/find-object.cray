@@ -1,6 +1,6 @@
-load-image "x.bmp":
-   select-object 3 hilight
-   save-image "out-found.bmp"
+load-image r"x.bmp":
+   select-object 3 hilight :
+      save-image r"out-found.bmp"
 
-   crop
-   save-image "out-found3.bmp"
+      crop
+      save-image r"out-found3.bmp"

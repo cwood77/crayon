@@ -12,37 +12,35 @@
 
 void parser::parseFile()
 {
+   fileNode *pFile = new fileNode();
+   pFile->scriptPath = m_scriptPath;
+   m_root.addChild(*pFile);
+
    while(m_l.getCurrentToken() != lexor::kEOI)
    {
-      if(m_l.getCurrentToken() == lexor::kHyphenatedWord && m_l.getCurrentLexeme() == "define")
+      if(m_l.isHText("define"))
       {
          m_l.advance();
          auto *pNoob = new defineNode;
 
-         m_l.demand(lexor::kQuotedText);
-         pNoob->varName = m_l.getCurrentLexeme();
-         m_l.advance();
+         parseArgReq(pNoob->varName);
 
          m_l.demand(lexor::kQuotedText,"=");
          m_l.advance();
 
-         m_l.demand(lexor::kQuotedText);
-         pNoob->value = m_l.getCurrentLexeme();
-         m_l.advance();
-         m_root.addChild(*pNoob);
+         parseArgReq(pNoob->value);
+         pFile->addChild(*pNoob);
       }
-      else if(m_l.getCurrentToken() == lexor::kHyphenatedWord && m_l.getCurrentLexeme() == "load-image")
+      else if(m_l.isHText("load-image"))
       {
          m_l.advance();
          auto *pNoob = new loadImageNode;
 
-         m_l.demand(lexor::kQuotedText);
-         pNoob->path = m_l.getCurrentLexeme();
-         adjustPathIf(pNoob->path);
-         m_l.advance();
+         parsePathReq(pNoob->path);
 
          m_l.demandAndEat(lexor::kColon);
-         m_root.addChild(*pNoob);
+         pFile->addChild(*pNoob);
+         m_indent++;
          parseImageBlock(*pNoob);
       }
       else
@@ -52,72 +50,48 @@ void parser::parseFile()
 
 void parser::parseImageBlock(scriptNode& n)
 {
-   if(m_l.getCurrentToken() != lexor::kIndent)
-   {
-      // close the block
-      auto *pClose = dynamic_cast<loadImageNode&>(n).createCloseNode();
-      n.addChild(*pClose);
-      return;
-   }
-   m_l.advance(lexor::kAllowComments);
+   const size_t myIndent = m_indent;
 
-   if(m_l.getCurrentToken() == lexor::kComment)
-   {
-      m_l.advance();
-      parseImageBlock(n);
-   }
-   if(m_l.getCurrentToken() == lexor::kHyphenatedWord && m_l.getCurrentLexeme() == "save-image")
+   if(closeOrContinueBlock(n))
+      return;
+
+   if(m_l.isHText("save-image"))
    {
       m_l.advance();
       auto *pNoob = new saveImageNode;
 
-      m_l.demand(lexor::kQuotedText);
-      pNoob->path = m_l.getCurrentLexeme();
-      adjustPathIf(pNoob->path);
-      m_l.advance();
+      parsePathReq(pNoob->path);
 
       n.addChild(*pNoob);
       parseImageBlock(n);
    }
-   else if(m_l.getCurrentToken() == lexor::kHyphenatedWord && m_l.getCurrentLexeme() == "snip")
+   else if(m_l.isHText("snip"))
    {
       m_l.advance();
       auto *pNoob = new snipNode;
 
       m_l.demandAndEat(lexor::kArrow);
 
-      m_l.demand(lexor::kQuotedText);
-      pNoob->varName = m_l.getCurrentLexeme();
-      m_l.advance();
+      parseArgReq(pNoob->varName);
 
       n.addChild(*pNoob);
       parseImageBlock(n);
    }
-   else if(m_l.getCurrentToken() == lexor::kHyphenatedWord && m_l.getCurrentLexeme() == "overlay")
+   else if(m_l.isHText("overlay"))
    {
       m_l.advance();
       auto *pNoob = new overlayNode;
 
-      m_l.demand(lexor::kQuotedText);
-      pNoob->varName = m_l.getCurrentLexeme();
-      m_l.advance();
+      parseArgReq(pNoob->varName);
 
-      if(m_l.getCurrentToken() == lexor::kQuotedText)
-      {
-         pNoob->pnt = m_l.getCurrentLexeme();
-         m_l.advance();
-      }
+      parseArgOpt(pNoob->pnt);
 
-      if(m_l.getCurrentToken() == lexor::kQuotedText)
-      {
-         pNoob->transparent = m_l.getCurrentLexeme();
-         m_l.advance();
-      }
+      parseArgOpt(pNoob->transparent);
 
       n.addChild(*pNoob);
       parseImageBlock(n);
    }
-   else if(m_l.getCurrentToken() == lexor::kHyphenatedWord && m_l.getCurrentLexeme() == "remove-frame")
+   else if(m_l.isHText("remove-frame"))
    {
       m_l.advance();
       auto *pNoob = new removeFrameNode;
@@ -125,59 +99,48 @@ void parser::parseImageBlock(scriptNode& n)
       n.addChild(*pNoob);
       parseImageBlock(n);
    }
-   else if(m_l.getCurrentToken() == lexor::kHyphenatedWord && m_l.getCurrentLexeme() == "select-object")
+   else if(m_l.isHText("select-object"))
    {
       m_l.advance();
       auto *pNoob = new selectObjectNode;
 
-      if(m_l.getCurrentToken() == lexor::kQuotedText)
-      {
-         pNoob->n = m_l.getCurrentLexeme();
-         m_l.advance();
-      }
+      parseArgOpt(pNoob->n);
 
-      if(m_l.getCurrentToken() == lexor::kQuotedText)
-      {
-         if(m_l.getCurrentLexeme() != "hilight")
-            throw std::runtime_error("usage: select-object [#] [hilight]");
-         pNoob->dbgHilight = true;
-         m_l.advance();
-      }
+      parseArgOpt(pNoob->hilight);
 
+      m_l.demandAndEat(lexor::kColon);
       n.addChild(*pNoob);
-      parseImageBlock(n);
+      m_indent++;
+      parseImageBlock(*pNoob);
    }
-   else if(m_l.getCurrentToken() == lexor::kHyphenatedWord && m_l.getCurrentLexeme() == "crop")
+   else if(m_l.isHText("crop"))
    {
+      if(!dynamic_cast<selectObjectNode*>(&n))
+         throw std::runtime_error("crop without select-object will have no effect");
+
       m_l.advance();
       auto *pNoob = new cropNode;
 
       n.addChild(*pNoob);
       parseImageBlock(n);
    }
-   else if(m_l.getCurrentToken() == lexor::kHyphenatedWord && m_l.getCurrentLexeme() == "find-whiskers")
+   else if(m_l.isHText("find-whiskers"))
    {
       m_l.advance();
       auto *pNoob = new findWhiskersNode;
 
-      m_l.demand(lexor::kQuotedText);
-      pNoob->x = m_l.getCurrentLexeme();
-      m_l.advance();
+      parseArgReq(pNoob->x);
 
-      m_l.demand(lexor::kQuotedText);
-      pNoob->y = m_l.getCurrentLexeme();
-      m_l.advance();
+      parseArgReq(pNoob->y);
 
       m_l.demandAndEat(lexor::kArrow);
 
-      m_l.demand(lexor::kQuotedText);
-      pNoob->varName = m_l.getCurrentLexeme();
-      m_l.advance();
+      parseArgReq(pNoob->varName);
 
       n.addChild(*pNoob);
       parseImageBlock(n);
    }
-   else if(m_l.getCurrentToken() == lexor::kHyphenatedWord && m_l.getCurrentLexeme() == "trim-whiskers")
+   else if(m_l.isHText("trim-whiskers"))
    {
       m_l.advance();
       auto *pNoob = new trimWhiskersNode;
@@ -185,15 +148,72 @@ void parser::parseImageBlock(scriptNode& n)
       n.addChild(*pNoob);
       parseImageBlock(n);
    }
+   else
+      throw std::runtime_error("ise 153");
+
+   // if I just read a line and am still at my same indentation, just
+   // loop
+   if(m_indent == myIndent)
+      parseImageBlock(n);
 }
 
-void parser::adjustPathIf(std::string& p)
+bool parser::closeOrContinueBlock(scriptNode& n)
 {
-   if(p.empty())
-      return;
-   if(p.length() > 2 && p.c_str()[1] == ':')
-      return; // absolute path
+   for(;m_indentsEaten<m_indent;m_indentsEaten++)
+   {
+      if(m_l.getCurrentToken() != lexor::kIndent)
+      {
+         // close the block(s)
+         auto *pClose = dynamic_cast<iBlockNode&>(n).createCloseNode();
+         n.addChild(*pClose);
+         m_indent--;
+         return true; // remember the indents I've already eaten (m_indentsEaten)
+                      // this is only meaningful if m_indent was > 1
+                      // if indent = 1, then indentsEaten wil be at most 0 here, so ok!
+      }
+      m_l.advance(lexor::kAllowComments);
+      if(m_l.getCurrentToken() == lexor::kComment)
+      {
+         m_l.advance();
+         // consider this a new line by reseting m_indentsEaten
+         // this will be incremented shortly, so go to -1 so I end up at 0
+         m_indentsEaten = -1;
+      }
+   }
+   m_indentsEaten = 0;
+   return false;
+}
 
+void parser::parseArgReq(std::string& arg)
+{
+   m_l.demand(lexor::kQuotedText);
+   arg = m_l.getCurrentLexeme();
+   m_l.advance();
+}
+
+void parser::parsePathReq(std::string& arg)
+{
+   if(m_l.getCurrentToken() == lexor::kRelPath)
+   {
+      arg = m_l.getCurrentLexeme();
+      adjustPath(arg);
+      m_l.advance();
+   }
+   else
+      parseArgReq(arg);
+}
+
+void parser::parseArgOpt(std::string& arg)
+{
+   if(m_l.getCurrentToken() == lexor::kQuotedText)
+   {
+      arg = m_l.getCurrentLexeme();
+      m_l.advance();
+   }
+}
+
+void parser::adjustPath(std::string& p)
+{
    std::string fullPath = m_scriptPath + "\\..\\" + p;
    p = fullPath;
 }
@@ -205,15 +225,16 @@ cdwTest(loadsaveimage_parser_acceptance)
    std::stringstream program,expected;
    program
       << "load-image \"Q:\\foo\":" << std::endl
-      << "   save-image \"Q:\\bar\"" << std::endl
       << "   save-image \"bar\"" << std::endl
+      << "   save-image r\"bar\"" << std::endl
    ;
    expected
       << "scriptNode" << std::endl
-      << "   loadImageNode(Q:\\foo)" << std::endl
-      << "      saveImageNode(Q:\\bar)" << std::endl
-      << "      saveImageNode(<mythological script file path>\\..\\bar)" << std::endl
-      << "      closeImageNode" << std::endl
+      << "   fileNode(<mythological script file path>)" << std::endl
+      << "      loadImageNode(Q:\\foo)" << std::endl
+      << "         saveImageNode(bar)" << std::endl
+      << "         saveImageNode(<mythological script file path>\\..\\bar)" << std::endl
+      << "         closeImageNode" << std::endl
    ;
 
    auto copy = program.str();
@@ -239,17 +260,32 @@ cdwTest(parser_indent)
       << "load-image \"Q:\\foo\":" << std::endl
       << "load-image \"Q:\\foo\":" << std::endl
       << "   save-image \"Q:\\bar\"" << std::endl
+      << "load-image \"Q:\\foo\":" << std::endl
+      << "   select-object \"0\":" << std::endl
+      << "      select-object \"0\":" << std::endl
+      << "         select-object \"0\":" << std::endl
+      << "   save-image \"Q:\\bar\"" << std::endl
    ;
    expected
       << "scriptNode" << std::endl
-      << "   loadImageNode(Q:\\foo)" << std::endl
-      << "      saveImageNode(Q:\\bar)" << std::endl
-      << "      closeImageNode" << std::endl
-      << "   loadImageNode(Q:\\foo)" << std::endl
-      << "      closeImageNode" << std::endl
-      << "   loadImageNode(Q:\\foo)" << std::endl
-      << "      saveImageNode(Q:\\bar)" << std::endl
-      << "      closeImageNode" << std::endl
+      << "   fileNode(<mythological script file path>)" << std::endl
+      << "      loadImageNode(Q:\\foo)" << std::endl
+      << "         saveImageNode(Q:\\bar)" << std::endl
+      << "         closeImageNode" << std::endl
+      << "      loadImageNode(Q:\\foo)" << std::endl
+      << "         closeImageNode" << std::endl
+      << "      loadImageNode(Q:\\foo)" << std::endl
+      << "         saveImageNode(Q:\\bar)" << std::endl
+      << "         closeImageNode" << std::endl
+      << "      loadImageNode(Q:\\foo)" << std::endl
+      << "         selectObjectNode(0,)" << std::endl
+      << "            selectObjectNode(0,)" << std::endl
+      << "               selectObjectNode(0,)" << std::endl
+      << "                  deselectObjectNode" << std::endl
+      << "               deselectObjectNode" << std::endl
+      << "            deselectObjectNode" << std::endl
+      << "         saveImageNode(Q:\\bar)" << std::endl
+      << "         closeImageNode" << std::endl
    ;
 
    auto copy = program.str();

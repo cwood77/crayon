@@ -1,4 +1,4 @@
-load-image "scribble.bmp":
+load-image r"scribble.bmp":
 
    # hello
-   save-image "out-scribble.bmp"
+   save-image r"out-scribble.bmp"

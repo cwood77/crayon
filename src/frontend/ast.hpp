@@ -5,6 +5,7 @@
 #include <vector>
 
 class scriptNode;
+class fileNode;
 class loadImageNode;
 class saveImageNode;
 class closeImageNode;
@@ -12,6 +13,7 @@ class snipNode;
 class overlayNode;
 class removeFrameNode;
 class selectObjectNode;
+class deselectObjectNode;
 class cropNode;
 class defineNode;
 class findWhiskersNode;
@@ -20,6 +22,7 @@ class trimWhiskersNode;
 class iNodeVisitor {
 public:
    virtual void visit(scriptNode& n) = 0;
+   virtual void visit(fileNode& n) = 0;
    virtual void visit(loadImageNode& n) = 0;
    virtual void visit(saveImageNode& n) = 0;
    virtual void visit(closeImageNode& n) = 0;
@@ -27,6 +30,7 @@ public:
    virtual void visit(overlayNode& n) = 0;
    virtual void visit(removeFrameNode& n) = 0;
    virtual void visit(selectObjectNode& n) = 0;
+   virtual void visit(deselectObjectNode& n) = 0;
    virtual void visit(cropNode& n) = 0;
    virtual void visit(defineNode& n) = 0;
    virtual void visit(findWhiskersNode& n) = 0;
@@ -77,9 +81,21 @@ private:
    std::vector<scriptNode*> m_children;
 };
 
-class loadImageNode : public scriptNode {
+class iBlockNode {
 public:
-   closeImageNode *createCloseNode();
+   virtual scriptNode *createCloseNode() = 0;
+};
+
+class fileNode : public scriptNode {
+public:
+   virtual void acceptVisitor(iNodeVisitor& v) { v.visit(*this); }
+
+   std::string scriptPath;
+};
+
+class loadImageNode : public scriptNode, public iBlockNode {
+public:
+   virtual scriptNode *createCloseNode();
 
    virtual void acceptVisitor(iNodeVisitor& v) { v.visit(*this); }
 
@@ -121,14 +137,20 @@ public:
    virtual void acceptVisitor(iNodeVisitor& v) { v.visit(*this); }
 };
 
-class selectObjectNode : public scriptNode {
+class selectObjectNode : public scriptNode, public iBlockNode {
 public:
-   selectObjectNode() : n("0"), dbgHilight(false) {}
+   selectObjectNode() : n("0") {}
 
+   virtual scriptNode *createCloseNode();
    virtual void acceptVisitor(iNodeVisitor& v) { v.visit(*this); }
 
    std::string n;
-   bool dbgHilight;
+   std::string hilight;
+};
+
+class deselectObjectNode : public scriptNode {
+public:
+   virtual void acceptVisitor(iNodeVisitor& v) { v.visit(*this); }
 };
 
 class cropNode : public scriptNode {
