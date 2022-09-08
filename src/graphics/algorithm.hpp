@@ -52,13 +52,15 @@ private:
 
 class whiskerFinder {
 public:
+   enum { kCenter = 0xFFFFFFFF };
+
    static point run(iCanvas& c, COLORREF x, COLORREF y, log& Log);
    static void clear(iCanvas& c, log& Log);
 
 private:
    whiskerFinder(iCanvas& c, log& l);
 
-   void categorize() { categorizeVert(); categorizeHoriz(); }
+   void categorize();
    void categorizeVert();
    void categorizeHoriz();
    void markVertWhisker(long x, long y, COLORREF c);
@@ -67,6 +69,8 @@ private:
 
    std::map<COLORREF,long> m_vertWhiskers;
    std::map<COLORREF,long> m_horizWhiskers;
+
+   point m_center;
 
    iCanvas& m_canvas;
    log& m_log;

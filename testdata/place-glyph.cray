@@ -1,23 +1,24 @@
-define col.red = rgb{237,28,36}
+define myRed = rgb{237,28,36}
 
-load-image "proof-overlay.bmp":
-   snip -> proof
+load-image "glyphs.bmp":
+   select-object 0
+   snip -> centerGlyph
 
-load-image "scribble.bmp":
-   overlay $proof
-   #remove-frame
-   save-image "out-dbg0.bmp"
-   snip -> glyph
-   save-image "out-dbg1.bmp"
+load-image "glyphs.bmp":
+   select-object 1
+   snip -> pntGlyph
 
 load-image "card-template.bmp":
-   find-whiskers $col.red $col.red -> xy
+   select-object 0
+   find-whiskers $myRed $myRed -> rXY
+   find-whiskers rgb{0,0,0} rgb{0,0,0} -> bXY
+   find-whiskers / / -> cen
+
+   overlay $pntGlyph $rXY
+   overlay $pntGlyph $bXY
+   overlay $centerGlyph $cen
+
    trim-whiskers
-   save-image "out-dbg2.bmp"
-
-   overlay $glyph $xy
-   save-image "out-dbg3.bmp"
-
    select-object 0
    crop
-   save-image "out-cardTemplateWhisk.bmp"
+   save-image "out-cardWithGlyph.bmp"

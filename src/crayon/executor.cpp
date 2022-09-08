@@ -157,8 +157,12 @@ void executor::visit(findWhiskersNode& n)
    m_log.s().s() << "finding whiskers" << std::endl;
    auto& attr = n.root().fetch<graphicsAttribute>();
 
-   auto xColor = argEvaluator(m_sTable,n.x).getColor();
-   auto yColor = argEvaluator(m_sTable,n.y).getColor();
+   COLORREF xColor = whiskerFinder::kCenter;
+   if(argEvaluator(m_sTable,n.x).getString() != "/")
+      xColor = argEvaluator(m_sTable,n.x).getColor();
+   COLORREF yColor = whiskerFinder::kCenter;
+   if(argEvaluator(m_sTable,n.y).getString() != "/")
+      yColor = argEvaluator(m_sTable,n.y).getColor();
 
    auto pnt = whiskerFinder::run(attr.pCanvas,xColor,yColor,m_log);
    m_log.s().s() << "  whisker found at (" << pnt.x << "," << pnt.y << ")" << std::endl;

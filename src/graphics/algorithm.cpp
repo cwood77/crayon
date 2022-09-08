@@ -224,8 +224,15 @@ void whiskerFinder::clear(iCanvas& c, log& Log)
 }
 
 whiskerFinder::whiskerFinder(iCanvas& c, log& l)
-: m_canvas(c), m_log(l), m_clearWhiskers(false)
+: m_center(0,0), m_canvas(c), m_log(l), m_clearWhiskers(false)
 {
+}
+
+void whiskerFinder::categorize()
+{
+   categorizeVert();
+   categorizeHoriz();
+   m_log.s().s() << "center appears to be at (" << m_center.x << "," << m_center.y << ")" << std::endl;
 }
 
 void whiskerFinder::categorizeVert()
@@ -246,7 +253,10 @@ void whiskerFinder::categorizeVert()
          {
             bool twoInARow = (pix == last);
             if(twoInARow && pix != RGB(255,255,255))
+            {
                done = true; // no longer looking at whiskers!
+               m_center.y = ((h-y) / 2) + y;
+            }
             else if(last != RGB(255,255,255))
             {
                // consider last a whisker
@@ -279,7 +289,10 @@ void whiskerFinder::categorizeHoriz()
          {
             bool twoInARow = (pix == last);
             if(twoInARow && pix != RGB(255,255,255))
+            {
                done = true; // no longer looking at whiskers!
+               m_center.x = ((w-x) / 2) + x;
+            }
             else if(last != RGB(255,255,255))
             {
                // consider last a whisker
@@ -316,11 +329,27 @@ point whiskerFinder::find(COLORREF x, COLORREF y)
 {
    m_log.s().s() << "find (" << x << "," << y << ")" << std::endl;
 
-   auto vit = m_vertWhiskers.find(x);
-   auto hit = m_horizWhiskers.find(y);
+   point rval(0,0);
 
-   if(hit == m_horizWhiskers.end() || vit == m_vertWhiskers.end())
-      throw std::runtime_error("whisker not found");
+   if(x == kCenter)
+      rval.x = m_center.x;
+   else
+   {
+      auto vit = m_vertWhiskers.find(x);
+      if(vit == m_vertWhiskers.end())
+         throw std::runtime_error("X whisker not found");
+      rval.x = vit->second;
+   }
 
-   return point(vit->second,hit->second);
+   if(y == kCenter)
+      rval.y = m_center.y;
+   else
+   {
+      auto hit = m_horizWhiskers.find(y);
+      if(hit == m_horizWhiskers.end())
+         throw std::runtime_error("Y whisker not found");
+      rval.y = hit->second;
+   }
+
+   return rval;
 }

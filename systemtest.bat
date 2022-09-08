@@ -4,8 +4,9 @@ rem unit
 bin\out\debug\crayon test > nul
 if not errorlevel 0 goto fail
 
-rem basic
 del testdata\out-*.bmp > nul 2>&1
+
+rem basic
 bin\out\debug\crayon testdata\basic.cray > nul
 if not errorlevel 0 goto fail
 fc /b testdata\scribble.bmp testdata\out-scribble.bmp
@@ -30,8 +31,8 @@ if not errorlevel 0 goto fail
 rem tick rects
 bin\out\debug\crayon testdata\place-glyph.cray > nul
 if not errorlevel 0 goto fail
-   rem calc-tick-rect / rgb{255,0,0} -> r
-   rem overlay $g rgb(255,255,255) $r
+fc /b testdata\expected-cardWithGlyph.bmp testdata\out-cardWithGlyph.bmp
+if not errorlevel 0 goto fail
 
 :win
 echo all clear
