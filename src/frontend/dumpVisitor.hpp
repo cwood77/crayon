@@ -9,6 +9,7 @@ public:
    explicit dumpVisitor(log& l) : m_l(l) {}
 
    virtual void visit(scriptNode& n);
+   virtual void visit(fileNode& n);
    virtual void visit(loadImageNode& n);
    virtual void visit(saveImageNode& n);
    virtual void visit(closeImageNode& n);

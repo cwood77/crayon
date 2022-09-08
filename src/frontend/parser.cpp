@@ -12,6 +12,10 @@
 
 void parser::parseFile()
 {
+   fileNode *pFile = new fileNode();
+   pFile->scriptPath = m_scriptPath;
+   m_root.addChild(*pFile);
+
    while(m_l.getCurrentToken() != lexor::kEOI)
    {
       if(m_l.isHText("define"))
@@ -25,7 +29,7 @@ void parser::parseFile()
          m_l.advance();
 
          parseArgReq(pNoob->value);
-         m_root.addChild(*pNoob);
+         pFile->addChild(*pNoob);
       }
       else if(m_l.isHText("load-image"))
       {
@@ -36,7 +40,7 @@ void parser::parseFile()
          adjustPathIf(pNoob->path);
 
          m_l.demandAndEat(lexor::kColon);
-         m_root.addChild(*pNoob);
+         pFile->addChild(*pNoob);
          parseImageBlock(*pNoob);
       }
       else
@@ -112,14 +116,7 @@ void parser::parseImageBlock(scriptNode& n)
 
       parseArgOpt(pNoob->n);
 
-      // TODO
-      if(m_l.getCurrentToken() == lexor::kQuotedText)
-      {
-         if(m_l.getCurrentLexeme() != "hilight")
-            throw std::runtime_error("usage: select-object [#] [hilight]");
-         pNoob->dbgHilight = true;
-         m_l.advance();
-      }
+      parseArgOpt(pNoob->hilight);
 
       n.addChild(*pNoob);
       parseImageBlock(n);
@@ -198,10 +195,11 @@ cdwTest(loadsaveimage_parser_acceptance)
    ;
    expected
       << "scriptNode" << std::endl
-      << "   loadImageNode(Q:\\foo)" << std::endl
-      << "      saveImageNode(Q:\\bar)" << std::endl
-      << "      saveImageNode(<mythological script file path>\\..\\bar)" << std::endl
-      << "      closeImageNode" << std::endl
+      << "   fileNode(<mythological script file path>)" << std::endl
+      << "      loadImageNode(Q:\\foo)" << std::endl
+      << "         saveImageNode(Q:\\bar)" << std::endl
+      << "         saveImageNode(<mythological script file path>\\..\\bar)" << std::endl
+      << "         closeImageNode" << std::endl
    ;
 
    auto copy = program.str();
@@ -230,14 +228,15 @@ cdwTest(parser_indent)
    ;
    expected
       << "scriptNode" << std::endl
-      << "   loadImageNode(Q:\\foo)" << std::endl
-      << "      saveImageNode(Q:\\bar)" << std::endl
-      << "      closeImageNode" << std::endl
-      << "   loadImageNode(Q:\\foo)" << std::endl
-      << "      closeImageNode" << std::endl
-      << "   loadImageNode(Q:\\foo)" << std::endl
-      << "      saveImageNode(Q:\\bar)" << std::endl
-      << "      closeImageNode" << std::endl
+      << "   fileNode(<mythological script file path>)" << std::endl
+      << "      loadImageNode(Q:\\foo)" << std::endl
+      << "         saveImageNode(Q:\\bar)" << std::endl
+      << "         closeImageNode" << std::endl
+      << "      loadImageNode(Q:\\foo)" << std::endl
+      << "         closeImageNode" << std::endl
+      << "      loadImageNode(Q:\\foo)" << std::endl
+      << "         saveImageNode(Q:\\bar)" << std::endl
+      << "         closeImageNode" << std::endl
    ;
 
    auto copy = program.str();

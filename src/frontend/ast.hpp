@@ -5,6 +5,7 @@
 #include <vector>
 
 class scriptNode;
+class fileNode;
 class loadImageNode;
 class saveImageNode;
 class closeImageNode;
@@ -20,6 +21,7 @@ class trimWhiskersNode;
 class iNodeVisitor {
 public:
    virtual void visit(scriptNode& n) = 0;
+   virtual void visit(fileNode& n) = 0;
    virtual void visit(loadImageNode& n) = 0;
    virtual void visit(saveImageNode& n) = 0;
    virtual void visit(closeImageNode& n) = 0;
@@ -77,6 +79,13 @@ private:
    std::vector<scriptNode*> m_children;
 };
 
+class fileNode : public scriptNode {
+public:
+   virtual void acceptVisitor(iNodeVisitor& v) { v.visit(*this); }
+
+   std::string scriptPath;
+};
+
 class loadImageNode : public scriptNode {
 public:
    closeImageNode *createCloseNode();
@@ -123,12 +132,12 @@ public:
 
 class selectObjectNode : public scriptNode {
 public:
-   selectObjectNode() : n("0"), dbgHilight(false) {}
+   selectObjectNode() : n("0") {}
 
    virtual void acceptVisitor(iNodeVisitor& v) { v.visit(*this); }
 
    std::string n;
-   bool dbgHilight;
+   std::string hilight;
 };
 
 class cropNode : public scriptNode {

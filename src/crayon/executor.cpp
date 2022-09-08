@@ -100,7 +100,7 @@ void executor::visit(selectObjectNode& n)
    rect r = objectFinder::run(
       attr.pCanvas,
       argEvaluator(m_sTable,n.n).getNum(),
-      n.dbgHilight,
+      argEvaluator(m_sTable,n.hilight).getFlag("hilight"),
       m_log);
    attr.pCanvas.reset(attr.pCanvas->subset(r));
 
