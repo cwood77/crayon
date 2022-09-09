@@ -213,7 +213,7 @@ void executor::visit(foreachStringSetNode& n)
       for(;sit!=schema.end();++sit,++var)
       {
          std::string fullName = n.varName + "." + *sit;
-         m_sTable.overwrite(fullName,*new stringSymbol(*var));
+         m_sTable.overwrite(fullName,*new stringSymbol(trimTrailingNewlines(*var)));
       }
       visitChildren(n);
    }
@@ -229,4 +229,15 @@ void executor::visit(echoNode& n)
 {
    m_log.s().s() << argEvaluator(m_sTable,n.text).getString() << std::endl;
    visitChildren(n);
+}
+
+std::string executor::trimTrailingNewlines(const std::string& s)
+{
+   if(s.length() == 0)
+      return s;
+
+   const char *pThumb = s.c_str()+s.length()-1;
+   for(;pThumb>s.c_str()&&(*pThumb=='\r'||*pThumb=='\n');--pThumb);
+
+   return std::string(s.c_str(),pThumb-s.c_str()+1);
 }

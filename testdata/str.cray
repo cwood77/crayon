@@ -1,2 +1,2 @@
 foreach-stringset r"strings.txt" {card-name,card-text,glyph} -> str :
-   echo "handling {$str.card-name}"
+   echo "handling '{$str.card-name}'"

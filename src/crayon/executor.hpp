@@ -36,6 +36,8 @@ public:
    virtual void visit(echoNode& n);
 
 private:
+   std::string trimTrailingNewlines(const std::string& s);
+
    log& m_log;
    graphicsApiFactory& m_gFac;
    symbolTable& m_sTable;
