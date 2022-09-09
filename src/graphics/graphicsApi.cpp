@@ -35,3 +35,9 @@ iGraphicsApi *graphicsApiFactory::open(size_t i)
 
    return m_func0(m_log);
 }
+
+void graphicsApiFactory::diagnostics()
+{
+   autoReleasePtr<iGraphicsApi> pApi(open(0));
+   pApi->diagnostics();
+}

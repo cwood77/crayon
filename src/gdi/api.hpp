@@ -11,9 +11,8 @@ public:
    ~api();
 
    virtual iFileType *createFileType(size_t i);
-
-   /*virtual iFont *createFont(const char *face, size_t size)
-   { throw std::runtime_error("font not yet supported"); }*/
+   virtual iFont *createFont(const char *face, size_t size, size_t options);
+   virtual void diagnostics();
 
    log Log;
    HDC dc;
@@ -33,14 +32,53 @@ public:
 public: \
    __type__(api& a) : subObject(a) {}
 
+class fontFinder {
+public:
+   explicit fontFinder(LOGFONTA& a) : m_lf(a), m_found(false) {}
+   void findFirstInAnsiCharSet(const std::string& face);
+
+private:
+   void onFound(const LOGFONTA& lf, const TEXTMETRICA& tm, DWORD type);
+   static int onFound(const LOGFONTA *pLf, const TEXTMETRICA *pTm, DWORD ft, LPARAM lParam);
+
+   LOGFONTA& m_lf;
+   bool m_found;
+};
+
+class font : public iFont, public subObject {
+public:
+   explicit font(api& a) : subObject(a), hFont(NULL) {}
+   ~font();
+   void activate();
+   void deactivate();
+
+   HFONT hFont;
+   INT bkMode;
+
+private:
+   HGDIOBJ hOld;
+
+cdwImplAddrefRelease();
+};
+
+class autoBackgroundMode {
+public:
+   autoBackgroundMode(HDC hdc, int mode);
+   ~autoBackgroundMode();
+
+private:
+   HDC m_dc;
+   int m_oldMode;
+};
+
 class canvas : public iCanvas, public subObject {
 public:
    canvas(api& a, iCanvas& c, const rect& dims);
    virtual void getDims(long& w, long& h) { w = m_dims.w; h = m_dims.h; }
    virtual COLORREF getPixel(const point& p) { return m_pInner->getPixel(translate(p)); }
    virtual void setPixel(const point& p, COLORREF r) { m_pInner->setPixel(translate(p),r); }
-   virtual void drawText(const point& p, const char *text, size_t flags)
-   { m_pInner->drawText(translate(p),text,flags); }
+   virtual void drawText(const point& p, const char *text, size_t flags, iFont& font)
+   { m_pInner->drawText(translate(p),text,flags,font); }
    virtual iCanvas *subset(const rect& r) { return new canvas(Api,*this,r); }
    virtual iCanvas *superset() { return m_pInner.get(); }
    virtual iSnippet *snip(iSnippetAllocator& a, iTransform& t) { return Snip(a,t,*this); }
@@ -60,11 +98,12 @@ cdwImplAddrefRelease();
 
 class bitmap : public iBitmap, public subObject {
 public:
+   explicit bitmap(api& a) : subObject(a), hBmp(NULL) {}
    virtual ~bitmap();
    virtual void getDims(long& w, long& h) { w = width; h = height; }
    virtual COLORREF getPixel(const point& p);
    virtual void setPixel(const point& p, COLORREF r);
-   virtual void drawText(const point& p, const char *text, size_t flags);
+   virtual void drawText(const point& p, const char *text, size_t flags, iFont& font);
    virtual iCanvas *subset(const rect& r) { return new canvas(Api,*this,r); }
    virtual iCanvas *superset() { return this; }
    virtual iSnippet *snip(iSnippetAllocator& a, iTransform& t)
@@ -73,10 +112,16 @@ public:
    { canvas::Overlay(s,transparent,*this); }
    virtual void setDims(long w, long h) { width = w; height = h; }
 
+   void activate();
+   void deactivate();
+
    long width;
    long height;
+   HBITMAP hBmp;
 
-cdwImplSubObject(bitmap);
+private:
+   HGDIOBJ hOld;
+
 cdwImplAddrefRelease();
 };
 

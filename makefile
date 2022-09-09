@@ -112,6 +112,7 @@ $(CRAYON_RELEASE_OBJ): $(OBJ_DIR)/release/%.o: src/%.cpp
 # gdiapi
 
 GDIAPI_SRC = \
+	src/gdi/diag.cpp \
 	src/gdi/loadsave.cpp \
 	src/gdi/main.cpp \
 

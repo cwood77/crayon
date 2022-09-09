@@ -10,6 +10,7 @@ public:
    autoReleasePtr<iGraphicsApi> pApi;
    autoReleasePtr<iBitmap> pImage;
    autoReleasePtr<iCanvas> pCanvas;
+   autoReleasePtr<iFont>   pFont;
 };
 
 class executor : public iNodeVisitor {

@@ -236,6 +236,9 @@ void executor::visit(drawTextNode& n)
    m_log.s().s() << "drawing text" << std::endl;
    auto& attr = n.root().fetch<graphicsAttribute>();
 
+   if(!attr.pFont)
+      throw std::runtime_error("a font must be active to draw text");
+
    std::map<std::string,size_t> table;
    table["hCenter"] = DT_CENTER;
    table["hLeft"]   = DT_LEFT;
@@ -254,7 +257,8 @@ void executor::visit(drawTextNode& n)
    attr.pCanvas->drawText(
       argEvaluator(m_sTable,n.pt).getPoint(),
       argEvaluator(m_sTable,n.text).getString().c_str(),
-      flags);
+      flags,
+      attr.pFont);
 
    visitChildren(n);
 }

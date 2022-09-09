@@ -25,7 +25,8 @@ iBitmap *bmpFileType::loadBitmap(const char *path)
    Api.Log.s().s() << "loaded hbitmap at " << (size_t)bit << std::endl;
    if(!bit)
       throw std::runtime_error("failed to load bitmap");
-   ::SelectObject(Api.dc,bit);
+   pBitmap->hBmp = bit;
+   pBitmap->activate();
 
    return pBitmap.leak();
 }
