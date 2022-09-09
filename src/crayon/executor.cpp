@@ -239,9 +239,9 @@ void executor::visit(drawTextNode& n)
    std::map<std::string,size_t> table;
    table["hCenter"] = DT_CENTER;
    table["hLeft"]   = DT_LEFT;
-   table["hRight"]  = DT_RIGHT;
    /*
-   table["vTop"]    = DT_TOP;         // these are not allowed, b/c it affects
+   table["hRight"]  = DT_RIGHT;
+   table["vTop"]    = DT_TOP;         // these are not allowed, b/c they affect
    table["vBottom"] = DT_BOTTOM;      // rect calculation inside graphics APIs
    table["vCenter"] = DT_VCENTER;
    */

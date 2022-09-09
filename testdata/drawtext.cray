@@ -1,0 +1,4 @@
+load-image r"green grid.bmp":
+   draw-text pnt{10,20} "no options at 10, 20"
+   draw-text pnt{70,40} "center at 70, 40" hCenter
+   save-image r"out-text.bmp"

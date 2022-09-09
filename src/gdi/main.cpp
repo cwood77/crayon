@@ -87,10 +87,18 @@ void bitmap::drawText(const point& p, const char *text, size_t flags)
 {
    const size_t hugeSize = 1000;
    RECT r;
-   r.left = p.x;
    r.top = p.y - hugeSize;
-   r.right = p.x + hugeSize;
    r.bottom = p.y;
+   if(flags & DT_CENTER)
+   {
+      r.left = p.x - hugeSize;
+      r.right = p.x + hugeSize;
+   }
+   else
+   {
+      r.left = p.x;
+      r.right = p.x + hugeSize;
+   }
 
    // coords passed in are assumed to be the line you're writing on, like
    // in elementary school.  That means the 'descent' (i.e. the parts of letters
