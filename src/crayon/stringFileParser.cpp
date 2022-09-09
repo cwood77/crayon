@@ -168,7 +168,7 @@ cdwTest(stringFileParser_illegal)
    try
    {
       std::list<std::list<std::string> > set;
-      stringFileParser::parse("testdata\\strings.txt",schema,set);
+      stringFileParser::parse("testdata\\unittest-strings.txt",schema,set);
       cdwAssertEqu("true","false");
    }
    catch(std::exception& x)

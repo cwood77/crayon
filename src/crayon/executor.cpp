@@ -3,6 +3,7 @@
 #include "../graphics/snippet.hpp"
 #include "executor.hpp"
 #include "log.hpp"
+#include "stringFileParser.hpp"
 #include "symbolTable.hpp"
 #include <memory>
 
@@ -200,12 +201,22 @@ void executor::visit(foreachStringSetNode& n)
    auto schema = argEvaluator(m_sTable,n.schema).getSet();
 
    m_log.s().s() << "pulling strings from '" << path << "'" << std::endl;
-   m_log.s().s() << "{" << std::endl;
-   for(auto x : schema)
-      m_log.s().s() << "   " << x << std::endl;
-   m_log.s().s() << "}" << std::endl;
 
-   visitChildren(n);
+   std::list<std::list<std::string> > stringSet;
+   stringFileParser::parse(path,schema,stringSet);
+   m_log.s().s() << "found " << stringSet.size() << " tuple(s)" << std::endl;
+
+   for(auto tuple : stringSet)
+   {
+      auto sit = schema.begin();
+      auto var = tuple.begin();
+      for(;sit!=schema.end();++sit,++var)
+      {
+         std::string fullName = n.varName + "." + *sit;
+         m_sTable.overwrite(fullName,*new stringSymbol(*var));
+      }
+      visitChildren(n);
+   }
 }
 
 void executor::visit(closeStringSetNode& n)

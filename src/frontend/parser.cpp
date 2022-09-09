@@ -209,6 +209,17 @@ bool parser::parseAnywhere(scriptNode& n)
       parseImageBlock(*pNoob);
       return true;
    }
+   if(m_l.isHText("echo"))
+   {
+      m_l.advance();
+      auto *pNoob = new echoNode;
+
+      parseArgReq(pNoob->text);
+
+      n.addChild(*pNoob);
+      parseImageBlock(n);
+      return true;
+   }
    else
       return false;
 }
