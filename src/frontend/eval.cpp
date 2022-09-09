@@ -46,6 +46,14 @@ void expandInterpolationParts(const std::string& in, std::list<std::string>& par
 
 } // anonymous namespace
 
+size_t argEvaluator::computeBitFlags(symbolTable& st, const std::list<std::string>& options, std::map<std::string,size_t>& table)
+{
+   size_t ans = 0;
+   for(auto opt : options)
+      ans |= argEvaluator(st,opt).lookup(table);
+   return ans;
+}
+
 // expand variables
 // expansion forms:
 //    simple:       $g[0].f
@@ -131,6 +139,15 @@ std::list<std::string> argEvaluator::getSet()
       }
    }
    return set;
+}
+
+size_t argEvaluator::lookup(std::map<std::string,size_t>& table)
+{
+   std::string in = getString();
+   auto it = table.find(in);
+   if(it == table.end())
+      throw std::runtime_error("arg value not in table");
+   return it->second;
 }
 
 #ifdef cdwTestBuild

@@ -150,6 +150,24 @@ void parser::parseImageBlock(scriptNode& n)
       n.addChild(*pNoob);
       parseImageBlock(n); // TODO do I need this?
    }
+   else if(m_l.isHText("draw-text"))
+   {
+      m_l.advance();
+      auto *pNoob = new drawTextNode;
+
+      parseArgReq(pNoob->pt);
+
+      parseArgReq(pNoob->text);
+
+      while(m_l.getCurrentToken() == lexor::kQuotedText)
+      {
+         pNoob->options.push_back(m_l.getCurrentLexeme());
+         m_l.advance();
+      }
+
+      n.addChild(*pNoob);
+      parseImageBlock(n);
+   }
    else if(parseAnywhere(n))
       ;
    else

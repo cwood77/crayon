@@ -39,6 +39,8 @@ public:
    virtual void getDims(long& w, long& h) { w = m_dims.w; h = m_dims.h; }
    virtual COLORREF getPixel(const point& p) { return m_pInner->getPixel(translate(p)); }
    virtual void setPixel(const point& p, COLORREF r) { m_pInner->setPixel(translate(p),r); }
+   virtual void drawText(const point& p, const char *text, size_t flags)
+   { m_pInner->drawText(translate(p),text,flags); }
    virtual iCanvas *subset(const rect& r) { return new canvas(Api,*this,r); }
    virtual iCanvas *superset() { return m_pInner.get(); }
    virtual iSnippet *snip(iSnippetAllocator& a, iTransform& t) { return Snip(a,t,*this); }
@@ -62,6 +64,7 @@ public:
    virtual void getDims(long& w, long& h) { w = width; h = height; }
    virtual COLORREF getPixel(const point& p);
    virtual void setPixel(const point& p, COLORREF r);
+   virtual void drawText(const point& p, const char *text, size_t flags);
    virtual iCanvas *subset(const rect& r) { return new canvas(Api,*this,r); }
    virtual iCanvas *superset() { return this; }
    virtual iSnippet *snip(iSnippetAllocator& a, iTransform& t)

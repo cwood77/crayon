@@ -80,6 +80,35 @@ void bitmap::setPixel(const point& p, COLORREF r)
    ::SetPixel(Api.dc,p.x,p.y,r);
 }
 
+// there is both horizontal and vertical slop injected by DrawText..?
+// I account for the vertical slop with GetTextMetrics below; but I'm
+// not sure how to account for horizontal slop, or that it's worth trying.
+void bitmap::drawText(const point& p, const char *text, size_t flags)
+{
+   const size_t hugeSize = 1000;
+   RECT r;
+   r.left = p.x;
+   r.top = p.y - hugeSize;
+   r.right = p.x + hugeSize;
+   r.bottom = p.y;
+
+   // coords passed in are assumed to be the line you're writing on, like
+   // in elementary school.  That means the 'descent' (i.e. the parts of letters
+   // like "j" that hang below the line) needs to be added.
+   TEXTMETRICA tInfo;
+   ::GetTextMetrics(Api.dc,&tInfo);
+   r.bottom += tInfo.tmDescent;
+
+   auto success = ::DrawText(
+      Api.dc,
+      text,
+      -1,
+      &r,
+      flags);
+   if(!success)
+      throw std::runtime_error("draw text failed");
+}
+
 __declspec(dllexport) iGraphicsApi *create(iLog& l)
 {
    return new api(l);

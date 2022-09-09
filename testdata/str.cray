@@ -1,2 +1,6 @@
 foreach-stringset r"strings.txt" {card-name,card-text,glyph} -> str :
    echo "handling '{$str.card-name}'"
+
+load-image r"green grid.bmp":
+   draw-text pnt{10,20} "no options at 10, 20"
+   save-image r"out-text.bmp"

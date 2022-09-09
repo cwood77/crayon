@@ -20,6 +20,7 @@ class scriptNode;
 //                  | <indent> 'crop' <image-block>
 //                  | <indent> 'find-whiskers' <qtext> <qtext> '->' <qtext> <image-block>
 //                  | <indent> 'trim-whiskers' <image-block>
+//                  | <indent> 'draw-text' <qtext> <qtext> <qtext>** <image-block>
 //                  | <indent> <anywhere>
 //                  | e
 //

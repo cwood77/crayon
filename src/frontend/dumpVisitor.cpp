@@ -119,3 +119,10 @@ void dumpVisitor::visit(echoNode& n)
    autoIndent _i(m_l);
    visitChildren(n);
 }
+
+void dumpVisitor::visit(drawTextNode& n)
+{
+   m_l.s().s() << indent(m_l) << "drawTextNode(" << n.pt << "," << n.text << "," << n.options.size() << ")" << std::endl;
+   autoIndent _i(m_l);
+   visitChildren(n);
+}

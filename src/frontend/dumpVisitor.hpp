@@ -25,6 +25,7 @@ public:
    virtual void visit(foreachStringSetNode& n);
    virtual void visit(closeStringSetNode& n);
    virtual void visit(echoNode& n);
+   virtual void visit(drawTextNode& n);
 
 private:
    log& m_l;

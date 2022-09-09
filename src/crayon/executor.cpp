@@ -231,6 +231,34 @@ void executor::visit(echoNode& n)
    visitChildren(n);
 }
 
+void executor::visit(drawTextNode& n)
+{
+   m_log.s().s() << "drawing text" << std::endl;
+   auto& attr = n.root().fetch<graphicsAttribute>();
+
+   std::map<std::string,size_t> table;
+   table["hCenter"] = DT_CENTER;
+   table["hLeft"]   = DT_LEFT;
+   table["hRight"]  = DT_RIGHT;
+   /*
+   table["vTop"]    = DT_TOP;         // these are not allowed, b/c it affects
+   table["vBottom"] = DT_BOTTOM;      // rect calculation inside graphics APIs
+   table["vCenter"] = DT_VCENTER;
+   */
+   size_t flags = argEvaluator::computeBitFlags(m_sTable,n.options,table);
+   flags |= DT_BOTTOM;
+   flags |= DT_NOPREFIX;
+   flags |= DT_NOCLIP;
+   flags |= DT_SINGLELINE;
+
+   attr.pCanvas->drawText(
+      argEvaluator(m_sTable,n.pt).getPoint(),
+      argEvaluator(m_sTable,n.text).getString().c_str(),
+      flags);
+
+   visitChildren(n);
+}
+
 std::string executor::trimTrailingNewlines(const std::string& s)
 {
    if(s.length() == 0)

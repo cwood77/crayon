@@ -1,5 +1,6 @@
 #pragma once
 #include "attr.hpp"
+#include <list>
 #include <stdexcept>
 #include <string>
 #include <vector>
@@ -21,6 +22,7 @@ class trimWhiskersNode;
 class foreachStringSetNode;
 class closeStringSetNode;
 class echoNode;
+class drawTextNode;
 
 class iNodeVisitor {
 public:
@@ -41,6 +43,7 @@ public:
    virtual void visit(foreachStringSetNode& n) = 0;
    virtual void visit(closeStringSetNode& n) = 0;
    virtual void visit(echoNode& n) = 0;
+   virtual void visit(drawTextNode& n) = 0;
 
 protected:
    void visitChildren(scriptNode& n);
@@ -206,4 +209,14 @@ public:
    virtual void acceptVisitor(iNodeVisitor& v) { v.visit(*this); }
 
    std::string text;
+};
+
+class drawTextNode : public scriptNode {
+public:
+   virtual void acceptVisitor(iNodeVisitor& v) { v.visit(*this); }
+
+   std::string pt;
+   std::string text;
+
+   std::list<std::string> options;
 };

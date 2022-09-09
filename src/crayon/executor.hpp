@@ -34,6 +34,7 @@ public:
    virtual void visit(foreachStringSetNode& n);
    virtual void visit(closeStringSetNode& n);
    virtual void visit(echoNode& n);
+   virtual void visit(drawTextNode& n);
 
 private:
    std::string trimTrailingNewlines(const std::string& s);

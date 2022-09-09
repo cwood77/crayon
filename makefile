@@ -45,6 +45,7 @@ dirs:
 
 CMN_SRC = \
 	src/crayon/cfile.cpp \
+	src/graphics/cmn.cpp \
 
 CMN_DEBUG_OBJ = $(subst src,$(OBJ_DIR)/debug,$(patsubst %.cpp,%.o,$(CMN_SRC)))
 
