@@ -30,11 +30,13 @@ dirs:
 	@mkdir -p $(OBJ_DIR)/debug/frontend
 	@mkdir -p $(OBJ_DIR)/debug/gdi
 	@mkdir -p $(OBJ_DIR)/debug/graphics
+	@mkdir -p $(OBJ_DIR)/debug/graphics/algorithm
 	@mkdir -p $(OBJ_DIR)/release/cmn
 	@mkdir -p $(OBJ_DIR)/release/crayon
 	@mkdir -p $(OBJ_DIR)/release/frontend
 	@mkdir -p $(OBJ_DIR)/release/gdi
 	@mkdir -p $(OBJ_DIR)/release/graphics
+	@mkdir -p $(OBJ_DIR)/release/graphics/algorithm
 	@mkdir -p $(OUT_DIR)/debug
 	@mkdir -p $(OUT_DIR)/release
 
@@ -85,6 +87,7 @@ CRAYON_SRC = \
 	src/frontend/lexor.cpp \
 	src/frontend/parser.cpp \
 	src/graphics/algorithm.cpp \
+	src/graphics/algorithm/whiskers.cpp \
 	src/graphics/graphicsApi.cpp \
 	src/graphics/snippet.cpp \
 

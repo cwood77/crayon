@@ -46,7 +46,7 @@ void parser::parseFile()
       else if(parseAnywhere(*pFile))
          ;
       else
-         throw std::runtime_error("parser error");
+         m_l.error("expected file-level token");
    }
 }
 
@@ -126,29 +126,15 @@ void parser::parseImageBlock(scriptNode& n)
       n.addChild(*pNoob);
       parseImageBlock(n);
    }
-   else if(m_l.isHText("find-whiskers"))
+   else if(m_l.isHText("survey-whiskers"))
    {
       m_l.advance();
-      auto *pNoob = new findWhiskersNode;
+      auto *pNoob = new surveyWhiskersNode;
 
-      parseArgReq(pNoob->x);
-
-      parseArgReq(pNoob->y);
-
-      m_l.demandAndEat(lexor::kArrow);
-
-      parseArgReq(pNoob->varName);
-
+      m_l.demandAndEat(lexor::kColon);
       n.addChild(*pNoob);
-      parseImageBlock(n);
-   }
-   else if(m_l.isHText("trim-whiskers"))
-   {
-      m_l.advance();
-      auto *pNoob = new trimWhiskersNode;
-
-      n.addChild(*pNoob);
-      parseImageBlock(n); // TODO do I need this?
+      m_indent++;
+      parseWhiskerBlock(*pNoob);
    }
    else if(m_l.isHText("with-font"))
    {
@@ -189,7 +175,7 @@ void parser::parseImageBlock(scriptNode& n)
    else if(parseAnywhere(n))
       ;
    else
-      throw std::runtime_error("ise 153");
+      m_l.error("expected image-level token");
 
    // if I just read a line and am still at my same indentation, just
    // loop
@@ -222,6 +208,46 @@ bool parser::closeOrContinueBlock(scriptNode& n)
    }
    m_indentsEaten = 0;
    return false;
+}
+
+void parser::parseWhiskerBlock(scriptNode& n)
+{
+   const size_t myIndent = m_indent;
+
+   if(closeOrContinueBlock(n))
+      return;
+
+   if(m_l.isHText("find-point"))
+   {
+      m_l.advance();
+      auto *pNoob = new findWhiskerPointNode;
+
+      parseArgReq(pNoob->x);
+
+      parseArgReq(pNoob->y);
+
+      m_l.demandAndEat(lexor::kArrow);
+
+      parseArgReq(pNoob->varName);
+
+      n.addChild(*pNoob);
+      parseWhiskerBlock(n);
+   }
+   else if(m_l.isHText("trim"))
+   {
+      m_l.advance();
+      auto *pNoob = new trimWhiskersNode;
+
+      n.addChild(*pNoob);
+      parseWhiskerBlock(n); // TODO do I need this?
+   }
+   else
+      m_l.error("expected whisker-level token");
+
+   // if I just read a line and am still at my same indentation, just
+   // loop
+   if(m_indent == myIndent)
+      parseWhiskerBlock(n);
 }
 
 bool parser::parseAnywhere(scriptNode& n)

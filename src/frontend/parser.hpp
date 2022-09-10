@@ -18,11 +18,14 @@ class scriptNode;
 //                  | <indent> 'remove-frame' <image-block>
 //                  | <indent> 'select-object' [<qtext>] [<qtext>] <image-block>
 //                  | <indent> 'crop' <image-block>
-//                  | <indent> 'find-whiskers' <qtext> <qtext> '->' <qtext> <image-block>
-//                  | <indent> 'trim-whiskers' <image-block>
+//                  | <indent> 'survey-whiskers' ':' <whisker-block>
 //                  | <indent> 'draw-text' <qtext> <qtext> <qtext>** <image-block>
 //                  | <indent> <anywhere>
 //                  | e
+//
+// <whisker-block> ::==
+//                  | <indent> 'find-point' <qtext> <qtext> '->' <qtext> <whisker-block>
+//                  | <indent> 'trim' <whisker-block>
 //
 // <anywhere> ::== 'foreach-stringset' <qtext> <qtext> '->' <qtext>
 //               | 'echo' <qtext>
@@ -38,6 +41,7 @@ public:
 private:
    void parseImageBlock(scriptNode& n);
    bool closeOrContinueBlock(scriptNode& n);
+   void parseWhiskerBlock(scriptNode& n);
    bool parseAnywhere(scriptNode& n);
 
    void parseArgReq(std::string& arg);

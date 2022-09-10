@@ -163,19 +163,30 @@ void executor::visit(defineNode& n)
    visitChildren(n);
 }
 
-void executor::visit(findWhiskersNode& n)
+void executor::visit(surveyWhiskersNode& n)
 {
    m_log.s().s() << "finding whiskers" << std::endl;
    auto& attr = n.root().fetch<graphicsAttribute>();
+   auto& wattr = n.fetch<whiskerAttribute>();
 
-   COLORREF xColor = whiskerFinder::kCenter;
+   wattr.pSurvey.reset(new whiskerSurvey(attr.pCanvas,m_log));
+
+   visitChildren(n);
+}
+
+void executor::visit(findWhiskerPointNode& n)
+{
+   m_log.s().s() << "finding whiskers" << std::endl;
+   auto& wattr = n.demandAncestor<surveyWhiskersNode>().fetch<whiskerAttribute>();
+
+   COLORREF xColor = whiskerSurvey::kCenter;
    if(argEvaluator(m_sTable,n.x).getString() != "/")
       xColor = argEvaluator(m_sTable,n.x).getColor();
-   COLORREF yColor = whiskerFinder::kCenter;
+   COLORREF yColor = whiskerSurvey::kCenter;
    if(argEvaluator(m_sTable,n.y).getString() != "/")
       yColor = argEvaluator(m_sTable,n.y).getColor();
 
-   auto pnt = whiskerFinder::run(attr.pCanvas,xColor,yColor,m_log);
+   auto pnt = wattr.pSurvey->findPoint(xColor,yColor);
    m_log.s().s() << "  whisker found at (" << pnt.x << "," << pnt.y << ")" << std::endl;
 
    std::stringstream varBody;
@@ -188,9 +199,19 @@ void executor::visit(findWhiskersNode& n)
 void executor::visit(trimWhiskersNode& n)
 {
    m_log.s().s() << "triming whiskers" << std::endl;
-   auto& attr = n.root().fetch<graphicsAttribute>();
+   auto& wattr = n.demandAncestor<surveyWhiskersNode>().fetch<whiskerAttribute>();
 
-   whiskerFinder::clear(attr.pCanvas,m_log);
+   wattr.pSurvey->clear();
+
+   visitChildren(n);
+}
+
+void executor::visit(desurveyWhiskersNode& n)
+{
+   m_log.s().s() << "closing whisker survey" << std::endl;
+   auto& wattr = n.demandAncestor<surveyWhiskersNode>().fetch<whiskerAttribute>();
+
+   wattr.pSurvey.reset();
 
    visitChildren(n);
 }

@@ -7,19 +7,18 @@ load-image r"glyphs.bmp":
       snip -> pntGlyph
 
 load-image r"card-template.bmp":
-   find-whiskers $myRed $myRed -> rXY
-   find-whiskers rgb{0,0,0} rgb{0,0,0} -> bXY
    select-object 0 : # centering requires I zoom in on the object
-      find-whiskers / / -> cen
+      survey-whiskers:
+         find-point $myRed $myRed -> rXY
+         find-point rgb{0,0,0} rgb{0,0,0} -> bXY
+         find-point / / -> cen
+         trim
 
-   overlay $pntGlyph $rXY
-   overlay $pntGlyph $bXY
-   select-object 0 : # $cen is tied to the selection
+      overlay $pntGlyph $rXY
+      overlay $pntGlyph $bXY
       overlay $centerGlyph $cen
 
-   trim-whiskers
-
-   select-object 0 :
+   select-object 0 : # reselect to benefit from trim
       crop
 
    save-image r"out-cardWithGlyph.bmp"

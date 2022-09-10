@@ -85,7 +85,14 @@ void dumpVisitor::visit(defineNode& n)
    visitChildren(n);
 }
 
-void dumpVisitor::visit(findWhiskersNode& n)
+void dumpVisitor::visit(surveyWhiskersNode& n)
+{
+   m_l.s().s() << indent(m_l) << "findWhiskersNode" << std::endl;
+   autoIndent _i(m_l);
+   visitChildren(n);
+}
+
+void dumpVisitor::visit(findWhiskerPointNode& n)
 {
    m_l.s().s() << indent(m_l) << "findWhiskersNode(" << n.x << "," << n.y << "," << n.varName << ")" << std::endl;
    autoIndent _i(m_l);
@@ -95,6 +102,13 @@ void dumpVisitor::visit(findWhiskersNode& n)
 void dumpVisitor::visit(trimWhiskersNode& n)
 {
    m_l.s().s() << indent(m_l) << "trimWhiskers" << std::endl;
+   autoIndent _i(m_l);
+   visitChildren(n);
+}
+
+void dumpVisitor::visit(desurveyWhiskersNode& n)
+{
+   m_l.s().s() << indent(m_l) << "desurveyWhiskerNode" << std::endl;
    autoIndent _i(m_l);
    visitChildren(n);
 }

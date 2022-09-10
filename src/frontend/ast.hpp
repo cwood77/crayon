@@ -17,8 +17,10 @@ class selectObjectNode;
 class deselectObjectNode;
 class cropNode;
 class defineNode;
-class findWhiskersNode;
+class surveyWhiskersNode;
+class findWhiskerPointNode;
 class trimWhiskersNode;
+class desurveyWhiskersNode;
 class foreachStringSetNode;
 class closeStringSetNode;
 class echoNode;
@@ -40,8 +42,10 @@ public:
    virtual void visit(deselectObjectNode& n) = 0;
    virtual void visit(cropNode& n) = 0;
    virtual void visit(defineNode& n) = 0;
-   virtual void visit(findWhiskersNode& n) = 0;
+   virtual void visit(surveyWhiskersNode& n) = 0;
+   virtual void visit(findWhiskerPointNode& n) = 0;
    virtual void visit(trimWhiskersNode& n) = 0;
+   virtual void visit(desurveyWhiskersNode& n) = 0;
    virtual void visit(foreachStringSetNode& n) = 0;
    virtual void visit(closeStringSetNode& n) = 0;
    virtual void visit(echoNode& n) = 0;
@@ -77,7 +81,7 @@ public:
          throw std::runtime_error("can't find ancestor");
       auto *pAns = dynamic_cast<T*>(m_pParent);
       if(pAns)
-         return pAns;
+         return *pAns;
       else
          return m_pParent->demandAncestor<T>();
    }
@@ -179,7 +183,13 @@ public:
    std::string value;
 };
 
-class findWhiskersNode : public scriptNode {
+class surveyWhiskersNode : public scriptNode, public iBlockNode {
+public:
+   virtual scriptNode *createCloseNode();
+   virtual void acceptVisitor(iNodeVisitor& v) { v.visit(*this); }
+};
+
+class findWhiskerPointNode : public scriptNode {
 public:
    virtual void acceptVisitor(iNodeVisitor& v) { v.visit(*this); }
 
@@ -189,6 +199,11 @@ public:
 };
 
 class trimWhiskersNode : public scriptNode {
+public:
+   virtual void acceptVisitor(iNodeVisitor& v) { v.visit(*this); }
+};
+
+class desurveyWhiskersNode : public scriptNode {
 public:
    virtual void acceptVisitor(iNodeVisitor& v) { v.visit(*this); }
 };

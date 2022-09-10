@@ -1,6 +1,8 @@
 #pragma once
 #include "../frontend/ast.hpp"
+#include "../graphics/algorithm.hpp"
 #include "../graphics/graphicsApi.hpp"
+#include <memory>
 
 class log;
 class symbolTable;
@@ -11,6 +13,11 @@ public:
    autoReleasePtr<iBitmap> pImage;
    autoReleasePtr<iCanvas> pCanvas;
    autoReleasePtr<iFont>   pFont;
+};
+
+class whiskerAttribute : public attribute {
+public:
+   std::unique_ptr<whiskerSurvey> pSurvey;
 };
 
 class executor : public iNodeVisitor {
@@ -30,8 +37,10 @@ public:
    virtual void visit(deselectObjectNode& n);
    virtual void visit(cropNode& n);
    virtual void visit(defineNode& n);
-   virtual void visit(findWhiskersNode& n);
+   virtual void visit(surveyWhiskersNode& n);
+   virtual void visit(findWhiskerPointNode& n);
    virtual void visit(trimWhiskersNode& n);
+   virtual void visit(desurveyWhiskersNode& n);
    virtual void visit(foreachStringSetNode& n);
    virtual void visit(closeStringSetNode& n);
    virtual void visit(echoNode& n);

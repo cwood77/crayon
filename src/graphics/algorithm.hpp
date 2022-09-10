@@ -1,5 +1,6 @@
 #pragma once
 #include "graphicsApi.hpp"
+#include <list>
 #include <map>
 #include <set>
 
@@ -50,29 +51,29 @@ private:
    std::map<size_t,rect> m_bounds;
 };
 
-class whiskerFinder {
+class whiskerSurvey {
 public:
    enum { kCenter = 0xFFFFFFFF };
 
-   static point run(iCanvas& c, COLORREF x, COLORREF y, log& Log);
-   static void clear(iCanvas& c, log& Log);
+   whiskerSurvey(iCanvas& c, log& l) : m_canvas(c), m_log(l), m_center(0,0)
+   { categorize(); }
+
+   point findPoint(COLORREF x, COLORREF y);
+
+   void clear();
 
 private:
-   whiskerFinder(iCanvas& c, log& l);
-
    void categorize();
    void categorizeVert();
    void categorizeHoriz();
    void markVertWhisker(long x, long y, COLORREF c);
    void markHorizWhisker(long x, long y, COLORREF c);
-   point find(COLORREF x, COLORREF y);
-
-   std::map<COLORREF,long> m_vertWhiskers;
-   std::map<COLORREF,long> m_horizWhiskers;
-
-   point m_center;
 
    iCanvas& m_canvas;
    log& m_log;
-   bool m_clearWhiskers;
+
+   std::list<point> m_whiskerPoints;
+   std::map<COLORREF,long> m_vertWhiskers;
+   std::map<COLORREF,long> m_horizWhiskers;
+   point m_center;
 };

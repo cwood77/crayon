@@ -20,8 +20,10 @@ public:
    virtual void visit(deselectObjectNode& n);
    virtual void visit(cropNode& n);
    virtual void visit(defineNode& n);
-   virtual void visit(findWhiskersNode& n);
+   virtual void visit(surveyWhiskersNode& n);
+   virtual void visit(findWhiskerPointNode& n);
    virtual void visit(trimWhiskersNode& n);
+   virtual void visit(desurveyWhiskersNode& n);
    virtual void visit(foreachStringSetNode& n);
    virtual void visit(closeStringSetNode& n);
    virtual void visit(echoNode& n);

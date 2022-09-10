@@ -36,8 +36,9 @@ lexor::lexor(const char *pText)
    m_words["select-object"]     = kHyphenatedWord;
    m_words["crop"]              = kHyphenatedWord;
    m_words["define"]            = kHyphenatedWord;
-   m_words["find-whiskers"]     = kHyphenatedWord;
-   m_words["trim-whiskers"]     = kHyphenatedWord;
+   m_words["survey-whiskers"]   = kHyphenatedWord;
+   m_words["find-point"]        = kHyphenatedWord;
+   m_words["trim"]              = kHyphenatedWord;
    m_words["foreach-stringset"] = kHyphenatedWord;
    m_words["echo"]              = kHyphenatedWord;
    m_words["draw-text"]         = kHyphenatedWord;
@@ -109,15 +110,30 @@ void lexor::advance(modes m)
    }
 }
 
+void lexor::error(const std::string& text)
+{
+   std::stringstream msg;
+   msg
+      << "parser error: " << text << std::endl
+      << "context at time of error:" << std::endl
+      << "  token  = " << getTokenName(getCurrentToken()) << std::endl
+      << "  lexeme = " << getCurrentLexeme() << std::endl;
+
+   size_t thumbBytes = ::strlen(m_pThumb) > 10 ? 10 : ::strlen(m_pThumb);
+   msg
+      << "  next " << thumbBytes << " byte(s) of thumb = '"
+      << std::string(m_pThumb,thumbBytes) << "'" << std::endl;
+
+   throw std::runtime_error(msg.str().c_str());
+}
+
 void lexor::demand(tokens t)
 {
    if(t != getCurrentToken())
    {
       std::stringstream msg;
-      msg << "parser error: expected token " << getTokenName(t)
-         << ", but got token " << getTokenName(getCurrentToken())
-         << " with '" << getCurrentLexeme() << "'";
-      throw std::runtime_error(msg.str().c_str());
+      msg << "expected token " << getTokenName(t);
+      error(msg.str());
    }
 }
 
