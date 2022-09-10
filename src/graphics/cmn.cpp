@@ -21,7 +21,7 @@ void rect::growToInclude(const point& p)
       h += (p.y - (y+h-1));
 }
 
-RECT rect::toRect()
+RECT rect::toRect() const
 {
    RECT r;
    r.left = x;

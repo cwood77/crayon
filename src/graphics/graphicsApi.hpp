@@ -25,7 +25,7 @@ public:
 
    void setOrigin(const point& p) { x = p.x; y = p.y; }
    void growToInclude(const point& p);
-   RECT toRect();
+   RECT toRect() const;
 
    long x;
    long y;
@@ -115,6 +115,7 @@ public:
 
    // draw text - can't be done on a snippet!
    virtual void drawText(const point& p, const char *text, size_t flags, iFont& font) = 0;
+   virtual void drawText(const rect& r, const char *text, size_t flags, iFont& font) = 0;
 
    virtual iCanvas *subset(const rect& r) = 0; // bounds/remaps coordinates
    virtual iCanvas *superset() = 0;

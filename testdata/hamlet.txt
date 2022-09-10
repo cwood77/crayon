@@ -1,0 +1,17 @@
+{{-------------------------------}}
+
+{{title}}
+yorick
+
+{{body}}
+Alas, poor Yorick! I knew him, Horatio: a fellow of infinite jest, of most
+execellent fancy; he hath borne me on his back a thousand times
+
+{{-------------------------------}}
+
+{{title}}
+garden
+
+{{body}}
+tis an unweeded garden that grows to seed; things rank and gross in nature
+possess it merely; that it should come to this!

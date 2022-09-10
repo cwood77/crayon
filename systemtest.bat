@@ -34,10 +34,6 @@ if not errorlevel 0 goto fail
 fc /b testdata\expected-cardWithGlyph.bmp testdata\out-cardWithGlyph.bmp
 if not errorlevel 0 goto fail
 
-rem text parsing
-bin\out\debug\crayon testdata\str.cray > nul
-if not errorlevel 0 goto fail
-
 rem draw text
 bin\out\debug\crayon testdata\drawtext.cray > nul
 if not errorlevel 0 goto fail

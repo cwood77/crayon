@@ -93,6 +93,8 @@ public:
    virtual void setPixel(const point& p, COLORREF r) { m_pInner->setPixel(translate(p),r); }
    virtual void drawText(const point& p, const char *text, size_t flags, iFont& font)
    { m_pInner->drawText(translate(p),text,flags,font); }
+   virtual void drawText(const rect& r, const char *text, size_t flags, iFont& font)
+   { m_pInner->drawText(translate(r),text,flags,font); }
    virtual iCanvas *subset(const rect& r) { return new canvas(Api,*this,r); }
    virtual iCanvas *superset() { return m_pInner.get(); }
    virtual iSnippet *snip(iSnippetAllocator& a, iTransform& t) { return Snip(a,t,*this); }
@@ -103,6 +105,7 @@ public:
 
 private:
    point translate(const point& p) { return point(m_dims.x+p.x,m_dims.y+p.y); }
+   rect translate(const rect& r) { return rect(m_dims.x+r.x,m_dims.y+r.y,r.w,r.h); }
 
    rect m_dims;
    autoReleasePtr<iCanvas> m_pInner;
@@ -118,6 +121,7 @@ public:
    virtual COLORREF getPixel(const point& p);
    virtual void setPixel(const point& p, COLORREF r);
    virtual void drawText(const point& p, const char *text, size_t flags, iFont& font);
+   virtual void drawText(const rect& p, const char *text, size_t flags, iFont& font);
    virtual iCanvas *subset(const rect& r) { return new canvas(Api,*this,r); }
    virtual iCanvas *superset() { return this; }
    virtual iSnippet *snip(iSnippetAllocator& a, iTransform& t)
@@ -134,6 +138,8 @@ public:
    HBITMAP hBmp;
 
 private:
+   void drawText(const RECT& gdiR, int bkMode, const char *text, size_t flags);
+
    HGDIOBJ hOld;
 
 cdwImplAddrefRelease();
@@ -153,3 +159,6 @@ private:
 cdwImplSubObject(bmpFileType);
 cdwImplAddrefRelease();
 };
+
+// misc
+void drawBox(const RECT& r, COLORREF col, iCanvas& can);

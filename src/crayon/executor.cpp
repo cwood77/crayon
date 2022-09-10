@@ -260,6 +260,9 @@ void executor::visit(drawTextNode& n)
    if(!attr.pFont)
       throw std::runtime_error("a font must be active to draw text");
 
+   const bool isRectMode =
+      (::strncmp(argEvaluator(m_sTable,n.pt).getString().c_str(),"rect",4)==0);
+
    std::map<std::string,size_t> table;
    table["hCenter"] = DT_CENTER;
    table["hLeft"]   = DT_LEFT;
@@ -270,16 +273,35 @@ void executor::visit(drawTextNode& n)
    table["vCenter"] = DT_VCENTER;
    */
    size_t flags = argEvaluator::computeBitFlags(m_sTable,n.options,table);
-   flags |= DT_BOTTOM;
    flags |= DT_NOPREFIX;
    flags |= DT_NOCLIP;
-   flags |= DT_SINGLELINE;
 
-   attr.pCanvas->drawText(
-      argEvaluator(m_sTable,n.pt).getPoint(),
-      argEvaluator(m_sTable,n.text).getString().c_str(),
-      flags,
-      attr.pFont);
+   if(isRectMode)
+   {
+      // rect mode
+
+      flags |= DT_TOP;
+      flags |= DT_WORDBREAK;
+
+      attr.pCanvas->drawText(
+         argEvaluator(m_sTable,n.pt).getRect(),
+         argEvaluator(m_sTable,n.text).getString().c_str(),
+         flags,
+         attr.pFont);
+   }
+   else
+   {
+      // point mode
+
+      flags |= DT_BOTTOM;
+      flags |= DT_SINGLELINE;
+
+      attr.pCanvas->drawText(
+         argEvaluator(m_sTable,n.pt).getPoint(),
+         argEvaluator(m_sTable,n.text).getString().c_str(),
+         flags,
+         attr.pFont);
+   }
 
    visitChildren(n);
 }

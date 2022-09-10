@@ -253,17 +253,13 @@ void bitmap::drawText(const point& p, const char *text, size_t flags, iFont& _fn
    ::GetTextMetrics(Api.dc,&tInfo);
    r.bottom += tInfo.tmDescent;
 
-   {
-      autoBackgroundMode _bgm(Api.dc,fnt.bkMode);
-      auto success = ::DrawText(
-         Api.dc,
-         text,
-         -1,
-         &r,
-         flags);
-      if(!success)
-         throw std::runtime_error("draw text failed");
-   }
+   drawText(r,fnt.bkMode,text,flags);
+}
+
+void bitmap::drawText(const rect& p, const char *text, size_t flags, iFont& _fnt)
+{
+   font& fnt = dynamic_cast<font&>(_fnt);
+   drawText(p.toRect(),fnt.bkMode,text,flags);
 }
 
 void bitmap::activate()
@@ -274,6 +270,37 @@ void bitmap::activate()
 void bitmap::deactivate()
 {
    ::SelectObject(Api.dc,hOld);
+}
+
+void bitmap::drawText(const RECT& gdiR, int bkMode, const char *text, size_t flags)
+{
+   // occasional debugging
+   //::drawBox(gdiR,RGB(0,255,0),*this);
+
+   RECT copy = gdiR;
+   autoBackgroundMode _bgm(Api.dc,bkMode);
+   auto success = ::DrawText(
+      Api.dc,
+      text,
+      -1,
+      &copy,
+      flags);
+   if(!success)
+      throw std::runtime_error("draw text failed");
+}
+
+void drawBox(const RECT& r, COLORREF col, iCanvas& can)
+{
+   for(long x=r.left;x<=r.right;x++)
+   {
+      can.setPixel(point(x,r.top),col);
+      can.setPixel(point(x,r.bottom),col);
+   }
+   for(long y=r.top;y<=r.bottom;y++)
+   {
+      can.setPixel(point(r.left,y),col);
+      can.setPixel(point(r.right,y),col);
+   }
 }
 
 __declspec(dllexport) iGraphicsApi *create(iLog& l)
