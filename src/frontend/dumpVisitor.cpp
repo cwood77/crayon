@@ -126,3 +126,17 @@ void dumpVisitor::visit(drawTextNode& n)
    autoIndent _i(m_l);
    visitChildren(n);
 }
+
+void dumpVisitor::visit(selectFontNode& n)
+{
+   m_l.s().s() << indent(m_l) << "selectFontNode(" << n.fnt << "," << n.options.size() << ")" << std::endl;
+   autoIndent _i(m_l);
+   visitChildren(n);
+}
+
+void dumpVisitor::visit(deselectFontNode& n)
+{
+   m_l.s().s() << indent(m_l) << "deselectFontNode" << std::endl;
+   autoIndent _i(m_l);
+   visitChildren(n);
+}

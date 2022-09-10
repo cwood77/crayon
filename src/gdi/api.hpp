@@ -61,6 +61,16 @@ private:
 cdwImplAddrefRelease();
 };
 
+class dpiAdjuster {
+public:
+   static void notifyAwareProcess();
+
+   dpiAdjuster& scale(long& v);
+
+private:
+   static double m_scale;
+};
+
 class autoBackgroundMode {
 public:
    autoBackgroundMode(HDC hdc, int mode);

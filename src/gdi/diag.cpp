@@ -58,7 +58,20 @@ static int CALLBACK diagCallback(
 
 void api::diagnostics()
 {
+   Log.s().s() << "DPI = " << ::GetDpiForSystem() << std::endl;
+
    auto dc = ::CreateCompatibleDC(NULL);
+
+   auto lpY = ::GetDeviceCaps(dc,LOGPIXELSY);
+   Log.s().s() << "logpixY = " << lpY << std::endl;
+
+   char buffer[MAX_PATH];
+   ::GetTextFaceA(dc,MAX_PATH,buffer);
+   Log.s().s() << "default GDI font face = " << buffer << std::endl;
+   TEXTMETRICA tm;
+   ::GetTextMetrics(dc,&tm);
+   Log.s().s() << "default GDI font size = " << (tm.tmHeight * 72 / lpY)
+      << " (" << tm.tmHeight << ")" << std::endl;
 
    LOGFONTA lFont;
    lFont.lfCharSet = DEFAULT_CHARSET; // all charsets
@@ -94,4 +107,6 @@ void api::diagnostics()
       );
    }
    Log.s().s() << "}" << std::endl;
+
+   ::DeleteDC(dc);
 }

@@ -1,4 +1,10 @@
 load-image r"green grid.bmp":
-   draw-text pnt{10,20} "no options at 10, 20"
-   draw-text pnt{70,40} "center at 70, 40" hCenter
-   save-image r"out-text.bmp"
+   with-font font{"System",12} :
+      draw-text pnt{10,20} "no options at 10, 20"
+      draw-text pnt{70,40} "center at 70, 40" hCenter
+      save-image r"out-text.bmp"
+
+load-image r"card-template.bmp":
+   with-font font{"Calibri",36} :
+      draw-text pnt{10,40} "Alas, poor Yorick!"
+   save-image r"out-calibrisizing.bmp"

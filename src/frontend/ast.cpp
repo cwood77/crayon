@@ -34,3 +34,8 @@ scriptNode *foreachStringSetNode::createCloseNode()
 {
    return new closeStringSetNode();
 }
+
+scriptNode *selectFontNode::createCloseNode()
+{
+   return new deselectFontNode();
+}

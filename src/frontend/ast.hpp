@@ -23,6 +23,8 @@ class foreachStringSetNode;
 class closeStringSetNode;
 class echoNode;
 class drawTextNode;
+class selectFontNode;
+class deselectFontNode;
 
 class iNodeVisitor {
 public:
@@ -44,6 +46,8 @@ public:
    virtual void visit(closeStringSetNode& n) = 0;
    virtual void visit(echoNode& n) = 0;
    virtual void visit(drawTextNode& n) = 0;
+   virtual void visit(selectFontNode& n) = 0;
+   virtual void visit(deselectFontNode& n) = 0;
 
 protected:
    void visitChildren(scriptNode& n);
@@ -219,4 +223,18 @@ public:
    std::string text;
 
    std::list<std::string> options;
+};
+
+class selectFontNode : public scriptNode, public iBlockNode {
+public:
+   virtual scriptNode *createCloseNode();
+   virtual void acceptVisitor(iNodeVisitor& v) { v.visit(*this); }
+
+   std::string fnt;
+   std::list<std::string> options;
+};
+
+class deselectFontNode : public scriptNode {
+public:
+   virtual void acceptVisitor(iNodeVisitor& v) { v.visit(*this); }
 };

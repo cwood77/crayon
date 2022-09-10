@@ -26,6 +26,8 @@ public:
    virtual void visit(closeStringSetNode& n);
    virtual void visit(echoNode& n);
    virtual void visit(drawTextNode& n);
+   virtual void visit(selectFontNode& n);
+   virtual void visit(deselectFontNode& n);
 
 private:
    log& m_l;

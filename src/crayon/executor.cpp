@@ -273,3 +273,32 @@ std::string executor::trimTrailingNewlines(const std::string& s)
 
    return std::string(s.c_str(),pThumb-s.c_str()+1);
 }
+
+void executor::visit(selectFontNode& n)
+{
+   std::string face;
+   size_t pnt;
+   argEvaluator(m_sTable,n.fnt).getFont(face,pnt);
+
+   m_log.s().s() << "creating font '" << face << "':" << pnt << std::endl;
+   auto& attr = n.root().fetch<graphicsAttribute>();
+
+   std::map<std::string,size_t> table;
+   table["italic"]    = iFont::kItalic;
+   table["underline"] = iFont::kUnderline;
+   table["strikeout"] = iFont::kStrikeout;
+   table["opaquebk"]  = iFont::kOpaqueBackground;
+   table["bold"]      = iFont::kBold;
+   size_t flags = argEvaluator::computeBitFlags(m_sTable,n.options,table);
+
+   attr.pFont.reset(attr.pApi->createFont(face.c_str(),pnt,flags));
+
+   visitChildren(n);
+}
+
+void executor::visit(deselectFontNode& n)
+{
+   auto& attr = n.root().fetch<graphicsAttribute>();
+   attr.pFont.reset();
+   visitChildren(n);
+}

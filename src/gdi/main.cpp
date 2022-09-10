@@ -3,6 +3,7 @@
 api::api(iLog& l)
 : Log(l,"[gdi] "), dc(NULL)
 {
+   dpiAdjuster::notifyAwareProcess();
    dc = ::CreateCompatibleDC(NULL);
    Log.s().s() << "created DC " << (size_t)dc << std::endl;
 }
@@ -30,7 +31,11 @@ iFont *api::createFont(const char *face, size_t size, size_t options)
 
    // size:
    // this magic is recommended by MSDN for MM_TEXT
-   lFont.lfHeight = (::GetDeviceCaps(dc,LOGPIXELSY) * size) / 72;
+   lFont.lfHeight = (::GetDeviceCaps(dc,LOGPIXELSY) * size) / 72.0;
+   lFont.lfHeight *= -1;
+
+   // DPI shenanigans
+   dpiAdjuster().scale(lFont.lfHeight).scale(lFont.lfWidth);
 
    // options:
    lFont.lfWeight = (options & iFont::kBold) ? 700 : 400;
@@ -71,6 +76,7 @@ void fontFinder::findFirstInAnsiCharSet(const std::string& face)
 void fontFinder::onFound(const LOGFONTA& lf, const TEXTMETRICA& tm, DWORD type)
 {
    ::memcpy(&m_lf,&lf,sizeof(LOGFONTA));
+   m_found = true;
 }
 
 int fontFinder::onFound(const LOGFONTA *pLf, const TEXTMETRICA *pTm, DWORD ft, LPARAM lParam)
@@ -81,6 +87,7 @@ int fontFinder::onFound(const LOGFONTA *pLf, const TEXTMETRICA *pTm, DWORD ft, L
 
 font::~font()
 {
+   Api.Log.s().s() << "font closing" << std::endl;
    if(hFont)
    {
       deactivate();
@@ -96,6 +103,32 @@ void font::activate()
 void font::deactivate()
 {
    ::SelectObject(Api.dc,hOld);
+}
+
+double dpiAdjuster::m_scale = 1.0;
+
+void dpiAdjuster::notifyAwareProcess()
+{
+   ::SetProcessDpiAwarenessContext(DPI_AWARENESS_CONTEXT_SYSTEM_AWARE);
+   m_scale = ::GetDpiForSystem() / 96.0;
+}
+
+dpiAdjuster& dpiAdjuster::scale(long& v)
+{
+   v *= m_scale;
+   return *this;
+}
+
+autoBackgroundMode::autoBackgroundMode(HDC hdc, int mode)
+: m_dc(hdc)
+{
+   m_oldMode = ::GetBkMode(m_dc);
+   ::SetBkMode(m_dc,mode);
+}
+
+autoBackgroundMode::~autoBackgroundMode()
+{
+   ::SetBkMode(m_dc,m_oldMode);
 }
 
 canvas::canvas(api& a, iCanvas& c, const rect& dims)
@@ -165,9 +198,11 @@ void bitmap::setPixel(const point& p, COLORREF r)
 // there is both horizontal and vertical slop injected by DrawText..?
 // I account for the vertical slop with GetTextMetrics below; but I'm
 // not sure how to account for horizontal slop, or that it's worth trying.
-void bitmap::drawText(const point& p, const char *text, size_t flags, iFont& fnt)
+void bitmap::drawText(const point& p, const char *text, size_t flags, iFont& _fnt)
 {
-   const size_t hugeSize = 1000;
+   font& fnt = dynamic_cast<font&>(_fnt);
+
+   const size_t hugeSize = 100000;
    RECT r;
    r.top = p.y - hugeSize;
    r.bottom = p.y;
@@ -189,14 +224,17 @@ void bitmap::drawText(const point& p, const char *text, size_t flags, iFont& fnt
    ::GetTextMetrics(Api.dc,&tInfo);
    r.bottom += tInfo.tmDescent;
 
-   auto success = ::DrawText(
-      Api.dc,
-      text,
-      -1,
-      &r,
-      flags);
-   if(!success)
-      throw std::runtime_error("draw text failed");
+   {
+      autoBackgroundMode _bgm(Api.dc,fnt.bkMode);
+      auto success = ::DrawText(
+         Api.dc,
+         text,
+         -1,
+         &r,
+         flags);
+      if(!success)
+         throw std::runtime_error("draw text failed");
+   }
 }
 
 void bitmap::activate()

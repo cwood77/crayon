@@ -130,7 +130,7 @@ GDIAPI_RELEASE_OBJ = $(subst src,$(OBJ_DIR)/release,$(patsubst %.cpp,%.o,$(GDIAP
 
 $(OUT_DIR)/release/gdiapi.dll: $(GDIAPI_RELEASE_OBJ) $(OUT_DIR)/release/cmn.lib
 	$(info $< --> $@)
-	@$(LINK_CMD) -shared -o $@ $(GDIAPI_RELEASE_OBJ) $(RELEASE_LNK_FLAGS_POST) -Lbin/out/release -lgdi32 -lcmn
+	@$(LINK_CMD) -shared -o $@ $(GDIAPI_RELEASE_OBJ) $(RELEASE_LNK_FLAGS_POST) -Lbin/out/release -lgdi32 -luser32 -lcmn
 
 $(GDIAPI_RELEASE_OBJ): $(OBJ_DIR)/release/%.o: src/%.cpp
 	$(info $< --> $@)

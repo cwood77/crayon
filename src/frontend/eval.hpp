@@ -23,6 +23,7 @@ public:
    bool getFlag(const std::string& name);
    std::list<std::string> getSet();
    size_t lookup(std::map<std::string,size_t>& table);
+   void getFont(std::string& face, size_t& pnt);
 
 private:
    symbolTable& m_sTable;

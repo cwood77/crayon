@@ -150,6 +150,18 @@ size_t argEvaluator::lookup(std::map<std::string,size_t>& table)
    return it->second;
 }
 
+void argEvaluator::getFont(std::string& face, size_t& pnt)
+{
+   std::string in = getString();
+
+   if(::strncmp(in.c_str(),"font{\"",6)!=0)
+      throw std::runtime_error("invalid font syntax");
+   char buffer[MAX_PATH];
+   auto rval = ::sscanf(in.c_str()+6,"%[^\"]\",%llu",buffer,&pnt);
+   if(rval != 2) throw std::runtime_error("can't parse font");
+   face = buffer;
+}
+
 #ifdef cdwTestBuild
 
 cdwTest(interpolation_empty)

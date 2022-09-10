@@ -41,6 +41,7 @@ lexor::lexor(const char *pText)
    m_words["foreach-stringset"] = kHyphenatedWord;
    m_words["echo"]              = kHyphenatedWord;
    m_words["draw-text"]         = kHyphenatedWord;
+   m_words["with-font"]         = kHyphenatedWord;
    m_words["->"]                = kArrow;
    m_words[":"]                 = kColon;
    m_words["   "]               = kIndent;
