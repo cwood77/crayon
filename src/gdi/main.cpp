@@ -3,7 +3,7 @@
 api::api(iLog& l)
 : Log(l,"[gdi] "), dc(NULL)
 {
-   dpiAdjuster::notifyAwareProcess();
+   dpiAdjuster::notifyAwareProcess(Log);
    dc = ::CreateCompatibleDC(NULL);
    Log.s().s() << "created DC " << (size_t)dc << std::endl;
 }
@@ -25,7 +25,7 @@ iFileType *api::createFileType(size_t i)
 iFont *api::createFont(const char *face, size_t size, size_t options)
 {
    LOGFONTA lFont;
-   fontFinder(lFont).findFirstInAnsiCharSet(face);
+   fontFinder(lFont).findInAnsiCharSet(face,options,Log);
 
    // now, adjust for size and other options
 
@@ -53,12 +53,14 @@ iFont *api::createFont(const char *face, size_t size, size_t options)
    return pFont.leakTemp();
 }
 
-void fontFinder::findFirstInAnsiCharSet(const std::string& face)
+void fontFinder::findInAnsiCharSet(const std::string& face, size_t options, log& Log)
 {
    LOGFONTA lf;
    lf.lfCharSet = ANSI_CHARSET;
    ::strcpy(lf.lfFaceName,face.c_str());
    lf.lfPitchAndFamily = 0;
+
+   m_options = options;
 
    auto dc = ::CreateCompatibleDC(NULL);
    ::EnumFontFamiliesExA(
@@ -70,20 +72,38 @@ void fontFinder::findFirstInAnsiCharSet(const std::string& face)
    );
    ::DeleteDC(dc);
 
-   if(!m_found)
+   if(!m_matches.size())
       throw std::runtime_error("font not found!");
+
+   auto it = --m_matches.end();
+   Log.s().s() << "matching font with score " << it->first << " of " << m_matches.size() << " candidates" << std::endl;
+   ::memcpy(&m_lf,&it->second,sizeof(LOGFONTA));
 }
 
 void fontFinder::onFound(const LOGFONTA& lf, const TEXTMETRICA& tm, DWORD type)
 {
-   ::memcpy(&m_lf,&lf,sizeof(LOGFONTA));
-   m_found = true;
+   m_matches[computeScore(lf)] = lf;
 }
 
 int fontFinder::onFound(const LOGFONTA *pLf, const TEXTMETRICA *pTm, DWORD ft, LPARAM lParam)
 {
    ((fontFinder*)lParam)->onFound(*pLf,*pTm,ft);
-   return 0; // abort
+   return 1;
+}
+
+size_t fontFinder::computeScore(const LOGFONTA& lf)
+{
+   BOOL i = (m_options & iFont::kItalic) ? TRUE : FALSE;
+   BOOL u = (m_options & iFont::kUnderline) ? TRUE : FALSE;
+   BOOL s = (m_options & iFont::kStrikeout) ? TRUE : FALSE;
+   BOOL w = (m_options & iFont::kBold) ? 700 : 400;
+
+   return
+      ((lf.lfWeight == w)    ? 1000 : 0) +
+      ((lf.lfItalic == i)    ?  100 : 0) +
+      ((lf.lfUnderline == u) ?   10 : 0) +
+      ((lf.lfStrikeOut == s) ?   10 : 0) +
+      0;
 }
 
 font::~font()
@@ -108,10 +128,12 @@ void font::deactivate()
 
 double dpiAdjuster::m_scale = 1.0;
 
-void dpiAdjuster::notifyAwareProcess()
+void dpiAdjuster::notifyAwareProcess(log& Log)
 {
    ::SetProcessDpiAwarenessContext(DPI_AWARENESS_CONTEXT_SYSTEM_AWARE);
-   m_scale = ::GetDpiForSystem() / 96.0;
+   auto dpi = ::GetDpiForSystem();
+   m_scale = dpi / 96.0;
+   Log.s().s() << "scaling for DPI is " << m_scale << "x (" << dpi << " dpi)" << std::endl;
 }
 
 dpiAdjuster& dpiAdjuster::scale(long& v)

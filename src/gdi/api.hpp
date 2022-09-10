@@ -3,6 +3,7 @@
 #include "../crayon/log.hpp"
 #include "../graphics/graphicsApi.hpp"
 #include "windows.h"
+#include <map>
 #include <stdexcept>
 
 class api : public iGraphicsApi {
@@ -35,14 +36,17 @@ public: \
 class fontFinder {
 public:
    explicit fontFinder(LOGFONTA& a) : m_lf(a), m_found(false) {}
-   void findFirstInAnsiCharSet(const std::string& face);
+   void findInAnsiCharSet(const std::string& face, size_t options, log& Log);
 
 private:
    void onFound(const LOGFONTA& lf, const TEXTMETRICA& tm, DWORD type);
    static int onFound(const LOGFONTA *pLf, const TEXTMETRICA *pTm, DWORD ft, LPARAM lParam);
+   size_t computeScore(const LOGFONTA& lf);
 
    LOGFONTA& m_lf;
+   std::map<size_t,LOGFONTA> m_matches;
    bool m_found;
+   size_t m_options;
 };
 
 class font : public iFont, public subObject {
@@ -63,7 +67,7 @@ cdwImplAddrefRelease();
 
 class dpiAdjuster {
 public:
-   static void notifyAwareProcess();
+   static void notifyAwareProcess(log& Log);
 
    dpiAdjuster& scale(long& v);
 
