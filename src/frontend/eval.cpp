@@ -76,40 +76,24 @@ std::string argEvaluator::getString()
 size_t argEvaluator::getNum()
 {
    std::string in = getString();
-
    size_t x;
    ::sscanf(in.c_str(),"%llu",&x);
    return x;
-}
-
-size_t argEvaluator::getColor()
-{
-   std::string in = getString();
-
-   if(::strncmp(in.c_str(),"rgb{",4)!=0)
-      throw std::runtime_error("invalid color syntax");
-   unsigned long r,g,b;
-   auto rval = ::sscanf(in.c_str()+4,"%lu,%lu,%lu",&r,&g,&b);
-   if(rval != 3) throw std::runtime_error("can't parse color");
-   return RGB(r,g,b);
-}
-
-point argEvaluator::getPoint()
-{
-   std::string in = getString();
-
-   if(::strncmp(in.c_str(),"pnt{",4)!=0)
-      throw std::runtime_error("invalid point syntax");
-   unsigned long x,y;
-   auto rval = ::sscanf(in.c_str()+4,"%lu,%lu",&x,&y);
-   if(rval != 2) throw std::runtime_error("can't parse point");
-   return point(x,y);
 }
 
 bool argEvaluator::getFlag(const std::string& name)
 {
    std::string in = getString();
    return in == name;
+}
+
+size_t argEvaluator::lookup(std::map<std::string,size_t>& table)
+{
+   std::string in = getString();
+   auto it = table.find(in);
+   if(it == table.end())
+      throw std::runtime_error("arg value not in table");
+   return it->second;
 }
 
 std::list<std::string> argEvaluator::getSet()
@@ -141,13 +125,28 @@ std::list<std::string> argEvaluator::getSet()
    return set;
 }
 
-size_t argEvaluator::lookup(std::map<std::string,size_t>& table)
+size_t argEvaluator::getColor()
 {
    std::string in = getString();
-   auto it = table.find(in);
-   if(it == table.end())
-      throw std::runtime_error("arg value not in table");
-   return it->second;
+
+   if(::strncmp(in.c_str(),"rgb{",4)!=0)
+      throw std::runtime_error("invalid color syntax");
+   unsigned long r,g,b;
+   auto rval = ::sscanf(in.c_str()+4,"%lu,%lu,%lu",&r,&g,&b);
+   if(rval != 3) throw std::runtime_error("can't parse color");
+   return RGB(r,g,b);
+}
+
+point argEvaluator::getPoint()
+{
+   std::string in = getString();
+
+   if(::strncmp(in.c_str(),"pnt{",4)!=0)
+      throw std::runtime_error("invalid point syntax");
+   unsigned long x,y;
+   auto rval = ::sscanf(in.c_str()+4,"%lu,%lu",&x,&y);
+   if(rval != 2) throw std::runtime_error("can't parse point");
+   return point(x,y);
 }
 
 void argEvaluator::getFont(std::string& face, size_t& pnt)

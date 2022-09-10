@@ -16,13 +16,20 @@ public:
    argEvaluator(symbolTable& st, const std::string& in)
    : m_sTable(st), m_in(in) {}
 
+   // variable expansion
    std::string getString();
+
+   // pods
    size_t getNum();
+   bool getFlag(const std::string& name);
+   size_t lookup(std::map<std::string,size_t>& table);
+
+   // for stringset
+   std::list<std::string> getSet();
+
+   // graphics types
    size_t getColor();
    point getPoint();
-   bool getFlag(const std::string& name);
-   std::list<std::string> getSet();
-   size_t lookup(std::map<std::string,size_t>& table);
    void getFont(std::string& face, size_t& pnt);
 
 private:
