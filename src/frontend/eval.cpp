@@ -149,6 +149,34 @@ point argEvaluator::getPoint()
    return point(x,y);
 }
 
+rect argEvaluator::getRect()
+{
+   std::string in = getString();
+
+   if(::strncmp(in.c_str(),"rect[tl,br]{pnt{",16)==0)
+   {
+      unsigned long x,y,x2,y2;
+      auto rval = ::sscanf(in.c_str()+16,"%lu,%lu},pnt{%lu,%lu",&x,&y,&x2,&y2);
+      if(rval != 4) throw std::runtime_error("can't parse rect");
+      return rect(x,y,x2-x+1,y2-y+1);
+   }
+   else if(::strncmp(in.c_str(),"rect[l,r,b]{pnt{",16)==0)
+   {
+      unsigned long lx,ly,rx,ry,bx,by;
+      auto rval = ::sscanf(in.c_str()+16,"%lu,%lu},pnt{%lu,%lu},pnt{%lu,%lu",
+         &lx,&ly,&rx,&ry,&bx,&by);
+      if(rval != 6) throw std::runtime_error("can't parse rect");
+      const size_t hugeSize = 100000;
+      return rect(
+         lx,
+         by-(hugeSize-1),
+         (rx-lx)+1,
+         hugeSize);
+   }
+   else
+      throw std::runtime_error("invalid rect syntax");
+}
+
 void argEvaluator::getFont(std::string& face, size_t& pnt)
 {
    std::string in = getString();

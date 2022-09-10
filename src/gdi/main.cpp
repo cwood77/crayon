@@ -230,6 +230,7 @@ void bitmap::drawText(const point& p, const char *text, size_t flags, iFont& _fn
 {
    font& fnt = dynamic_cast<font&>(_fnt);
 
+   // p describes the bottom, left/center point in a huge rect
    const size_t hugeSize = 100000;
    RECT r;
    r.top = p.y - hugeSize;

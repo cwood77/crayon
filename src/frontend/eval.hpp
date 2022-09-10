@@ -30,6 +30,7 @@ public:
    // graphics types
    size_t getColor();
    point getPoint();
+   rect getRect();
    void getFont(std::string& face, size_t& pnt);
 
 private:
