@@ -31,6 +31,10 @@ class scriptNode;
 //               | 'echo' <qtext>
 //               | e
 //
+// <foreach-block> ::==
+//                    | <indent> 'load-image' .......
+//                    | <indent> <anywhere>
+//
 class parser {
 public:
    parser(lexor& l, const std::string& scriptPath, scriptNode& root)
@@ -42,7 +46,8 @@ private:
    void parseImageBlock(scriptNode& n);
    bool closeOrContinueBlock(scriptNode& n);
    void parseWhiskerBlock(scriptNode& n);
-   bool parseAnywhere(scriptNode& n);
+   void parseForeachBlock(scriptNode& n);
+   bool parseAnywhere(scriptNode& n, bool inImageBlock);
 
    void parseArgReq(std::string& arg);
    void parsePathReq(std::string& arg);

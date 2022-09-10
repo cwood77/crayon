@@ -1,7 +1,7 @@
 define yellowish = rgb{255,201,14}
 
 foreach-stringset r"hamlet.txt" {title,body} -> text :
-   echo "generating card for {$text.title}"
+   echo "=====> generating card for {$text.title}"
    load-image r"rect-text-template.bmp":
       survey-whiskers:
          find-point rgb{0,0,0} rgb{0,0,0} -> tl

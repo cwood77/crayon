@@ -9,7 +9,8 @@
 
 void executor::visit(loadImageNode& n)
 {
-   m_log.s().s() << "loading image '" << n.path << "'" << std::endl;
+   auto path = argEvaluator(m_sTable,n.path).getString();
+   m_log.s().s() << "loading image '" << path << "'" << std::endl;
    auto& attr = n.root().fetch<graphicsAttribute>();
 
    // open the API
@@ -19,7 +20,7 @@ void executor::visit(loadImageNode& n)
 
    // load the file
    autoReleasePtr<iFileType> pBmpFmt(attr.pApi->createFileType(0));
-   attr.pImage.reset(pBmpFmt->loadBitmap(n.path.c_str()));
+   attr.pImage.reset(pBmpFmt->loadBitmap(path.c_str()));
    attr.pCanvas.reset(attr.pImage.get());
 
    visitChildren(n);
@@ -27,11 +28,12 @@ void executor::visit(loadImageNode& n)
 
 void executor::visit(saveImageNode& n)
 {
-   m_log.s().s() << "saving image '" << n.path << "'" << std::endl;
+   auto path = argEvaluator(m_sTable,n.path).getString();
+   m_log.s().s() << "saving image '" << path << "'" << std::endl;
    auto& attr = n.root().fetch<graphicsAttribute>();
 
    autoReleasePtr<iFileType> pBmpFmt(attr.pApi->createFileType(0));
-   pBmpFmt->saveBitmap(attr.pImage,n.path.c_str());
+   pBmpFmt->saveBitmap(attr.pImage,path.c_str());
 
    visitChildren(n);
 }
@@ -157,8 +159,9 @@ void executor::visit(cropNode& n)
 
 void executor::visit(defineNode& n)
 {
+   auto value = argEvaluator(m_sTable,n.value).getString();
    m_log.s().s() << "defining user constant " << n.varName << std::endl;
-   m_sTable.overwrite(n.varName,*new stringSymbol(n.value));
+   m_sTable.overwrite(n.varName,*new stringSymbol(value));
 
    visitChildren(n);
 }

@@ -43,7 +43,7 @@ void parser::parseFile()
          m_indent++;
          parseImageBlock(*pNoob);
       }
-      else if(parseAnywhere(*pFile))
+      else if(parseAnywhere(*pFile,false))
          ;
       else
          m_l.error("expected file-level token");
@@ -172,7 +172,7 @@ void parser::parseImageBlock(scriptNode& n)
       n.addChild(*pNoob);
       parseImageBlock(n);
    }
-   else if(parseAnywhere(n))
+   else if(parseAnywhere(n,true))
       ;
    else
       m_l.error("expected image-level token");
@@ -250,7 +250,38 @@ void parser::parseWhiskerBlock(scriptNode& n)
       parseWhiskerBlock(n);
 }
 
-bool parser::parseAnywhere(scriptNode& n)
+void parser::parseForeachBlock(scriptNode& n)
+{
+   const size_t myIndent = m_indent;
+
+   if(closeOrContinueBlock(n))
+      return;
+
+   if(m_l.isHText("load-image"))
+   {
+      // TODO HACK - this is a copy!
+      m_l.advance();
+      auto *pNoob = new loadImageNode;
+
+      parsePathReq(pNoob->path);
+
+      m_l.demandAndEat(lexor::kColon);
+      n.addChild(*pNoob);
+      m_indent++;
+      parseImageBlock(*pNoob);
+   }
+   else if(parseAnywhere(n,false))
+      ;
+   else
+      m_l.error("expected foreach-level token");
+
+   // if I just read a line and am still at my same indentation, just
+   // loop
+   if(m_indent == myIndent)
+      parseForeachBlock(n);
+}
+
+bool parser::parseAnywhere(scriptNode& n, bool inImageBlock)
 {
    if(m_l.isHText("foreach-stringset"))
    {
@@ -268,7 +299,10 @@ bool parser::parseAnywhere(scriptNode& n)
       m_l.demandAndEat(lexor::kColon);
       n.addChild(*pNoob);
       m_indent++;
-      parseImageBlock(*pNoob);
+      if(inImageBlock)
+         parseImageBlock(*pNoob);
+      else
+         parseForeachBlock(*pNoob);
       return true;
    }
    if(m_l.isHText("echo"))
@@ -279,7 +313,10 @@ bool parser::parseAnywhere(scriptNode& n)
       parseArgReq(pNoob->text);
 
       n.addChild(*pNoob);
-      parseImageBlock(n);
+      if(inImageBlock)
+         parseImageBlock(n);
+      else
+         parseForeachBlock(n);
       return true;
    }
    else
