@@ -86,7 +86,8 @@ CRAYON_SRC = \
 	src/frontend/eval.cpp \
 	src/frontend/lexor.cpp \
 	src/frontend/parser.cpp \
-	src/graphics/algorithm.cpp \
+	src/graphics/algorithm/find.cpp \
+	src/graphics/algorithm/frame.cpp \
 	src/graphics/algorithm/whiskers.cpp \
 	src/graphics/graphicsApi.cpp \
 	src/graphics/snippet.cpp \
