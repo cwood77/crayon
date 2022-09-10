@@ -6,5 +6,5 @@ load-image r"green grid.bmp":
 
 load-image r"card-template.bmp":
    with-font font{"Calibri",36} :
-      draw-text pnt{10,40} "Alas, poor Yorick!"
+      draw-text pnt{10,100} "Alas, poor Yorick!"
    save-image r"out-calibrisizing.bmp"

@@ -29,13 +29,17 @@ iFont *api::createFont(const char *face, size_t size, size_t options)
 
    // now, adjust for size and other options
 
+   // capture ratio
+   double aspectRatio = lFont.lfWidth / lFont.lfHeight;
+
    // size:
    // this magic is recommended by MSDN for MM_TEXT
    lFont.lfHeight = (::GetDeviceCaps(dc,LOGPIXELSY) * size) / 72.0;
-   lFont.lfHeight *= -1;
+   lFont.lfWidth = lFont.lfHeight * aspectRatio;
+   lFont.lfHeight *= -1; // ?
 
    // DPI shenanigans
-   dpiAdjuster().scale(lFont.lfHeight).scale(lFont.lfWidth);
+   //dpiAdjuster().scale(lFont.lfHeight).scale(lFont.lfWidth);
 
    // options:
    lFont.lfWeight = (options & iFont::kBold) ? 700 : 400;
