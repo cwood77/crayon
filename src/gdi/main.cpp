@@ -43,13 +43,14 @@ iFont *api::createFont(const char *face, size_t size, size_t options)
    lFont.lfUnderline = (options & iFont::kUnderline) ? TRUE : FALSE;
    lFont.lfStrikeOut = (options & iFont::kStrikeout) ? TRUE : FALSE;
 
-   autoReleasePtr<font> pFont(new font(*this));
+   autoReleasePtr<font> pFont;
+   pFont.holdTemp(new font(*this));
    pFont->hFont = ::CreateFontIndirectA(&lFont);
    if(!pFont->hFont)
       throw std::runtime_error("failed to create font");
    pFont->bkMode = (options & iFont::kOpaqueBackground) ? OPAQUE : TRANSPARENT;
    pFont->activate();
-   return pFont.leak();
+   return pFont.leakTemp();
 }
 
 void fontFinder::findFirstInAnsiCharSet(const std::string& face)
@@ -141,7 +142,8 @@ iSnippet *canvas::Snip(iSnippetAllocator& a, iTransform& t, iCanvas& c)
    long w,h;
    c.getDims(w,h);
    t.translateDims(w,h);
-   autoReleasePtr<iSnippet> pSnippet(a.allocate(w,h));
+   autoReleasePtr<iSnippet> pSnippet;
+   pSnippet.holdTemp(a.allocate(w,h));
 
    for(long x=0;x<w;x++)
    {
@@ -157,7 +159,7 @@ iSnippet *canvas::Snip(iSnippetAllocator& a, iTransform& t, iCanvas& c)
       }
    }
 
-   return pSnippet.leak();
+   return pSnippet.leakTemp();
 }
 
 void canvas::Overlay(iSnippet& s, COLORREF transparent, iCanvas& c)

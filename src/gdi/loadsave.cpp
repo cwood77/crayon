@@ -3,7 +3,8 @@
 
 iBitmap *bmpFileType::loadBitmap(const char *path)
 {
-   autoReleasePtr<bitmap> pBitmap(new bitmap(Api));
+   autoReleasePtr<bitmap> pBitmap;
+   pBitmap.holdTemp(new bitmap(Api));
 
    // load file directly to check modes, etc., and stash dims
    {
@@ -28,7 +29,7 @@ iBitmap *bmpFileType::loadBitmap(const char *path)
    pBitmap->hBmp = bit;
    pBitmap->activate();
 
-   return pBitmap.leak();
+   return pBitmap.leakTemp();
 }
 
 void bmpFileType::saveBitmap(iBitmap& _b, const char *path)

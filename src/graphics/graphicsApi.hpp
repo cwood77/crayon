@@ -178,22 +178,21 @@ private:
 template<class T>
 class autoReleasePtr {
 public:
-   explicit autoReleasePtr(T *pPtr = NULL) : m_pPtr(pPtr)
+   explicit autoReleasePtr(T *pPtr = NULL) : m_pPtr(pPtr), m_isTemp(false)
    { if(m_pPtr) m_pPtr->addref(); }
+
+   ~autoReleasePtr()
+   { reset(NULL); }
 
    void reset(T *pPtr = NULL)
    {
       if(pPtr)
          pPtr->addref();
+      if(m_pPtr && m_isTemp)
+      { m_pPtr->addref(); m_isTemp = false; }
       if(m_pPtr)
          m_pPtr->release();
       m_pPtr = pPtr;
-   }
-
-   T *leak()
-   {
-      m_pPtr->addref();
-      return m_pPtr;
    }
 
    T *get() { return m_pPtr; }
@@ -203,8 +202,26 @@ public:
 
    T *operator->() { return m_pPtr; }
 
+   // be very careful with this...
+   void holdTemp(T *pPtr)
+   {
+      if(m_pPtr)
+         m_pPtr->release();
+      m_pPtr = pPtr;
+      m_isTemp = true;
+   }
+
+   T *leakTemp()
+   {
+      T *pRval = m_pPtr;
+      m_pPtr = NULL;
+      m_isTemp = false;
+      return pRval;
+   }
+
 private:
    T *m_pPtr;
+   bool m_isTemp;
 };
 
 class refCnter {
