@@ -111,8 +111,9 @@ void bmpFileType::checkCompatible(BITMAPINFOHEADER& hdr)
    cdwRequireField(biPlanes,1);
    cdwRequireField(biBitCount,24);
    cdwRequireField(biCompression,0);
-   cdwRequireField(biXPelsPerMeter,0);
-   cdwRequireField(biYPelsPerMeter,0);
+   // these values are occasionally different, but don't seem to matter...
+   //cdwRequireField(biXPelsPerMeter,0);
+   //cdwRequireField(biYPelsPerMeter,0);
    cdwRequireField(biClrUsed,0);
    cdwRequireField(biClrImportant,0);
 
