@@ -93,15 +93,17 @@ void parser::parseImageBlock(scriptNode& n)
       n.addChild(*pNoob);
       parseImageBlock(n);
    }
-   else if(m_l.isHText("remove-frame"))
+   else if(m_l.isHText("survey-frame"))
    {
       m_l.advance();
-      auto *pNoob = new removeFrameNode;
+      auto *pNoob = new surveyFrameNode;
 
-      parseArgOpt(pNoob->hilight);
+      parseArgOpt(pNoob->color);
 
+      m_l.demandAndEat(lexor::kColon);
       n.addChild(*pNoob);
-      parseImageBlock(n);
+      m_indent++;
+      parseFrameBlock(*pNoob);
    }
    else if(m_l.isHText("select-object"))
    {
@@ -210,6 +212,53 @@ bool parser::closeOrContinueBlock(scriptNode& n)
    }
    m_indentsEaten = 0;
    return false;
+}
+
+void parser::parseFrameBlock(scriptNode& n)
+{
+   const size_t myIndent = m_indent;
+
+   if(closeOrContinueBlock(n))
+      return;
+
+   if(m_l.isHText("fill"))
+   {
+      m_l.advance();
+      auto *pNoob = new fillNode;
+
+      parseArgOpt(pNoob->color);
+
+      n.addChild(*pNoob);
+      parseFrameBlock(n);
+   }
+   else if(m_l.isHText("tighten"))
+   {
+      m_l.advance();
+      auto *pNoob = new tightenNode;
+
+      parseArgReq(pNoob->method);
+      parseArgOpt(pNoob->arg);
+
+      n.addChild(*pNoob);
+      parseFrameBlock(n);
+   }
+   else if(m_l.isHText("loosen"))
+   {
+      m_l.advance();
+      auto *pNoob = new loosenNode;
+
+      parseArgReq(pNoob->color);
+
+      n.addChild(*pNoob);
+      parseFrameBlock(n);
+   }
+   else
+      m_l.error("expected frame-level token");
+
+   // if I just read a line and am still at my same indentation, just
+   // loop
+   if(m_indent == myIndent)
+      parseFrameBlock(n);
 }
 
 void parser::parseWhiskerBlock(scriptNode& n)

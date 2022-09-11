@@ -73,11 +73,23 @@ std::string argEvaluator::getString()
    return out.str();
 }
 
-size_t argEvaluator::getNum()
+size_t argEvaluator::getInt()
 {
    std::string in = getString();
    size_t x;
-   ::sscanf(in.c_str(),"%llu",&x);
+   int rval = ::sscanf(in.c_str(),"%llu",&x);
+   if(rval != 1)
+      throw std::runtime_error("failed to parse real arg");
+   return x;
+}
+
+double argEvaluator::getReal()
+{
+   std::string in = getString();
+   double x;
+   int rval = ::sscanf(in.c_str(),"%lf",&x);
+   if(rval != 1)
+      throw std::runtime_error("failed to parse real arg");
    return x;
 }
 

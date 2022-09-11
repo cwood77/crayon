@@ -12,7 +12,11 @@ class saveImageNode;
 class closeImageNode;
 class snipNode;
 class overlayNode;
-class removeFrameNode;
+class surveyFrameNode;
+class fillNode;
+class tightenNode;
+class loosenNode;
+class desurveyFrameNode;
 class selectObjectNode;
 class deselectObjectNode;
 class cropNode;
@@ -37,7 +41,11 @@ public:
    virtual void visit(closeImageNode& n) = 0;
    virtual void visit(snipNode& n) = 0;
    virtual void visit(overlayNode& n) = 0;
-   virtual void visit(removeFrameNode& n) = 0;
+   virtual void visit(surveyFrameNode& n) = 0;
+   virtual void visit(fillNode& n) = 0;
+   virtual void visit(tightenNode& n) = 0;
+   virtual void visit(loosenNode& n) = 0;
+   virtual void visit(desurveyFrameNode& n) = 0;
    virtual void visit(selectObjectNode& n) = 0;
    virtual void visit(deselectObjectNode& n) = 0;
    virtual void visit(cropNode& n) = 0;
@@ -149,11 +157,41 @@ public:
    std::string transparent;
 };
 
-class removeFrameNode : public scriptNode {
+class surveyFrameNode : public scriptNode, public iBlockNode {
+public:
+   virtual scriptNode *createCloseNode();
+   virtual void acceptVisitor(iNodeVisitor& v) { v.visit(*this); }
+
+   std::string color;
+};
+
+class fillNode : public scriptNode {
+public:
+   fillNode() : color("rgb{255,255,255}") {}
+
+   virtual void acceptVisitor(iNodeVisitor& v) { v.visit(*this); }
+
+   std::string color;
+};
+
+class tightenNode : public scriptNode {
 public:
    virtual void acceptVisitor(iNodeVisitor& v) { v.visit(*this); }
 
-   std::string hilight;
+   std::string method;
+   std::string arg;
+};
+
+class loosenNode : public scriptNode {
+public:
+   virtual void acceptVisitor(iNodeVisitor& v) { v.visit(*this); }
+
+   std::string color;
+};
+
+class desurveyFrameNode : public scriptNode {
+public:
+   virtual void acceptVisitor(iNodeVisitor& v) { v.visit(*this); }
 };
 
 class selectObjectNode : public scriptNode, public iBlockNode {

@@ -15,7 +15,11 @@ public:
    virtual void visit(closeImageNode& n);
    virtual void visit(snipNode& n);
    virtual void visit(overlayNode& n);
-   virtual void visit(removeFrameNode& n);
+   virtual void visit(surveyFrameNode& n) { throw std::runtime_error("unimpled"); }
+   virtual void visit(fillNode& n) { throw std::runtime_error("unimpled"); }
+   virtual void visit(tightenNode& n) { throw std::runtime_error("unimpled"); }
+   virtual void visit(loosenNode& n) { throw std::runtime_error("unimpled"); }
+   virtual void visit(desurveyFrameNode& n) { throw std::runtime_error("unimpled"); }
    virtual void visit(selectObjectNode& n);
    virtual void visit(deselectObjectNode& n);
    virtual void visit(cropNode& n);

@@ -25,6 +25,11 @@ scriptNode *loadImageNode::createCloseNode()
    return new closeImageNode();
 }
 
+scriptNode *surveyFrameNode::createCloseNode()
+{
+   return new desurveyFrameNode();
+}
+
 scriptNode *selectObjectNode::createCloseNode()
 {
    return new deselectObjectNode();

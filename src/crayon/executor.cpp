@@ -85,26 +85,63 @@ void executor::visit(overlayNode& n)
    visitChildren(n);
 }
 
-void executor::visit(removeFrameNode& n)
+void executor::visit(surveyFrameNode& n)
 {
-   m_log.s().s() << "removing frame" << std::endl;
+   m_log.s().s() << "surveying frame" << std::endl;
    auto& attr = n.root().fetch<graphicsAttribute>();
+   auto& fattr = n.fetch<frameAttribute>();
 
-   bool dbgMode = argEvaluator(m_sTable,n.hilight).getFlag("hilight");
+   fattr.pFramer.reset(new framer(attr.pCanvas));
+   // TODO set frame color
+   fattr.pFramer->findFrame();
 
+   visitChildren(n);
+}
+
+void executor::visit(fillNode& n)
+{
+   m_log.s().s() << "filling" << std::endl;
+   auto& fattr = n.demandAncestor<surveyFrameNode>().fetch<frameAttribute>();
+
+   fattr.pFramer->colorFrame(argEvaluator(m_sTable,n.color).getColor());
+
+   visitChildren(n);
+}
+
+void executor::visit(tightenNode& n)
+{
+   m_log.s().s() << "tighening frame (this could take a while)" << std::endl;
+
+   // build criteria
+   std::unique_ptr<iPixelCriteria> pCri;
+   auto cri = argEvaluator(m_sTable,n.method).getString();
+   if(cri == "lightness")
    {
-      framer f(attr.pCanvas);
-      outliner o(attr.pCanvas,f,m_log);
-
-      f.findFrame();
-      f.colorFrame(dbgMode ? RGB(0,0,255) : RGB(255,255,255));
-
-      if(dbgMode)
-      {
-         lightnessPixelCriteria cri(0.95);
-         o.encroach(cri);
-      }
+      double threshold = argEvaluator(m_sTable,n.arg).getReal();
+      pCri.reset(new lightnessPixelCriteria(threshold));
    }
+   else
+      throw std::runtime_error("unknown tighten method");
+
+   auto& attr = n.root().fetch<graphicsAttribute>();
+   auto& fattr = n.demandAncestor<surveyFrameNode>().fetch<frameAttribute>();
+   outliner o(attr.pCanvas,*fattr.pFramer.get(),m_log);
+   o.encroach(*pCri.get());
+
+   visitChildren(n);
+}
+
+void executor::visit(loosenNode& n)
+{
+   visitChildren(n);
+}
+
+void executor::visit(desurveyFrameNode& n)
+{
+   m_log.s().s() << "closing frame survey" << std::endl;
+   auto& fattr = n.fetch<frameAttribute>();
+
+   fattr.pFramer.reset();
 
    visitChildren(n);
 }
@@ -116,7 +153,7 @@ void executor::visit(selectObjectNode& n)
 
    rect r = objectFinder::run(
       attr.pCanvas,
-      argEvaluator(m_sTable,n.n).getNum(),
+      argEvaluator(m_sTable,n.n).getInt(),
       argEvaluator(m_sTable,n.hilight).getFlag("hilight"),
       m_log);
    attr.pCanvas.reset(attr.pCanvas->subset(r));

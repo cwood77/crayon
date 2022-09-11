@@ -15,6 +15,11 @@ public:
    autoReleasePtr<iFont>   pFont;
 };
 
+class frameAttribute : public attribute {
+public:
+   std::unique_ptr<framer> pFramer;
+};
+
 class whiskerAttribute : public attribute {
 public:
    std::unique_ptr<whiskerSurvey> pSurvey;
@@ -32,7 +37,11 @@ public:
    virtual void visit(closeImageNode& n);
    virtual void visit(snipNode& n);
    virtual void visit(overlayNode& n);
-   virtual void visit(removeFrameNode& n);
+   virtual void visit(surveyFrameNode& n);
+   virtual void visit(fillNode& n);
+   virtual void visit(tightenNode& n);
+   virtual void visit(loosenNode& n);
+   virtual void visit(desurveyFrameNode& n);
    virtual void visit(selectObjectNode& n);
    virtual void visit(deselectObjectNode& n);
    virtual void visit(cropNode& n);
