@@ -30,6 +30,8 @@ public:
    virtual void visit(desurveyWhiskersNode& n);
    virtual void visit(foreachStringSetNode& n);
    virtual void visit(closeStringSetNode& n);
+   virtual void visit(sweepVarNode& n) { throw std::runtime_error("unimpled"); }
+   virtual void visit(closeSweepVarNode& n) { throw std::runtime_error("unimpled"); }
    virtual void visit(echoNode& n);
    virtual void visit(drawTextNode& n);
    virtual void visit(selectFontNode& n);

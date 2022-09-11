@@ -52,6 +52,8 @@ public:
    virtual void visit(desurveyWhiskersNode& n);
    virtual void visit(foreachStringSetNode& n);
    virtual void visit(closeStringSetNode& n);
+   virtual void visit(sweepVarNode& n);
+   virtual void visit(closeSweepVarNode& n);
    virtual void visit(echoNode& n);
    virtual void visit(drawTextNode& n);
    virtual void visit(selectFontNode& n);

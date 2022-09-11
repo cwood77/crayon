@@ -3,6 +3,8 @@
 #include <map>
 #include <string>
 
+class argEvaluator;
+
 class iSymbol {
 public:
    virtual ~iSymbol() {}
@@ -26,6 +28,26 @@ public:
    autoReleasePtr<iSnippet> pSnippet;
 
    virtual std::string asString() const;
+};
+
+class iSweepableSymbol : public iSymbol {
+public:
+   static iSweepableSymbol *create(const std::string& type);
+   virtual void start(argEvaluator& e) = 0;
+   virtual bool isStop(argEvaluator& op, argEvaluator& val) = 0;
+   virtual void adjust(argEvaluator& delta) = 0;
+};
+
+class doubleSymbol : public iSweepableSymbol {
+public:
+   doubleSymbol() : value(0.0) {}
+
+   double value;
+
+   virtual std::string asString() const;
+   virtual void start(argEvaluator& e);
+   virtual bool isStop(argEvaluator& op, argEvaluator& val);
+   virtual void adjust(argEvaluator& delta);
 };
 
 class symbolTable {

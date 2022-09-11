@@ -300,6 +300,32 @@ void executor::visit(closeStringSetNode& n)
    visitChildren(n);
 }
 
+void executor::visit(sweepVarNode& n)
+{
+   iSweepableSymbol *pSymbol = iSweepableSymbol::create(
+      argEvaluator(m_sTable,n.type).getString());
+
+   argEvaluator start(m_sTable,n.start);
+   argEvaluator stopOp(m_sTable,n.stopOp);
+   argEvaluator stopVal(m_sTable,n.stopVal);
+   argEvaluator delta(m_sTable,n.delta);
+
+   pSymbol->start(start);
+
+   m_sTable.overwrite(n.varName,*pSymbol);
+
+   while(!pSymbol->isStop(stopOp,stopVal))
+   {
+      visitChildren(n);
+      pSymbol->adjust(delta);
+   }
+}
+
+void executor::visit(closeSweepVarNode& n)
+{
+   visitChildren(n);
+}
+
 void executor::visit(echoNode& n)
 {
    m_log.s().s() << argEvaluator(m_sTable,n.text).getString() << std::endl;

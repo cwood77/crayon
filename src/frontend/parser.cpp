@@ -356,6 +356,30 @@ bool parser::parseAnywhere(scriptNode& n, bool inImageBlock)
          parseForeachBlock(*pNoob);
       return true;
    }
+   else if(m_l.isHText("sweep"))
+   {
+      m_l.advance();
+      auto *pNoob = new sweepVarNode;
+
+      parsePathReq(pNoob->type);
+      parsePathReq(pNoob->start);
+      parsePathReq(pNoob->stopOp);
+      parsePathReq(pNoob->stopVal);
+      parsePathReq(pNoob->delta);
+
+      m_l.demandAndEat(lexor::kArrow);
+
+      parseArgReq(pNoob->varName);
+
+      m_l.demandAndEat(lexor::kColon);
+      n.addChild(*pNoob);
+      m_indent++;
+      if(inImageBlock)
+         parseImageBlock(*pNoob);
+      else
+         parseForeachBlock(*pNoob);
+      return true;
+   }
    if(m_l.isHText("echo"))
    {
       m_l.advance();

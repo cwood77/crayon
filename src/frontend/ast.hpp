@@ -27,6 +27,8 @@ class trimWhiskersNode;
 class desurveyWhiskersNode;
 class foreachStringSetNode;
 class closeStringSetNode;
+class sweepVarNode;
+class closeSweepVarNode;
 class echoNode;
 class drawTextNode;
 class selectFontNode;
@@ -56,6 +58,8 @@ public:
    virtual void visit(desurveyWhiskersNode& n) = 0;
    virtual void visit(foreachStringSetNode& n) = 0;
    virtual void visit(closeStringSetNode& n) = 0;
+   virtual void visit(sweepVarNode& n) = 0;
+   virtual void visit(closeSweepVarNode& n) = 0;
    virtual void visit(echoNode& n) = 0;
    virtual void visit(drawTextNode& n) = 0;
    virtual void visit(selectFontNode& n) = 0;
@@ -259,6 +263,24 @@ public:
 };
 
 class closeStringSetNode : public scriptNode {
+public:
+   virtual void acceptVisitor(iNodeVisitor& v) { v.visit(*this); }
+};
+
+class sweepVarNode : public scriptNode, public iBlockNode {
+public:
+   virtual scriptNode *createCloseNode();
+   virtual void acceptVisitor(iNodeVisitor& v) { v.visit(*this); }
+
+   std::string type;
+   std::string start;
+   std::string stopOp;
+   std::string stopVal;
+   std::string delta;
+   std::string varName;
+};
+
+class closeSweepVarNode : public scriptNode {
 public:
    virtual void acceptVisitor(iNodeVisitor& v) { v.visit(*this); }
 };
