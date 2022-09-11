@@ -30,7 +30,9 @@ void doubleSymbol::start(argEvaluator& e)
 
 bool doubleSymbol::isStop(argEvaluator& op, argEvaluator& val)
 {
-   if(op.getString() == ">")
+   if(op.getString() == "<")
+      return !(value < val.getReal());
+   else if(op.getString() == ">")
       return !(value > val.getReal());
    else
       throw std::runtime_error("comparison op not supported");

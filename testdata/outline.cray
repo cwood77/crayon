@@ -1,8 +1,12 @@
-load-image r"nerd.bmp" :
-   select-object 0 :
-      crop
+sweep real 0.88 < 1.0 +0.05 -> l :
 
-   survey-frame:
-      fill rgb{0,0,255}
-      tighten lightness 0.95
-   save-image r"out-outline.bmp"
+   echo "=========> attemping lightness {$l}"
+
+   load-image r"nerd.bmp" :
+      select-object 0 :
+         crop
+
+      survey-frame:
+         fill rgb{0,0,255}
+         tighten lightness $l
+      save-image r"out-outline-{$l}.bmp"
