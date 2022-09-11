@@ -152,6 +152,8 @@ public:
 class removeFrameNode : public scriptNode {
 public:
    virtual void acceptVisitor(iNodeVisitor& v) { v.visit(*this); }
+
+   std::string hilight;
 };
 
 class selectObjectNode : public scriptNode, public iBlockNode {

@@ -90,7 +90,21 @@ void executor::visit(removeFrameNode& n)
    m_log.s().s() << "removing frame" << std::endl;
    auto& attr = n.root().fetch<graphicsAttribute>();
 
-   frameRemover::run(attr.pCanvas);
+   bool dbgMode = argEvaluator(m_sTable,n.hilight).getFlag("hilight");
+
+   {
+      framer f(attr.pCanvas);
+      outliner o(attr.pCanvas,f,m_log);
+
+      f.findFrame();
+      f.colorFrame(dbgMode ? RGB(0,0,255) : RGB(255,255,255));
+
+      if(dbgMode)
+      {
+         lightnessPixelCriteria cri(0.95);
+         o.encroach(cri);
+      }
+   }
 
    visitChildren(n);
 }

@@ -30,4 +30,3 @@ RECT rect::toRect() const
    r.bottom = y + h - 1;
    return r;
 }
-

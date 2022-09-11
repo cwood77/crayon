@@ -6,22 +6,57 @@
 
 class log;
 
-class frameRemover {
+class iPixelCriteria {
 public:
-   static void run(iCanvas& c);
+   virtual bool isEligible(COLORREF c) = 0;
+};
+
+class lightnessPixelCriteria : public iPixelCriteria {
+public:
+   explicit lightnessPixelCriteria(double minLightness) : m_minLightness(minLightness) {}
+
+   virtual bool isEligible(COLORREF c);
 
 private:
-   explicit frameRemover(iCanvas& c);
+   double m_minLightness;
+};
 
-   void _run();
-   bool isAdjacentPixelIn(const point& p);
+class framer {
+public:
+   explicit framer(iCanvas& c);
+
+   void findFrame();
+   void colorFrame(COLORREF c);
+
+   void calculateOutline(
+      // last pixels of the frame
+      std::set<point>& frameEdge,
+      // pixels just outside the frame
+      std::set<point>& offEdge);
+   COLORREF getFrameColor() { return m_frameColor; }
    void markIn(const point& p);
+
+private:
+   bool isAdjacentPixelIn(const point& p);
 
    iCanvas& m_canvas;
    long m_w;
    long m_h;
    std::set<point> m_inFrame;
    COLORREF m_frameColor;
+};
+
+class outliner {
+public:
+   explicit outliner(iCanvas& c, framer& f, log& Log)
+   : m_c(c), m_f(f), m_log(Log) {}
+
+   void encroach(iPixelCriteria& c);
+
+private:
+   iCanvas& m_c;
+   framer& m_f;
+   log& m_log;
 };
 
 class objectFinder {

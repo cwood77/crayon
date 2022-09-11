@@ -98,6 +98,8 @@ void parser::parseImageBlock(scriptNode& n)
       m_l.advance();
       auto *pNoob = new removeFrameNode;
 
+      parseArgOpt(pNoob->hilight);
+
       n.addChild(*pNoob);
       parseImageBlock(n);
    }
