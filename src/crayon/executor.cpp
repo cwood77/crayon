@@ -429,19 +429,26 @@ void executor::visit(deselectFontNode& n)
 void executor::visit(pixelTransformNode& n)
 {
    auto op = argEvaluator(m_sTable,n.op).getString();
-   auto arg = argEvaluator(m_sTable,n.arg).getInt();
 
+   std::unique_ptr<iPixelCriteria> pCri;
    std::unique_ptr<iPixelTransform> pXfrm;
-   if(op == "redshift")
-      pXfrm.reset(new componentShift('r',arg));
-   else if(op == "blueshift")
-      pXfrm.reset(new componentShift('b',arg));
-   else if(op == "greenshift")
-      pXfrm.reset(new componentShift('g',arg));
+   if(op == "red-shift")
+      pXfrm.reset(new componentShift('r',argEvaluator(m_sTable,n.arg).getInt()));
+   else if(op == "blue-shift")
+      pXfrm.reset(new componentShift('b',argEvaluator(m_sTable,n.arg).getInt()));
+   else if(op == "green-shift")
+      pXfrm.reset(new componentShift('g',argEvaluator(m_sTable,n.arg).getInt()));
+   else if(op == "lightness-shift")
+      pXfrm.reset(new lightnessShift(argEvaluator(m_sTable,n.arg).getInt()));
+   else if(op == "to-mono")
+   {
+      pCri.reset(new lightnessPixelCriteria(argEvaluator(m_sTable,n.arg).getReal()));
+      pXfrm.reset(new toMonochromeShift(*pCri.get()));
+   }
    else
       throw std::runtime_error("unknown transform");
 
-   m_log.s().s() << "running pixel transform " << op << " " << arg << std::endl;
+   m_log.s().s() << "running pixel transform " << op << " " << std::endl;
    auto& attr = n.root().fetch<graphicsAttribute>();
 
    pixelTransformer pt(attr.pCanvas,m_log);

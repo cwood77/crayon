@@ -30,3 +30,14 @@ RECT rect::toRect() const
    r.bottom = y + h - 1;
    return r;
 }
+
+BYTE adjByteBndChk(BYTE b, long d)
+{
+   long x = (long)b + d;
+   if(x > 255)
+      return 255;
+   else if(x < 0)
+      return 0;
+   else
+      return x;
+}

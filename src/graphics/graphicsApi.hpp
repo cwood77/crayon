@@ -242,3 +242,6 @@ public: \
    virtual void release() { if(m_rc.release()) delete this; } \
 private: \
    refCnter m_rc;
+
+// adjust b by +/-d but ceil/floor b at 255/0
+BYTE adjByteBndChk(BYTE b, long d);

@@ -146,13 +146,13 @@ private:
 
 class toMonochromeShift : public iPixelTransform {
 public:
-   explicit toMonochromeShift(long whiteLightnessThreshold)
-   : m_wThres(whiteLightnessThreshold) {}
+   explicit toMonochromeShift(iPixelCriteria& c)
+   : m_c(c) {}
 
    virtual COLORREF run(COLORREF c);
 
 private:
-   long m_wThres;
+   iPixelCriteria& m_c;
 };
 
 class pixelTransformer {

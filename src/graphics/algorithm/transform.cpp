@@ -50,16 +50,24 @@ COLORREF componentShift::run(COLORREF c)
       return RGB(v,a,b);
    else if(m_c == 'g')
       return RGB(a,v,b);
-   else if(m_c == 'b')
+   else
       return RGB(a,b,v);
 }
 
 COLORREF lightnessShift::run(COLORREF c)
 {
+   return RGB(
+      adjByteBndChk(GetRValue(c),m_s),
+      adjByteBndChk(GetGValue(c),m_s),
+      adjByteBndChk(GetBValue(c),m_s));
 }
 
 COLORREF toMonochromeShift::run(COLORREF c)
 {
+   if(m_c.isEligible(c))
+      return RGB(255,255,255); // white
+   else
+      return RGB(0,0,0); // black
 }
 
 void pixelTransformer::run(iPixelTransform& t)
