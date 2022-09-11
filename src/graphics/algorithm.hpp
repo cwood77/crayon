@@ -112,3 +112,56 @@ private:
    std::map<COLORREF,long> m_horizWhiskers;
    point m_center;
 };
+
+class iPixelTransform {
+public:
+   virtual COLORREF run(COLORREF c) = 0;
+};
+
+class componentShift : public iPixelTransform {
+public:
+   componentShift(char c, long s) : m_c(c), m_s(s) {}
+
+   virtual COLORREF run(COLORREF c);
+
+private:
+   BYTE diffMin0(long c, long x)
+   { return c > x ? c - x : 0; }
+   BYTE addMax255(long c, long x)
+   { return c+x < 255 ? c+x : 255; }
+
+   char m_c;
+   long m_s;
+};
+
+class lightnessShift : public iPixelTransform {
+public:
+   explicit lightnessShift(long s) : m_s(s) {}
+
+   virtual COLORREF run(COLORREF c);
+
+private:
+   long m_s;
+};
+
+class toMonochromeShift : public iPixelTransform {
+public:
+   explicit toMonochromeShift(long whiteLightnessThreshold)
+   : m_wThres(whiteLightnessThreshold) {}
+
+   virtual COLORREF run(COLORREF c);
+
+private:
+   long m_wThres;
+};
+
+class pixelTransformer {
+public:
+   pixelTransformer(iCanvas& c, log& l) : m_c(c), m_l(l) {}
+
+   void run(iPixelTransform& t);
+
+private:
+   iCanvas& m_c;
+   log& m_l;
+};

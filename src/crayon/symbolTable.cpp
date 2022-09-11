@@ -12,8 +12,37 @@ iSweepableSymbol *iSweepableSymbol::create(const std::string& type)
 {
    if(type == "real")
       return new doubleSymbol;
+   else if(type == "int")
+      return new intSymbol;
    else
       throw std::runtime_error("var type not supported");
+}
+
+std::string intSymbol::asString() const
+{
+   std::stringstream stream;
+   stream << value;
+   return stream.str();
+}
+
+void intSymbol::start(argEvaluator& e)
+{
+   value = e.getInt();
+}
+
+bool intSymbol::isStop(argEvaluator& op, argEvaluator& val)
+{
+   if(op.getString() == "<")
+      return !(value < val.getInt());
+   else if(op.getString() == ">")
+      return !(value > val.getInt());
+   else
+      throw std::runtime_error("comparison op not supported");
+}
+
+void intSymbol::adjust(argEvaluator& delta)
+{
+   value += delta.getInt();
 }
 
 std::string doubleSymbol::asString() const

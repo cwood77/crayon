@@ -20,7 +20,7 @@ public:
    std::string getString();
 
    // pods
-   size_t getInt();
+   long getInt();
    double getReal();
    bool getFlag(const std::string& name);
    size_t lookup(std::map<std::string,size_t>& table);

@@ -176,6 +176,18 @@ void parser::parseImageBlock(scriptNode& n)
       n.addChild(*pNoob);
       parseImageBlock(n);
    }
+   else if(m_l.isHText("xfrm-pixels"))
+   {
+      m_l.advance();
+      auto *pNoob = new pixelTransformNode;
+
+      parseArgReq(pNoob->op);
+
+      parseArgReq(pNoob->arg);
+
+      n.addChild(*pNoob);
+      parseImageBlock(n);
+   }
    else if(parseAnywhere(n,true))
       ;
    else

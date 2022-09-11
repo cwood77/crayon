@@ -425,3 +425,27 @@ void executor::visit(deselectFontNode& n)
    attr.pFont.reset();
    visitChildren(n);
 }
+
+void executor::visit(pixelTransformNode& n)
+{
+   auto op = argEvaluator(m_sTable,n.op).getString();
+   auto arg = argEvaluator(m_sTable,n.arg).getInt();
+
+   std::unique_ptr<iPixelTransform> pXfrm;
+   if(op == "redshift")
+      pXfrm.reset(new componentShift('r',arg));
+   else if(op == "blueshift")
+      pXfrm.reset(new componentShift('b',arg));
+   else if(op == "greenshift")
+      pXfrm.reset(new componentShift('g',arg));
+   else
+      throw std::runtime_error("unknown transform");
+
+   m_log.s().s() << "running pixel transform " << op << " " << arg << std::endl;
+   auto& attr = n.root().fetch<graphicsAttribute>();
+
+   pixelTransformer pt(attr.pCanvas,m_log);
+   pt.run(*pXfrm.get());
+
+   visitChildren(n);
+}

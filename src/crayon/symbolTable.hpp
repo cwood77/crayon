@@ -38,6 +38,18 @@ public:
    virtual void adjust(argEvaluator& delta) = 0;
 };
 
+class intSymbol : public iSweepableSymbol {
+public:
+   intSymbol() : value(0) {}
+
+   int value;
+
+   virtual std::string asString() const;
+   virtual void start(argEvaluator& e);
+   virtual bool isStop(argEvaluator& op, argEvaluator& val);
+   virtual void adjust(argEvaluator& delta);
+};
+
 class doubleSymbol : public iSweepableSymbol {
 public:
    doubleSymbol() : value(0.0) {}

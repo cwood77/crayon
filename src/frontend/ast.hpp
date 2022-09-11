@@ -33,6 +33,7 @@ class echoNode;
 class drawTextNode;
 class selectFontNode;
 class deselectFontNode;
+class pixelTransformNode;
 
 class iNodeVisitor {
 public:
@@ -64,6 +65,7 @@ public:
    virtual void visit(drawTextNode& n) = 0;
    virtual void visit(selectFontNode& n) = 0;
    virtual void visit(deselectFontNode& n) = 0;
+   virtual void visit(pixelTransformNode& n) = 0;
 
 protected:
    void visitChildren(scriptNode& n);
@@ -314,4 +316,12 @@ public:
 class deselectFontNode : public scriptNode {
 public:
    virtual void acceptVisitor(iNodeVisitor& v) { v.visit(*this); }
+};
+
+class pixelTransformNode : public scriptNode {
+public:
+   virtual void acceptVisitor(iNodeVisitor& v) { v.visit(*this); }
+
+   std::string op;
+   std::string arg;
 };
