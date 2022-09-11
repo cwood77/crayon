@@ -2,27 +2,6 @@
 #include <stdexcept>
 #include <string>
 
-void rect::growToInclude(const point& p)
-{
-   // X
-   if(p.x < x)
-   {
-      w += (x-p.x);
-      x = p.x;
-   }
-   else if(p.x > x+w-1)
-      w += (p.x - (x+w-1));
-
-   // Y
-   if(p.y < y)
-   {
-      h += (y-p.y);
-      y = p.y;
-   }
-   else if(p.y > y+h-1)
-      h += (p.y - (y+h-1));
-}
-
 graphicsApiFactory::graphicsApiFactory(iLog& l)
 : m_log(l)
 , m_api0(NULL)
@@ -55,4 +34,10 @@ iGraphicsApi *graphicsApiFactory::open(size_t i)
       throw std::runtime_error("API unsupported");
 
    return m_func0(m_log);
+}
+
+void graphicsApiFactory::diagnostics()
+{
+   autoReleasePtr<iGraphicsApi> pApi(open(0));
+   pApi->diagnostics();
 }

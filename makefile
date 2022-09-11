@@ -30,11 +30,13 @@ dirs:
 	@mkdir -p $(OBJ_DIR)/debug/frontend
 	@mkdir -p $(OBJ_DIR)/debug/gdi
 	@mkdir -p $(OBJ_DIR)/debug/graphics
+	@mkdir -p $(OBJ_DIR)/debug/graphics/algorithm
 	@mkdir -p $(OBJ_DIR)/release/cmn
 	@mkdir -p $(OBJ_DIR)/release/crayon
 	@mkdir -p $(OBJ_DIR)/release/frontend
 	@mkdir -p $(OBJ_DIR)/release/gdi
 	@mkdir -p $(OBJ_DIR)/release/graphics
+	@mkdir -p $(OBJ_DIR)/release/graphics/algorithm
 	@mkdir -p $(OUT_DIR)/debug
 	@mkdir -p $(OUT_DIR)/release
 
@@ -45,6 +47,7 @@ dirs:
 
 CMN_SRC = \
 	src/crayon/cfile.cpp \
+	src/graphics/cmn.cpp \
 
 CMN_DEBUG_OBJ = $(subst src,$(OBJ_DIR)/debug,$(patsubst %.cpp,%.o,$(CMN_SRC)))
 
@@ -73,6 +76,7 @@ CRAYON_SRC = \
 	src/crayon/executor.cpp \
 	src/crayon/log.cpp \
 	src/crayon/main.cpp \
+	src/crayon/stringFileParser.cpp \
 	src/crayon/symbolTable.cpp \
 	src/crayon/test.cpp \
 	src/frontend/ast.cpp \
@@ -82,7 +86,9 @@ CRAYON_SRC = \
 	src/frontend/eval.cpp \
 	src/frontend/lexor.cpp \
 	src/frontend/parser.cpp \
-	src/graphics/algorithm.cpp \
+	src/graphics/algorithm/find.cpp \
+	src/graphics/algorithm/frame.cpp \
+	src/graphics/algorithm/whiskers.cpp \
 	src/graphics/graphicsApi.cpp \
 	src/graphics/snippet.cpp \
 
@@ -110,6 +116,7 @@ $(CRAYON_RELEASE_OBJ): $(OBJ_DIR)/release/%.o: src/%.cpp
 # gdiapi
 
 GDIAPI_SRC = \
+	src/gdi/diag.cpp \
 	src/gdi/loadsave.cpp \
 	src/gdi/main.cpp \
 
@@ -127,7 +134,7 @@ GDIAPI_RELEASE_OBJ = $(subst src,$(OBJ_DIR)/release,$(patsubst %.cpp,%.o,$(GDIAP
 
 $(OUT_DIR)/release/gdiapi.dll: $(GDIAPI_RELEASE_OBJ) $(OUT_DIR)/release/cmn.lib
 	$(info $< --> $@)
-	@$(LINK_CMD) -shared -o $@ $(GDIAPI_RELEASE_OBJ) $(RELEASE_LNK_FLAGS_POST) -Lbin/out/release -lgdi32 -lcmn
+	@$(LINK_CMD) -shared -o $@ $(GDIAPI_RELEASE_OBJ) $(RELEASE_LNK_FLAGS_POST) -Lbin/out/release -lgdi32 -luser32 -lcmn
 
 $(GDIAPI_RELEASE_OBJ): $(OBJ_DIR)/release/%.o: src/%.cpp
 	$(info $< --> $@)

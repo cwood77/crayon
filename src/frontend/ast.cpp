@@ -29,3 +29,18 @@ scriptNode *selectObjectNode::createCloseNode()
 {
    return new deselectObjectNode();
 }
+
+scriptNode *surveyWhiskersNode::createCloseNode()
+{
+   return new desurveyWhiskersNode();
+}
+
+scriptNode *foreachStringSetNode::createCloseNode()
+{
+   return new closeStringSetNode();
+}
+
+scriptNode *selectFontNode::createCloseNode()
+{
+   return new deselectFontNode();
+}

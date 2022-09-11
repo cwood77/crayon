@@ -85,7 +85,14 @@ void dumpVisitor::visit(defineNode& n)
    visitChildren(n);
 }
 
-void dumpVisitor::visit(findWhiskersNode& n)
+void dumpVisitor::visit(surveyWhiskersNode& n)
+{
+   m_l.s().s() << indent(m_l) << "findWhiskersNode" << std::endl;
+   autoIndent _i(m_l);
+   visitChildren(n);
+}
+
+void dumpVisitor::visit(findWhiskerPointNode& n)
 {
    m_l.s().s() << indent(m_l) << "findWhiskersNode(" << n.x << "," << n.y << "," << n.varName << ")" << std::endl;
    autoIndent _i(m_l);
@@ -95,6 +102,55 @@ void dumpVisitor::visit(findWhiskersNode& n)
 void dumpVisitor::visit(trimWhiskersNode& n)
 {
    m_l.s().s() << indent(m_l) << "trimWhiskers" << std::endl;
+   autoIndent _i(m_l);
+   visitChildren(n);
+}
+
+void dumpVisitor::visit(desurveyWhiskersNode& n)
+{
+   m_l.s().s() << indent(m_l) << "desurveyWhiskerNode" << std::endl;
+   autoIndent _i(m_l);
+   visitChildren(n);
+}
+
+void dumpVisitor::visit(foreachStringSetNode& n)
+{
+   m_l.s().s() << indent(m_l) << "foreachStringSetNode(" << n.filePath << "," << n.schema << "," << n.varName << ")" << std::endl;
+   autoIndent _i(m_l);
+   visitChildren(n);
+}
+
+void dumpVisitor::visit(closeStringSetNode& n)
+{
+   m_l.s().s() << indent(m_l) << "closeStringSetNode" << std::endl;
+   autoIndent _i(m_l);
+   visitChildren(n);
+}
+
+void dumpVisitor::visit(echoNode& n)
+{
+   m_l.s().s() << indent(m_l) << "echoNode(" << n.text << ")" << std::endl;
+   autoIndent _i(m_l);
+   visitChildren(n);
+}
+
+void dumpVisitor::visit(drawTextNode& n)
+{
+   m_l.s().s() << indent(m_l) << "drawTextNode(" << n.pt << "," << n.text << "," << n.options.size() << ")" << std::endl;
+   autoIndent _i(m_l);
+   visitChildren(n);
+}
+
+void dumpVisitor::visit(selectFontNode& n)
+{
+   m_l.s().s() << indent(m_l) << "selectFontNode(" << n.fnt << "," << n.options.size() << ")" << std::endl;
+   autoIndent _i(m_l);
+   visitChildren(n);
+}
+
+void dumpVisitor::visit(deselectFontNode& n)
+{
+   m_l.s().s() << indent(m_l) << "deselectFontNode" << std::endl;
    autoIndent _i(m_l);
    visitChildren(n);
 }

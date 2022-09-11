@@ -46,6 +46,14 @@ void expandInterpolationParts(const std::string& in, std::list<std::string>& par
 
 } // anonymous namespace
 
+size_t argEvaluator::computeBitFlags(symbolTable& st, const std::list<std::string>& options, std::map<std::string,size_t>& table)
+{
+   size_t ans = 0;
+   for(auto opt : options)
+      ans |= argEvaluator(st,opt).lookup(table);
+   return ans;
+}
+
 // expand variables
 // expansion forms:
 //    simple:       $g[0].f
@@ -68,10 +76,53 @@ std::string argEvaluator::getString()
 size_t argEvaluator::getNum()
 {
    std::string in = getString();
-
    size_t x;
    ::sscanf(in.c_str(),"%llu",&x);
    return x;
+}
+
+bool argEvaluator::getFlag(const std::string& name)
+{
+   std::string in = getString();
+   return in == name;
+}
+
+size_t argEvaluator::lookup(std::map<std::string,size_t>& table)
+{
+   std::string in = getString();
+   auto it = table.find(in);
+   if(it == table.end())
+      throw std::runtime_error("arg value not in table");
+   return it->second;
+}
+
+std::list<std::string> argEvaluator::getSet()
+{
+   std::string in = getString();
+
+   std::list<std::string> set;
+   const char *pThumb = in.c_str();
+   if(*pThumb != '{') throw std::runtime_error("syntax error in set");
+   ++pThumb;
+   const char *pStart = pThumb;
+   while(true)
+   {
+      for(;*pThumb!=0&&*pThumb!=','&&*pThumb!='}';++pThumb); // eat until comma or }
+      if(*pThumb=='}')
+      {
+         set.push_back(std::string(pStart,pThumb-pStart));
+         break;
+      }
+      else if(*pThumb==0)
+         throw std::runtime_error("unterminated set");
+      else if(*pThumb==',')
+      {
+         set.push_back(std::string(pStart,pThumb-pStart));
+         ++pThumb;
+         pStart = pThumb;
+      }
+   }
+   return set;
 }
 
 size_t argEvaluator::getColor()
@@ -98,10 +149,44 @@ point argEvaluator::getPoint()
    return point(x,y);
 }
 
-bool argEvaluator::getFlag(const std::string& name)
+rect argEvaluator::getRect()
 {
    std::string in = getString();
-   return in == name;
+
+   if(::strncmp(in.c_str(),"rect[tl,br]{pnt{",16)==0)
+   {
+      unsigned long x,y,x2,y2;
+      auto rval = ::sscanf(in.c_str()+16,"%lu,%lu},pnt{%lu,%lu",&x,&y,&x2,&y2);
+      if(rval != 4) throw std::runtime_error("can't parse rect");
+      return rect(x,y,x2-x+1,y2-y+1);
+   }
+   else if(::strncmp(in.c_str(),"rect[l,r,b]{pnt{",16)==0)
+   {
+      unsigned long lx,ly,rx,ry,bx,by;
+      auto rval = ::sscanf(in.c_str()+16,"%lu,%lu},pnt{%lu,%lu},pnt{%lu,%lu",
+         &lx,&ly,&rx,&ry,&bx,&by);
+      if(rval != 6) throw std::runtime_error("can't parse rect");
+      const size_t hugeSize = 100000;
+      return rect(
+         lx,
+         by-(hugeSize-1),
+         (rx-lx)+1,
+         hugeSize);
+   }
+   else
+      throw std::runtime_error("invalid rect syntax");
+}
+
+void argEvaluator::getFont(std::string& face, size_t& pnt)
+{
+   std::string in = getString();
+
+   if(::strncmp(in.c_str(),"font{\"",6)!=0)
+      throw std::runtime_error("invalid font syntax");
+   char buffer[MAX_PATH];
+   auto rval = ::sscanf(in.c_str()+6,"%[^\"]\",%llu",buffer,&pnt);
+   if(rval != 2) throw std::runtime_error("can't parse font");
+   face = buffer;
 }
 
 #ifdef cdwTestBuild

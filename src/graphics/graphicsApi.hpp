@@ -25,6 +25,7 @@ public:
 
    void setOrigin(const point& p) { x = p.x; y = p.y; }
    void growToInclude(const point& p);
+   RECT toRect() const;
 
    long x;
    long y;
@@ -82,14 +83,20 @@ public:
    virtual void translateCoords(point& p) = 0;
 };
 
-/*class rect;
-
 class iFont {
 public:
+   enum options {
+      kItalic           = 0x1,
+      kUnderline        = 0x2,
+      kStrikeout        = 0x4,
+      kOpaqueBackground = 0x8,
+      kBold             = 0x10,
+   };
+
    virtual ~iFont() {}
    virtual void addref() = 0;
    virtual void release() = 0;
-};*/
+};
 
 // anything with dimension and pixels
 // could be a bitmap, a snippet, or a subset of either
@@ -107,6 +114,8 @@ public:
    virtual void setPixel(const point& p, COLORREF r) = 0;
 
    // draw text - can't be done on a snippet!
+   virtual void drawText(const point& p, const char *text, size_t flags, iFont& font) = 0;
+   virtual void drawText(const rect& r, const char *text, size_t flags, iFont& font) = 0;
 
    virtual iCanvas *subset(const rect& r) = 0; // bounds/remaps coordinates
    virtual iCanvas *superset() = 0;
@@ -141,7 +150,8 @@ public:
    virtual void addref() = 0;
    virtual void release() = 0;
    virtual iFileType *createFileType(size_t i) = 0;
-   //virtual iFont *createFont(const char *face, size_t size) = 0;
+   virtual iFont *createFont(const char *face, size_t size, size_t options) = 0;
+   virtual void diagnostics() = 0;
 };
 
 class graphicsApiFactory {
@@ -150,6 +160,8 @@ public:
    ~graphicsApiFactory();
 
    iGraphicsApi *open(size_t i);
+
+   void diagnostics();
 
    void markSuccess() { m_success = true; }
 
@@ -164,32 +176,24 @@ private:
    bool m_success;
 };
 
-/*
-class objectFinder {
-public:
-   static void find(iCanvas& c, rect& r);
-};
-*/
-
 template<class T>
 class autoReleasePtr {
 public:
-   explicit autoReleasePtr(T *pPtr = NULL) : m_pPtr(pPtr)
+   explicit autoReleasePtr(T *pPtr = NULL) : m_pPtr(pPtr), m_isTemp(false)
    { if(m_pPtr) m_pPtr->addref(); }
+
+   ~autoReleasePtr()
+   { reset(NULL); }
 
    void reset(T *pPtr = NULL)
    {
       if(pPtr)
          pPtr->addref();
+      if(m_pPtr && m_isTemp)
+      { m_pPtr->addref(); m_isTemp = false; }
       if(m_pPtr)
          m_pPtr->release();
       m_pPtr = pPtr;
-   }
-
-   T *leak()
-   {
-      m_pPtr->addref();
-      return m_pPtr;
    }
 
    T *get() { return m_pPtr; }
@@ -199,8 +203,26 @@ public:
 
    T *operator->() { return m_pPtr; }
 
+   // be very careful with this...
+   void holdTemp(T *pPtr)
+   {
+      if(m_pPtr)
+         m_pPtr->release();
+      m_pPtr = pPtr;
+      m_isTemp = true;
+   }
+
+   T *leakTemp()
+   {
+      T *pRval = m_pPtr;
+      m_pPtr = NULL;
+      m_isTemp = false;
+      return pRval;
+   }
+
 private:
    T *m_pPtr;
+   bool m_isTemp;
 };
 
 class refCnter {
@@ -219,5 +241,4 @@ public: \
    virtual void addref() { m_rc.addref(); } \
    virtual void release() { if(m_rc.release()) delete this; } \
 private: \
-   refCnter m_rc; \
-
+   refCnter m_rc;

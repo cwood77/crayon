@@ -1,5 +1,6 @@
 #pragma once
 #include "attr.hpp"
+#include <list>
 #include <stdexcept>
 #include <string>
 #include <vector>
@@ -16,8 +17,16 @@ class selectObjectNode;
 class deselectObjectNode;
 class cropNode;
 class defineNode;
-class findWhiskersNode;
+class surveyWhiskersNode;
+class findWhiskerPointNode;
 class trimWhiskersNode;
+class desurveyWhiskersNode;
+class foreachStringSetNode;
+class closeStringSetNode;
+class echoNode;
+class drawTextNode;
+class selectFontNode;
+class deselectFontNode;
 
 class iNodeVisitor {
 public:
@@ -33,8 +42,16 @@ public:
    virtual void visit(deselectObjectNode& n) = 0;
    virtual void visit(cropNode& n) = 0;
    virtual void visit(defineNode& n) = 0;
-   virtual void visit(findWhiskersNode& n) = 0;
+   virtual void visit(surveyWhiskersNode& n) = 0;
+   virtual void visit(findWhiskerPointNode& n) = 0;
    virtual void visit(trimWhiskersNode& n) = 0;
+   virtual void visit(desurveyWhiskersNode& n) = 0;
+   virtual void visit(foreachStringSetNode& n) = 0;
+   virtual void visit(closeStringSetNode& n) = 0;
+   virtual void visit(echoNode& n) = 0;
+   virtual void visit(drawTextNode& n) = 0;
+   virtual void visit(selectFontNode& n) = 0;
+   virtual void visit(deselectFontNode& n) = 0;
 
 protected:
    void visitChildren(scriptNode& n);
@@ -64,7 +81,7 @@ public:
          throw std::runtime_error("can't find ancestor");
       auto *pAns = dynamic_cast<T*>(m_pParent);
       if(pAns)
-         return pAns;
+         return *pAns;
       else
          return m_pParent->demandAncestor<T>();
    }
@@ -166,7 +183,13 @@ public:
    std::string value;
 };
 
-class findWhiskersNode : public scriptNode {
+class surveyWhiskersNode : public scriptNode, public iBlockNode {
+public:
+   virtual scriptNode *createCloseNode();
+   virtual void acceptVisitor(iNodeVisitor& v) { v.visit(*this); }
+};
+
+class findWhiskerPointNode : public scriptNode {
 public:
    virtual void acceptVisitor(iNodeVisitor& v) { v.visit(*this); }
 
@@ -176,6 +199,57 @@ public:
 };
 
 class trimWhiskersNode : public scriptNode {
+public:
+   virtual void acceptVisitor(iNodeVisitor& v) { v.visit(*this); }
+};
+
+class desurveyWhiskersNode : public scriptNode {
+public:
+   virtual void acceptVisitor(iNodeVisitor& v) { v.visit(*this); }
+};
+
+class foreachStringSetNode : public scriptNode, public iBlockNode {
+public:
+   virtual scriptNode *createCloseNode();
+   virtual void acceptVisitor(iNodeVisitor& v) { v.visit(*this); }
+
+   std::string filePath;
+   std::string schema;
+   std::string varName;
+};
+
+class closeStringSetNode : public scriptNode {
+public:
+   virtual void acceptVisitor(iNodeVisitor& v) { v.visit(*this); }
+};
+
+class echoNode : public scriptNode {
+public:
+   virtual void acceptVisitor(iNodeVisitor& v) { v.visit(*this); }
+
+   std::string text;
+};
+
+class drawTextNode : public scriptNode {
+public:
+   virtual void acceptVisitor(iNodeVisitor& v) { v.visit(*this); }
+
+   std::string pt;
+   std::string text;
+
+   std::list<std::string> options;
+};
+
+class selectFontNode : public scriptNode, public iBlockNode {
+public:
+   virtual scriptNode *createCloseNode();
+   virtual void acceptVisitor(iNodeVisitor& v) { v.visit(*this); }
+
+   std::string fnt;
+   std::list<std::string> options;
+};
+
+class deselectFontNode : public scriptNode {
 public:
    virtual void acceptVisitor(iNodeVisitor& v) { v.visit(*this); }
 };

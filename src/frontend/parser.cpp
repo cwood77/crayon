@@ -43,8 +43,10 @@ void parser::parseFile()
          m_indent++;
          parseImageBlock(*pNoob);
       }
+      else if(parseAnywhere(*pFile,false))
+         ;
       else
-         throw std::runtime_error("parser error");
+         m_l.error("expected file-level token");
    }
 }
 
@@ -124,32 +126,56 @@ void parser::parseImageBlock(scriptNode& n)
       n.addChild(*pNoob);
       parseImageBlock(n);
    }
-   else if(m_l.isHText("find-whiskers"))
+   else if(m_l.isHText("survey-whiskers"))
    {
       m_l.advance();
-      auto *pNoob = new findWhiskersNode;
+      auto *pNoob = new surveyWhiskersNode;
 
-      parseArgReq(pNoob->x);
+      m_l.demandAndEat(lexor::kColon);
+      n.addChild(*pNoob);
+      m_indent++;
+      parseWhiskerBlock(*pNoob);
+   }
+   else if(m_l.isHText("with-font"))
+   {
+      m_l.advance();
+      auto *pNoob = new selectFontNode;
 
-      parseArgReq(pNoob->y);
+      parseArgReq(pNoob->fnt);
 
-      m_l.demandAndEat(lexor::kArrow);
+      while(m_l.getCurrentToken() == lexor::kQuotedText)
+      {
+         pNoob->options.push_back(m_l.getCurrentLexeme());
+         m_l.advance();
+      }
 
-      parseArgReq(pNoob->varName);
+      m_l.demandAndEat(lexor::kColon);
+      n.addChild(*pNoob);
+      m_indent++;
+      parseImageBlock(*pNoob);
+   }
+   else if(m_l.isHText("draw-text"))
+   {
+      m_l.advance();
+      auto *pNoob = new drawTextNode;
+
+      parseArgReq(pNoob->pt);
+
+      parseArgReq(pNoob->text);
+
+      while(m_l.getCurrentToken() == lexor::kQuotedText)
+      {
+         pNoob->options.push_back(m_l.getCurrentLexeme());
+         m_l.advance();
+      }
 
       n.addChild(*pNoob);
       parseImageBlock(n);
    }
-   else if(m_l.isHText("trim-whiskers"))
-   {
-      m_l.advance();
-      auto *pNoob = new trimWhiskersNode;
-
-      n.addChild(*pNoob);
-      parseImageBlock(n);
-   }
+   else if(parseAnywhere(n,true))
+      ;
    else
-      throw std::runtime_error("ise 153");
+      m_l.error("expected image-level token");
 
    // if I just read a line and am still at my same indentation, just
    // loop
@@ -182,6 +208,119 @@ bool parser::closeOrContinueBlock(scriptNode& n)
    }
    m_indentsEaten = 0;
    return false;
+}
+
+void parser::parseWhiskerBlock(scriptNode& n)
+{
+   const size_t myIndent = m_indent;
+
+   if(closeOrContinueBlock(n))
+      return;
+
+   if(m_l.isHText("find-point"))
+   {
+      m_l.advance();
+      auto *pNoob = new findWhiskerPointNode;
+
+      parseArgReq(pNoob->x);
+
+      parseArgReq(pNoob->y);
+
+      m_l.demandAndEat(lexor::kArrow);
+
+      parseArgReq(pNoob->varName);
+
+      n.addChild(*pNoob);
+      parseWhiskerBlock(n);
+   }
+   else if(m_l.isHText("trim"))
+   {
+      m_l.advance();
+      auto *pNoob = new trimWhiskersNode;
+
+      n.addChild(*pNoob);
+      parseWhiskerBlock(n); // TODO do I need this?
+   }
+   else
+      m_l.error("expected whisker-level token");
+
+   // if I just read a line and am still at my same indentation, just
+   // loop
+   if(m_indent == myIndent)
+      parseWhiskerBlock(n);
+}
+
+void parser::parseForeachBlock(scriptNode& n)
+{
+   const size_t myIndent = m_indent;
+
+   if(closeOrContinueBlock(n))
+      return;
+
+   if(m_l.isHText("load-image"))
+   {
+      // TODO HACK - this is a copy!
+      m_l.advance();
+      auto *pNoob = new loadImageNode;
+
+      parsePathReq(pNoob->path);
+
+      m_l.demandAndEat(lexor::kColon);
+      n.addChild(*pNoob);
+      m_indent++;
+      parseImageBlock(*pNoob);
+   }
+   else if(parseAnywhere(n,false))
+      ;
+   else
+      m_l.error("expected foreach-level token");
+
+   // if I just read a line and am still at my same indentation, just
+   // loop
+   if(m_indent == myIndent)
+      parseForeachBlock(n);
+}
+
+bool parser::parseAnywhere(scriptNode& n, bool inImageBlock)
+{
+   if(m_l.isHText("foreach-stringset"))
+   {
+      m_l.advance();
+      auto *pNoob = new foreachStringSetNode;
+
+      parsePathReq(pNoob->filePath);
+
+      parseArgReq(pNoob->schema);
+
+      m_l.demandAndEat(lexor::kArrow);
+
+      parseArgReq(pNoob->varName);
+
+      m_l.demandAndEat(lexor::kColon);
+      n.addChild(*pNoob);
+      m_indent++;
+      if(inImageBlock)
+         parseImageBlock(*pNoob);
+      else
+         parseForeachBlock(*pNoob);
+      return true;
+   }
+   if(m_l.isHText("echo"))
+   {
+      m_l.advance();
+      auto *pNoob = new echoNode;
+
+      parseArgReq(pNoob->text);
+
+      n.addChild(*pNoob);
+      if(inImageBlock)
+         parseImageBlock(n);
+      else
+         parseForeachBlock(n);
+      return true;
+   }
+   else
+      return false;
 }
 
 void parser::parseArgReq(std::string& arg)

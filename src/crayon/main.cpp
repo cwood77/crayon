@@ -18,7 +18,19 @@ int main(int argc, const char *argv[])
       coutLog lSink;
       log Log(lSink);
 
-      if(argc == (1+1) && argv[1] != std::string("test"))
+      if(argc == (1+1) && argv[1] == std::string("diag"))
+      {
+         // run diagnostics
+         graphicsApiFactory graf(lSink);
+         graf.diagnostics();
+      }
+      else if(argc == (1+1) && argv[1] == std::string("test"))
+      {
+         // run tests
+         basicAsserter ba;
+         testBase::runAll(ba);
+      }
+      else if(argc == (1+1))
       {
          // run script
 
@@ -58,12 +70,6 @@ int main(int argc, const char *argv[])
          graf.markSuccess();
 
          Log.s().s() << "leaving" << std::endl;
-      }
-      else if(argc == (1+1) && argv[1] == std::string("test"))
-      {
-         // run tests
-         basicAsserter ba;
-         testBase::runAll(ba);
       }
       else
          throw std::runtime_error("usage: crayon.exe <script> or crayon.exe 'test'");

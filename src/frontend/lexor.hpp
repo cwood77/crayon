@@ -33,6 +33,7 @@ public:
    void advance(modes m);
    void advance() { advance(m_mode); }
 
+   void error(const std::string& text);
    void demand(tokens t);
    void demand(tokens t, const std::string& lexeme);
    void demandAndEat(tokens t) { demand(t); advance(); }
