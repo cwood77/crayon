@@ -22,7 +22,7 @@ iFileType *api::createFileType(size_t i)
    return new bmpFileType(*this);
 }
 
-iFont *api::createFont(const char *face, size_t size, size_t options)
+iFont *api::createFont(const char *face, size_t size, COLORREF color, size_t options)
 {
    LOGFONTA lFont;
    fontFinder(lFont).findInAnsiCharSet(face,options,Log);
@@ -52,6 +52,7 @@ iFont *api::createFont(const char *face, size_t size, size_t options)
    pFont->hFont = ::CreateFontIndirectA(&lFont);
    if(!pFont->hFont)
       throw std::runtime_error("failed to create font");
+   pFont->color = color;
    pFont->bkMode = (options & iFont::kOpaqueBackground) ? OPAQUE : TRANSPARENT;
    pFont->activate();
    return pFont.leakTemp();
@@ -144,6 +145,21 @@ dpiAdjuster& dpiAdjuster::scale(long& v)
 {
    v *= m_scale;
    return *this;
+}
+
+autoTextColor::autoTextColor(HDC hdc, COLORREF newColor)
+: m_dc(hdc), m_valid(true)
+{
+   if(newColor != 0xFFFFFFFF)
+      m_oldColor = ::SetTextColor(m_dc,newColor);
+   else
+      m_valid = false;
+}
+
+autoTextColor::~autoTextColor()
+{
+   if(m_valid)
+      ::SetTextColor(m_dc,m_oldColor);
 }
 
 autoBackgroundMode::autoBackgroundMode(HDC hdc, int mode)
@@ -253,13 +269,13 @@ void bitmap::drawText(const point& p, const char *text, size_t flags, iFont& _fn
    ::GetTextMetrics(Api.dc,&tInfo);
    r.bottom += tInfo.tmDescent;
 
-   drawText(r,fnt.bkMode,text,flags);
+   drawText(r,fnt.color,fnt.bkMode,text,flags);
 }
 
 void bitmap::drawText(const rect& p, const char *text, size_t flags, iFont& _fnt)
 {
    font& fnt = dynamic_cast<font&>(_fnt);
-   drawText(p.toRect(),fnt.bkMode,text,flags);
+   drawText(p.toRect(),fnt.color,fnt.bkMode,text,flags);
 }
 
 void bitmap::activate()
@@ -272,12 +288,13 @@ void bitmap::deactivate()
    ::SelectObject(Api.dc,hOld);
 }
 
-void bitmap::drawText(const RECT& gdiR, int bkMode, const char *text, size_t flags)
+void bitmap::drawText(const RECT& gdiR, COLORREF color, int bkMode, const char *text, size_t flags)
 {
    // occasional debugging
    //::drawBox(gdiR,RGB(0,255,0),*this);
 
    RECT copy = gdiR;
+   autoTextColor _tCol(Api.dc,color);
    autoBackgroundMode _bgm(Api.dc,bkMode);
    auto success = ::DrawText(
       Api.dc,

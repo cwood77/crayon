@@ -146,6 +146,7 @@ void parser::parseImageBlock(scriptNode& n)
       auto *pNoob = new selectFontNode;
 
       parseArgReq(pNoob->fnt);
+      parseArgOpt(pNoob->color);
 
       while(m_l.getCurrentToken() == lexor::kQuotedText)
       {

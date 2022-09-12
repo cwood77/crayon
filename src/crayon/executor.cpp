@@ -423,15 +423,25 @@ void executor::visit(selectFontNode& n)
    m_log.s().s() << "creating font '" << face << "':" << pnt << std::endl;
    auto& attr = n.root().fetch<graphicsAttribute>();
 
+   COLORREF color = 0xFFFFFFFF;
+   std::list<std::string> options = n.options;
+   auto maybeColor = argEvaluator(m_sTable,n.color).getString();
+   if(maybeColor.empty())
+      ; // ignore it
+   else if(::strncmp(maybeColor.c_str(),"rgb{",4)==0)
+      color = argEvaluator(m_sTable,n.color).getColor();
+   else
+      options.push_front(n.color);
+
    std::map<std::string,size_t> table;
    table["italic"]    = iFont::kItalic;
    table["underline"] = iFont::kUnderline;
    table["strikeout"] = iFont::kStrikeout;
    table["opaquebk"]  = iFont::kOpaqueBackground;
    table["bold"]      = iFont::kBold;
-   size_t flags = argEvaluator::computeBitFlags(m_sTable,n.options,table);
+   size_t flags = argEvaluator::computeBitFlags(m_sTable,options,table);
 
-   attr.pFont.reset(attr.pApi->createFont(face.c_str(),pnt,flags));
+   attr.pFont.reset(attr.pApi->createFont(face.c_str(),pnt,color,flags));
 
    visitChildren(n);
 }

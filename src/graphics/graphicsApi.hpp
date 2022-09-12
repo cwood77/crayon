@@ -150,7 +150,7 @@ public:
    virtual void addref() = 0;
    virtual void release() = 0;
    virtual iFileType *createFileType(size_t i) = 0;
-   virtual iFont *createFont(const char *face, size_t size, size_t options) = 0;
+   virtual iFont *createFont(const char *face, size_t size, COLORREF color, size_t options) = 0;
    virtual void diagnostics() = 0;
 };
 

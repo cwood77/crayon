@@ -311,6 +311,7 @@ public:
    virtual void acceptVisitor(iNodeVisitor& v) { v.visit(*this); }
 
    std::string fnt;
+   std::string color;
    std::list<std::string> options;
 };
 
