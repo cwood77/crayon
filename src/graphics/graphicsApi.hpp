@@ -137,11 +137,24 @@ public:
 
 class iFileType {
 public:
+   enum {
+      kBmp = 0,
+      kPng = 1,
+   };
+
    virtual ~iFileType() {}
    virtual void addref() = 0;
    virtual void release() = 0;
    virtual iBitmap *loadBitmap(const char *path) = 0;
    virtual void saveBitmap(iBitmap& b, const char *path) = 0;
+};
+
+class iFileTranslator {
+public:
+   ~iFileTranslator() {}
+   virtual void addref() = 0;
+   virtual void release() = 0;
+   virtual void translate(const char *fromPath, const char *toPath) = 0;
 };
 
 class iGraphicsApi {
@@ -150,6 +163,7 @@ public:
    virtual void addref() = 0;
    virtual void release() = 0;
    virtual iFileType *createFileType(size_t i) = 0;
+   virtual iFileTranslator *createFileTranslator(size_t fromFmt, size_t toFmt) = 0;
    virtual iFont *createFont(const char *face, size_t size, COLORREF color, size_t options) = 0;
    virtual void diagnostics() = 0;
 };

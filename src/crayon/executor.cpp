@@ -3,6 +3,7 @@
 #include "../graphics/snippet.hpp"
 #include "executor.hpp"
 #include "log.hpp"
+#include "path.hpp"
 #include "stringFileParser.hpp"
 #include "symbolTable.hpp"
 #include <memory>
@@ -19,7 +20,7 @@ void executor::visit(loadImageNode& n)
    attr.pApi.reset(m_gFac.open(0));
 
    // load the file
-   autoReleasePtr<iFileType> pBmpFmt(attr.pApi->createFileType(0));
+   autoReleasePtr<iFileType> pBmpFmt(attr.pApi->createFileType(iFileType::kBmp));
    attr.pImage.reset(pBmpFmt->loadBitmap(path.c_str()));
    attr.pCanvas.reset(attr.pImage.get());
 
@@ -32,8 +33,30 @@ void executor::visit(saveImageNode& n)
    m_log.s().s() << "saving image '" << path << "'" << std::endl;
    auto& attr = n.root().fetch<graphicsAttribute>();
 
-   autoReleasePtr<iFileType> pBmpFmt(attr.pApi->createFileType(0));
-   pBmpFmt->saveBitmap(attr.pImage,path.c_str());
+   // pick file type
+   auto destType = iFileType::kBmp;
+   auto ext = getPathExtLowered(path);
+   if(ext == "bmp")
+      ;
+   else if(ext == "png")
+      destType = iFileType::kPng;
+   else
+      throw std::runtime_error("unknown file ext: " + ext);
+   bool needsDoubleSave = (destType != iFileType::kBmp);
+
+   autoReleasePtr<iFileType> pBmpFmt(attr.pApi->createFileType(iFileType::kBmp));
+   autoDeleteFile tmpFile(createTempFilePath("cray",::rand()));
+
+   if(needsDoubleSave)
+   {
+      m_log.s().s() << "  saving to " << tmpFile.path << " first..." << std::endl;
+      pBmpFmt->saveBitmap(attr.pImage,tmpFile.path.c_str());
+      autoReleasePtr<iGraphicsApi> pApi(m_gFac.open(1));
+      autoReleasePtr<iFileTranslator> pXlator(pApi->createFileTranslator(iFileType::kBmp,destType));
+      pXlator->translate(tmpFile.path.c_str(),path.c_str());
+   }
+   else
+      pBmpFmt->saveBitmap(attr.pImage,path.c_str());
 
    visitChildren(n);
 }

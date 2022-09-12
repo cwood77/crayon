@@ -17,9 +17,14 @@ api::~api()
 
 iFileType *api::createFileType(size_t i)
 {
-   if(i!=0)
+   if(i != iFileType::kBmp)
       throw std::runtime_error("don't know this file type");
    return new bmpFileType(*this);
+}
+
+iFileTranslator *api::createFileTranslator(size_t fromFmt, size_t toFmt)
+{
+   throw std::runtime_error("unimplemented GDI 27");
 }
 
 iFont *api::createFont(const char *face, size_t size, COLORREF color, size_t options)

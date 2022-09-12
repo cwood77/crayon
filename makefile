@@ -15,11 +15,13 @@ debug: \
 	dirs \
 	$(OUT_DIR)/debug/crayon.exe \
 	$(OUT_DIR)/debug/gdiapi.dll \
+	$(OUT_DIR)/debug/gdiplusapi.dll \
 
 all: \
 	debug \
 	$(OUT_DIR)/release/crayon.exe \
 	$(OUT_DIR)/release/gdiapi.dll \
+	$(OUT_DIR)/release/gdiplusapi.dll \
 
 clean:
 	rm -rf bin
@@ -29,12 +31,14 @@ dirs:
 	@mkdir -p $(OBJ_DIR)/debug/crayon
 	@mkdir -p $(OBJ_DIR)/debug/frontend
 	@mkdir -p $(OBJ_DIR)/debug/gdi
+	@mkdir -p $(OBJ_DIR)/debug/gdiplus
 	@mkdir -p $(OBJ_DIR)/debug/graphics
 	@mkdir -p $(OBJ_DIR)/debug/graphics/algorithm
 	@mkdir -p $(OBJ_DIR)/release/cmn
 	@mkdir -p $(OBJ_DIR)/release/crayon
 	@mkdir -p $(OBJ_DIR)/release/frontend
 	@mkdir -p $(OBJ_DIR)/release/gdi
+	@mkdir -p $(OBJ_DIR)/release/gdiplus
 	@mkdir -p $(OBJ_DIR)/release/graphics
 	@mkdir -p $(OBJ_DIR)/release/graphics/algorithm
 	@mkdir -p $(OUT_DIR)/debug
@@ -47,6 +51,7 @@ dirs:
 
 CMN_SRC = \
 	src/crayon/cfile.cpp \
+	src/crayon/path.cpp \
 	src/graphics/cmn.cpp \
 
 CMN_DEBUG_OBJ = $(subst src,$(OBJ_DIR)/debug,$(patsubst %.cpp,%.o,$(CMN_SRC)))
@@ -73,6 +78,7 @@ $(CMN_RELEASE_OBJ): $(OBJ_DIR)/release/%.o: src/%.cpp
 # crayon
 
 CRAYON_SRC = \
+	src/crayon/cmnTest.cpp \
 	src/crayon/executor.cpp \
 	src/crayon/log.cpp \
 	src/crayon/main.cpp \
@@ -142,5 +148,32 @@ $(GDIAPI_RELEASE_OBJ): $(OBJ_DIR)/release/%.o: src/%.cpp
 	$(info $< --> $@)
 	@$(COMPILE_CMD) $(RELEASE_CC_FLAGS) $< -o $@
 
+# ----------------------------------------------------------------------
+# gdiplusapi
+
+GDIPLUSAPI_SRC = \
+	src/gdiplus/main.cpp \
+
+GDIPLUSAPI_DEBUG_OBJ = $(subst src,$(OBJ_DIR)/debug,$(patsubst %.cpp,%.o,$(GDIPLUSAPI_SRC)))
+
+$(OUT_DIR)/debug/gdiplusapi.dll: $(GDIPLUSAPI_DEBUG_OBJ) $(OUT_DIR)/debug/cmn.lib
+	$(info $< --> $@)
+	@$(LINK_CMD) -shared -o $@ $(GDIPLUSAPI_DEBUG_OBJ) $(DEBUG_LNK_FLAGS_POST) -Lbin/out/debug -lgdiplus -lcmn
+
+$(GDIPLUSAPI_DEBUG_OBJ): $(OBJ_DIR)/debug/%.o: src/%.cpp
+	$(info $< --> $@)
+	@$(COMPILE_CMD) $(DEBUG_CC_FLAGS) $< -o $@
+
+GDIPLUSAPI_RELEASE_OBJ = $(subst src,$(OBJ_DIR)/release,$(patsubst %.cpp,%.o,$(GDIPLUSAPI_SRC)))
+
+$(OUT_DIR)/release/gdiplusapi.dll: $(GDIPLUSAPI_RELEASE_OBJ) $(OUT_DIR)/release/cmn.lib
+	$(info $< --> $@)
+	@$(LINK_CMD) -shared -o $@ $(GDIPLUSAPI_RELEASE_OBJ) $(RELEASE_LNK_FLAGS_POST) -Lbin/out/release -lgdiplus -luser32 -lcmn
+
+$(GDIPLUSAPI_RELEASE_OBJ): $(OBJ_DIR)/release/%.o: src/%.cpp
+	$(info $< --> $@)
+	@$(COMPILE_CMD) $(RELEASE_CC_FLAGS) $< -o $@
+
+# ----------------------------------------------------------------------
 systemtest:
 	@cmd.exe /c systemtest.bat
