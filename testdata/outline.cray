@@ -8,5 +8,8 @@ sweep real 0.88 < 1.0 +0.05 -> l :
 
       survey-frame:
          fill rgb{0,0,255}
-         tighten lightness $l
+         tighten min-lightness $l
+         loosen rgb{0,0,0}
+         loosen rgb{255,0,0}
+         loosen rgb{0,0,0}
       save-image r"out-outline-{$l}.bmp"

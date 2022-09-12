@@ -25,6 +25,9 @@ class framer {
 public:
    explicit framer(iCanvas& c);
 
+   void inferFrameColorFromOrigin();
+   void initFrameColor(COLORREF c);
+
    void findFrame();
    void colorFrame(COLORREF c);
 
@@ -35,6 +38,7 @@ public:
       std::set<point>& offEdge);
    COLORREF getFrameColor() { return m_frameColor; }
    void markIn(const point& p);
+   void unmark(const point& p);
 
 private:
    bool isAdjacentPixelIn(const point& p);
@@ -51,7 +55,8 @@ public:
    explicit outliner(iCanvas& c, framer& f, log& Log)
    : m_c(c), m_f(f), m_log(Log) {}
 
-   void encroach(iPixelCriteria& c);
+   void encroach(iPixelCriteria& c, COLORREF col);
+   void retreat(COLORREF c);
 
 private:
    iCanvas& m_c;

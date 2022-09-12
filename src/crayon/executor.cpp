@@ -92,7 +92,11 @@ void executor::visit(surveyFrameNode& n)
    auto& fattr = n.fetch<frameAttribute>();
 
    fattr.pFramer.reset(new framer(attr.pCanvas));
-   // TODO set frame color
+   if(n.color.empty())
+      fattr.pFramer->inferFrameColorFromOrigin();
+   else
+      fattr.pFramer->initFrameColor(argEvaluator(m_sTable,n.color).getColor());
+
    fattr.pFramer->findFrame();
 
    visitChildren(n);
@@ -115,7 +119,7 @@ void executor::visit(tightenNode& n)
    // build criteria
    std::unique_ptr<iPixelCriteria> pCri;
    auto cri = argEvaluator(m_sTable,n.method).getString();
-   if(cri == "lightness")
+   if(cri == "min-lightness")
    {
       double threshold = argEvaluator(m_sTable,n.arg).getReal();
       pCri.reset(new lightnessPixelCriteria(threshold));
@@ -123,16 +127,29 @@ void executor::visit(tightenNode& n)
    else
       throw std::runtime_error("unknown tighten method");
 
-   auto& attr = n.root().fetch<graphicsAttribute>();
    auto& fattr = n.demandAncestor<surveyFrameNode>().fetch<frameAttribute>();
+   COLORREF col;
+   if(n.color.empty())
+      col = fattr.pFramer->getFrameColor();
+   else
+      col = argEvaluator(m_sTable,n.color).getColor();
+
+   auto& attr = n.root().fetch<graphicsAttribute>();
    outliner o(attr.pCanvas,*fattr.pFramer.get(),m_log);
-   o.encroach(*pCri.get());
+   o.encroach(*pCri.get(),col);
 
    visitChildren(n);
 }
 
 void executor::visit(loosenNode& n)
 {
+   m_log.s().s() << "loosening frame (this could take a while)" << std::endl;
+
+   auto& attr = n.root().fetch<graphicsAttribute>();
+   auto& fattr = n.demandAncestor<surveyFrameNode>().fetch<frameAttribute>();
+   outliner o(attr.pCanvas,*fattr.pFramer.get(),m_log);
+   o.retreat(argEvaluator(m_sTable,n.color).getColor());
+
    visitChildren(n);
 }
 

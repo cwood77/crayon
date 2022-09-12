@@ -5,8 +5,17 @@ framer::framer(iCanvas& c)
 : m_canvas(c)
 {
    m_canvas.getDims(m_w,m_h);
+}
+
+void framer::inferFrameColorFromOrigin()
+{
    m_frameColor = m_canvas.getPixel(point(0,0));
    markIn(point(0,0));
+}
+
+void framer::initFrameColor(COLORREF c)
+{
+   m_frameColor = c;
 }
 
 void framer::findFrame()
@@ -42,8 +51,6 @@ void framer::calculateOutline(std::set<point>& frameEdge, std::set<point>& offEd
       if(pt.y == 0 || pt.y == 0+m_h-1)
          continue;
 
-      frameEdge.insert(pt);
-
       // calculate cardinally adjacent points
       std::list<point> candidates;
       candidates.push_back(point(pt.x-1,pt.y));
@@ -53,14 +60,24 @@ void framer::calculateOutline(std::set<point>& frameEdge, std::set<point>& offEd
 
       // any of those that aren't in the frame are consisdered part of the outline
       for(auto can : candidates)
+      {
          if(m_inFrame.find(can)==m_inFrame.end())
+         {
+            frameEdge.insert(pt);
             offEdge.insert(can);
+         }
+      }
    }
 }
 
 void framer::markIn(const point& p)
 {
    m_inFrame.insert(p);
+}
+
+void framer::unmark(const point& p)
+{
+   m_inFrame.erase(p);
 }
 
 bool framer::isAdjacentPixelIn(const point& p)

@@ -186,6 +186,7 @@ public:
 
    std::string method;
    std::string arg;
+   std::string color;
 };
 
 class loosenNode : public scriptNode {

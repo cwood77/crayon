@@ -17,7 +17,7 @@ bool lightnessPixelCriteria::isEligible(COLORREF c)
    return m_minLightness < lightness;
 }
 
-void outliner::encroach(iPixelCriteria& c)
+void outliner::encroach(iPixelCriteria& c, COLORREF col)
 {
    std::set<point> encroached;
 
@@ -46,5 +46,18 @@ void outliner::encroach(iPixelCriteria& c)
    m_log.s().s() << "outliner encroached " << encroached.size() << " 'close-enough' pixels" << std::endl;
 
    for(auto pt : encroached)
-      m_c.setPixel(pt,RGB(0,255,0));
+      m_c.setPixel(pt,col);
+}
+
+void outliner::retreat(COLORREF c)
+{
+   std::set<point> frameEdge,offEdge;
+   m_f.calculateOutline(frameEdge,offEdge);
+   for(auto pt : frameEdge)
+   {
+      m_f.unmark(pt);
+      m_c.setPixel(pt,c);
+   }
+
+   m_log.s().s() << "outliner retreated " << frameEdge.size() << " pixels" << std::endl;
 }

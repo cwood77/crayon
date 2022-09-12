@@ -250,6 +250,7 @@ void parser::parseFrameBlock(scriptNode& n)
 
       parseArgReq(pNoob->method);
       parseArgOpt(pNoob->arg);
+      parseArgOpt(pNoob->color);
 
       n.addChild(*pNoob);
       parseFrameBlock(n);
