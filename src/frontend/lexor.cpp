@@ -32,7 +32,10 @@ lexor::lexor(const char *pText)
    m_words["save-image"]        = kHyphenatedWord;
    m_words["snip"]              = kHyphenatedWord;
    m_words["overlay"]           = kHyphenatedWord;
-   m_words["remove-frame"]      = kHyphenatedWord;
+   m_words["survey-frame"]      = kHyphenatedWord;
+   m_words["fill"]              = kHyphenatedWord;
+   m_words["tighten"]           = kHyphenatedWord;
+   m_words["loosen"]            = kHyphenatedWord;
    m_words["select-object"]     = kHyphenatedWord;
    m_words["crop"]              = kHyphenatedWord;
    m_words["define"]            = kHyphenatedWord;
@@ -43,6 +46,8 @@ lexor::lexor(const char *pText)
    m_words["echo"]              = kHyphenatedWord;
    m_words["draw-text"]         = kHyphenatedWord;
    m_words["with-font"]         = kHyphenatedWord;
+   m_words["sweep"]             = kHyphenatedWord;
+   m_words["xfrm-pixels"]       = kHyphenatedWord;
    m_words["->"]                = kArrow;
    m_words[":"]                 = kColon;
    m_words["   "]               = kIndent;

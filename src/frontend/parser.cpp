@@ -93,13 +93,17 @@ void parser::parseImageBlock(scriptNode& n)
       n.addChild(*pNoob);
       parseImageBlock(n);
    }
-   else if(m_l.isHText("remove-frame"))
+   else if(m_l.isHText("survey-frame"))
    {
       m_l.advance();
-      auto *pNoob = new removeFrameNode;
+      auto *pNoob = new surveyFrameNode;
 
+      parseArgOpt(pNoob->color);
+
+      m_l.demandAndEat(lexor::kColon);
       n.addChild(*pNoob);
-      parseImageBlock(n);
+      m_indent++;
+      parseFrameBlock(*pNoob);
    }
    else if(m_l.isHText("select-object"))
    {
@@ -142,6 +146,7 @@ void parser::parseImageBlock(scriptNode& n)
       auto *pNoob = new selectFontNode;
 
       parseArgReq(pNoob->fnt);
+      parseArgOpt(pNoob->color);
 
       while(m_l.getCurrentToken() == lexor::kQuotedText)
       {
@@ -168,6 +173,18 @@ void parser::parseImageBlock(scriptNode& n)
          pNoob->options.push_back(m_l.getCurrentLexeme());
          m_l.advance();
       }
+
+      n.addChild(*pNoob);
+      parseImageBlock(n);
+   }
+   else if(m_l.isHText("xfrm-pixels"))
+   {
+      m_l.advance();
+      auto *pNoob = new pixelTransformNode;
+
+      parseArgReq(pNoob->op);
+
+      parseArgReq(pNoob->arg);
 
       n.addChild(*pNoob);
       parseImageBlock(n);
@@ -208,6 +225,54 @@ bool parser::closeOrContinueBlock(scriptNode& n)
    }
    m_indentsEaten = 0;
    return false;
+}
+
+void parser::parseFrameBlock(scriptNode& n)
+{
+   const size_t myIndent = m_indent;
+
+   if(closeOrContinueBlock(n))
+      return;
+
+   if(m_l.isHText("fill"))
+   {
+      m_l.advance();
+      auto *pNoob = new fillNode;
+
+      parseArgOpt(pNoob->color);
+
+      n.addChild(*pNoob);
+      parseFrameBlock(n);
+   }
+   else if(m_l.isHText("tighten"))
+   {
+      m_l.advance();
+      auto *pNoob = new tightenNode;
+
+      parseArgReq(pNoob->method);
+      parseArgOpt(pNoob->arg);
+      parseArgOpt(pNoob->color);
+
+      n.addChild(*pNoob);
+      parseFrameBlock(n);
+   }
+   else if(m_l.isHText("loosen"))
+   {
+      m_l.advance();
+      auto *pNoob = new loosenNode;
+
+      parseArgReq(pNoob->color);
+
+      n.addChild(*pNoob);
+      parseFrameBlock(n);
+   }
+   else
+      m_l.error("expected frame-level token");
+
+   // if I just read a line and am still at my same indentation, just
+   // loop
+   if(m_indent == myIndent)
+      parseFrameBlock(n);
 }
 
 void parser::parseWhiskerBlock(scriptNode& n)
@@ -291,6 +356,30 @@ bool parser::parseAnywhere(scriptNode& n, bool inImageBlock)
       parsePathReq(pNoob->filePath);
 
       parseArgReq(pNoob->schema);
+
+      m_l.demandAndEat(lexor::kArrow);
+
+      parseArgReq(pNoob->varName);
+
+      m_l.demandAndEat(lexor::kColon);
+      n.addChild(*pNoob);
+      m_indent++;
+      if(inImageBlock)
+         parseImageBlock(*pNoob);
+      else
+         parseForeachBlock(*pNoob);
+      return true;
+   }
+   else if(m_l.isHText("sweep"))
+   {
+      m_l.advance();
+      auto *pNoob = new sweepVarNode;
+
+      parsePathReq(pNoob->type);
+      parsePathReq(pNoob->start);
+      parsePathReq(pNoob->stopOp);
+      parsePathReq(pNoob->stopVal);
+      parsePathReq(pNoob->delta);
 
       m_l.demandAndEat(lexor::kArrow);
 

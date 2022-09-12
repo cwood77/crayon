@@ -6,22 +6,62 @@
 
 class log;
 
-class frameRemover {
+class iPixelCriteria {
 public:
-   static void run(iCanvas& c);
+   virtual bool isEligible(COLORREF c) = 0;
+};
+
+class lightnessPixelCriteria : public iPixelCriteria {
+public:
+   explicit lightnessPixelCriteria(double minLightness) : m_minLightness(minLightness) {}
+
+   virtual bool isEligible(COLORREF c);
 
 private:
-   explicit frameRemover(iCanvas& c);
+   double m_minLightness;
+};
 
-   void _run();
-   bool isAdjacentPixelIn(const point& p);
+class framer {
+public:
+   explicit framer(iCanvas& c);
+
+   void inferFrameColorFromOrigin();
+   void initFrameColor(COLORREF c);
+
+   void findFrame();
+   void colorFrame(COLORREF c);
+
+   void calculateOutline(
+      // last pixels of the frame
+      std::set<point>& frameEdge,
+      // pixels just outside the frame
+      std::set<point>& offEdge);
+   COLORREF getFrameColor() { return m_frameColor; }
    void markIn(const point& p);
+   void unmark(const point& p);
+
+private:
+   bool isAdjacentPixelIn(const point& p);
 
    iCanvas& m_canvas;
    long m_w;
    long m_h;
    std::set<point> m_inFrame;
    COLORREF m_frameColor;
+};
+
+class outliner {
+public:
+   explicit outliner(iCanvas& c, framer& f, log& Log)
+   : m_c(c), m_f(f), m_log(Log) {}
+
+   void encroach(iPixelCriteria& c, COLORREF col);
+   void retreat(COLORREF c);
+
+private:
+   iCanvas& m_c;
+   framer& m_f;
+   log& m_log;
 };
 
 class objectFinder {
@@ -76,4 +116,57 @@ private:
    std::map<COLORREF,long> m_vertWhiskers;
    std::map<COLORREF,long> m_horizWhiskers;
    point m_center;
+};
+
+class iPixelTransform {
+public:
+   virtual COLORREF run(COLORREF c) = 0;
+};
+
+class componentShift : public iPixelTransform {
+public:
+   componentShift(char c, long s) : m_c(c), m_s(s) {}
+
+   virtual COLORREF run(COLORREF c);
+
+private:
+   BYTE diffMin0(long c, long x)
+   { return c > x ? c - x : 0; }
+   BYTE addMax255(long c, long x)
+   { return c+x < 255 ? c+x : 255; }
+
+   char m_c;
+   long m_s;
+};
+
+class lightnessShift : public iPixelTransform {
+public:
+   explicit lightnessShift(long s) : m_s(s) {}
+
+   virtual COLORREF run(COLORREF c);
+
+private:
+   long m_s;
+};
+
+class toMonochromeShift : public iPixelTransform {
+public:
+   explicit toMonochromeShift(iPixelCriteria& c)
+   : m_c(c) {}
+
+   virtual COLORREF run(COLORREF c);
+
+private:
+   iPixelCriteria& m_c;
+};
+
+class pixelTransformer {
+public:
+   pixelTransformer(iCanvas& c, log& l) : m_c(c), m_l(l) {}
+
+   void run(iPixelTransform& t);
+
+private:
+   iCanvas& m_c;
+   log& m_l;
 };

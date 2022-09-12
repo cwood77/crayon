@@ -150,7 +150,7 @@ public:
    virtual void addref() = 0;
    virtual void release() = 0;
    virtual iFileType *createFileType(size_t i) = 0;
-   virtual iFont *createFont(const char *face, size_t size, size_t options) = 0;
+   virtual iFont *createFont(const char *face, size_t size, COLORREF color, size_t options) = 0;
    virtual void diagnostics() = 0;
 };
 
@@ -242,3 +242,6 @@ public: \
    virtual void release() { if(m_rc.release()) delete this; } \
 private: \
    refCnter m_rc;
+
+// adjust b by +/-d but ceil/floor b at 255/0
+BYTE adjByteBndChk(BYTE b, long d);

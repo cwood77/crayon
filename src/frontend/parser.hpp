@@ -11,17 +11,22 @@ class scriptNode;
 //           | <anywhere>
 //           | |-
 //
-// <image-block> ::== <indent> <comment> <image-block>
+// <image-block> ::==
 //                  | <indent> 'save-image' <qtext> <image-block>
 //                  | <indent> 'snip' '->' <qtext> <image-block>
 //                  | <indent> 'overlay' <qtext> [<qtext>] [<qtext>] <image-block>
-//                  | <indent> 'remove-frame' <image-block>
+//                  | <indent> 'survey-frame' ':' <frame-block>
 //                  | <indent> 'select-object' [<qtext>] [<qtext>] <image-block>
 //                  | <indent> 'crop' <image-block>
 //                  | <indent> 'survey-whiskers' ':' <whisker-block>
 //                  | <indent> 'draw-text' <qtext> <qtext> <qtext>** <image-block>
 //                  | <indent> <anywhere>
 //                  | e
+//
+// <frame-block> ::===
+//                  | <indent> 'fill' <frame-block>
+//                  | <indent> 'tighten' <frame-block>
+//                  | <indent> 'loosen' <frame-block>
 //
 // <whisker-block> ::==
 //                  | <indent> 'find-point' <qtext> <qtext> '->' <qtext> <whisker-block>
@@ -45,6 +50,7 @@ public:
 private:
    void parseImageBlock(scriptNode& n);
    bool closeOrContinueBlock(scriptNode& n);
+   void parseFrameBlock(scriptNode& n);
    void parseWhiskerBlock(scriptNode& n);
    void parseForeachBlock(scriptNode& n);
    bool parseAnywhere(scriptNode& n, bool inImageBlock);

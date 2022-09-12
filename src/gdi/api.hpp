@@ -12,7 +12,7 @@ public:
    ~api();
 
    virtual iFileType *createFileType(size_t i);
-   virtual iFont *createFont(const char *face, size_t size, size_t options);
+   virtual iFont *createFont(const char *face, size_t size, COLORREF color, size_t options);
    virtual void diagnostics();
 
    log Log;
@@ -57,6 +57,7 @@ public:
    void deactivate();
 
    HFONT hFont;
+   COLORREF color;
    INT bkMode;
 
 private:
@@ -73,6 +74,17 @@ public:
 
 private:
    static double m_scale;
+};
+
+class autoTextColor {
+public:
+   autoTextColor(HDC hdc, COLORREF newColor);
+   ~autoTextColor();
+
+private:
+   HDC m_dc;
+   COLORREF m_oldColor;
+   bool m_valid;
 };
 
 class autoBackgroundMode {
@@ -138,7 +150,7 @@ public:
    HBITMAP hBmp;
 
 private:
-   void drawText(const RECT& gdiR, int bkMode, const char *text, size_t flags);
+   void drawText(const RECT& gdiR, COLORREF color, int bkMode, const char *text, size_t flags);
 
    HGDIOBJ hOld;
 

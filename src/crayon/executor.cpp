@@ -85,12 +85,80 @@ void executor::visit(overlayNode& n)
    visitChildren(n);
 }
 
-void executor::visit(removeFrameNode& n)
+void executor::visit(surveyFrameNode& n)
 {
-   m_log.s().s() << "removing frame" << std::endl;
+   m_log.s().s() << "surveying frame" << std::endl;
    auto& attr = n.root().fetch<graphicsAttribute>();
+   auto& fattr = n.fetch<frameAttribute>();
 
-   frameRemover::run(attr.pCanvas);
+   fattr.pFramer.reset(new framer(attr.pCanvas));
+   if(n.color.empty())
+      fattr.pFramer->inferFrameColorFromOrigin();
+   else
+      fattr.pFramer->initFrameColor(argEvaluator(m_sTable,n.color).getColor());
+
+   fattr.pFramer->findFrame();
+
+   visitChildren(n);
+}
+
+void executor::visit(fillNode& n)
+{
+   m_log.s().s() << "filling" << std::endl;
+   auto& fattr = n.demandAncestor<surveyFrameNode>().fetch<frameAttribute>();
+
+   fattr.pFramer->colorFrame(argEvaluator(m_sTable,n.color).getColor());
+
+   visitChildren(n);
+}
+
+void executor::visit(tightenNode& n)
+{
+   m_log.s().s() << "tighening frame (this could take a while)" << std::endl;
+
+   // build criteria
+   std::unique_ptr<iPixelCriteria> pCri;
+   auto cri = argEvaluator(m_sTable,n.method).getString();
+   if(cri == "min-lightness")
+   {
+      double threshold = argEvaluator(m_sTable,n.arg).getReal();
+      pCri.reset(new lightnessPixelCriteria(threshold));
+   }
+   else
+      throw std::runtime_error("unknown tighten method");
+
+   auto& fattr = n.demandAncestor<surveyFrameNode>().fetch<frameAttribute>();
+   COLORREF col;
+   if(n.color.empty())
+      col = fattr.pFramer->getFrameColor();
+   else
+      col = argEvaluator(m_sTable,n.color).getColor();
+
+   auto& attr = n.root().fetch<graphicsAttribute>();
+   outliner o(attr.pCanvas,*fattr.pFramer.get(),m_log);
+   o.encroach(*pCri.get(),col);
+
+   visitChildren(n);
+}
+
+void executor::visit(loosenNode& n)
+{
+   m_log.s().s() << "loosening frame (this could take a while)" << std::endl;
+
+   auto& attr = n.root().fetch<graphicsAttribute>();
+   auto& fattr = n.demandAncestor<surveyFrameNode>().fetch<frameAttribute>();
+   outliner o(attr.pCanvas,*fattr.pFramer.get(),m_log);
+   o.retreat(argEvaluator(m_sTable,n.color).getColor());
+
+   visitChildren(n);
+}
+
+void executor::visit(desurveyFrameNode& n)
+{
+   m_log.s().s() << "closing frame survey" << std::endl;
+   auto& fattr = n.fetch<frameAttribute>();
+
+   fattr.pFramer.reset();
 
    visitChildren(n);
 }
@@ -102,7 +170,7 @@ void executor::visit(selectObjectNode& n)
 
    rect r = objectFinder::run(
       attr.pCanvas,
-      argEvaluator(m_sTable,n.n).getNum(),
+      argEvaluator(m_sTable,n.n).getInt(),
       argEvaluator(m_sTable,n.hilight).getFlag("hilight"),
       m_log);
    attr.pCanvas.reset(attr.pCanvas->subset(r));
@@ -249,6 +317,32 @@ void executor::visit(closeStringSetNode& n)
    visitChildren(n);
 }
 
+void executor::visit(sweepVarNode& n)
+{
+   iSweepableSymbol *pSymbol = iSweepableSymbol::create(
+      argEvaluator(m_sTable,n.type).getString());
+
+   argEvaluator start(m_sTable,n.start);
+   argEvaluator stopOp(m_sTable,n.stopOp);
+   argEvaluator stopVal(m_sTable,n.stopVal);
+   argEvaluator delta(m_sTable,n.delta);
+
+   pSymbol->start(start);
+
+   m_sTable.overwrite(n.varName,*pSymbol);
+
+   while(!pSymbol->isStop(stopOp,stopVal))
+   {
+      visitChildren(n);
+      pSymbol->adjust(delta);
+   }
+}
+
+void executor::visit(closeSweepVarNode& n)
+{
+   visitChildren(n);
+}
+
 void executor::visit(echoNode& n)
 {
    m_log.s().s() << argEvaluator(m_sTable,n.text).getString() << std::endl;
@@ -329,15 +423,25 @@ void executor::visit(selectFontNode& n)
    m_log.s().s() << "creating font '" << face << "':" << pnt << std::endl;
    auto& attr = n.root().fetch<graphicsAttribute>();
 
+   COLORREF color = 0xFFFFFFFF;
+   std::list<std::string> options = n.options;
+   auto maybeColor = argEvaluator(m_sTable,n.color).getString();
+   if(maybeColor.empty())
+      ; // ignore it
+   else if(::strncmp(maybeColor.c_str(),"rgb{",4)==0)
+      color = argEvaluator(m_sTable,n.color).getColor();
+   else
+      options.push_front(n.color);
+
    std::map<std::string,size_t> table;
    table["italic"]    = iFont::kItalic;
    table["underline"] = iFont::kUnderline;
    table["strikeout"] = iFont::kStrikeout;
    table["opaquebk"]  = iFont::kOpaqueBackground;
    table["bold"]      = iFont::kBold;
-   size_t flags = argEvaluator::computeBitFlags(m_sTable,n.options,table);
+   size_t flags = argEvaluator::computeBitFlags(m_sTable,options,table);
 
-   attr.pFont.reset(attr.pApi->createFont(face.c_str(),pnt,flags));
+   attr.pFont.reset(attr.pApi->createFont(face.c_str(),pnt,color,flags));
 
    visitChildren(n);
 }
@@ -346,5 +450,36 @@ void executor::visit(deselectFontNode& n)
 {
    auto& attr = n.root().fetch<graphicsAttribute>();
    attr.pFont.reset();
+   visitChildren(n);
+}
+
+void executor::visit(pixelTransformNode& n)
+{
+   auto op = argEvaluator(m_sTable,n.op).getString();
+
+   std::unique_ptr<iPixelCriteria> pCri;
+   std::unique_ptr<iPixelTransform> pXfrm;
+   if(op == "red-shift")
+      pXfrm.reset(new componentShift('r',argEvaluator(m_sTable,n.arg).getInt()));
+   else if(op == "blue-shift")
+      pXfrm.reset(new componentShift('b',argEvaluator(m_sTable,n.arg).getInt()));
+   else if(op == "green-shift")
+      pXfrm.reset(new componentShift('g',argEvaluator(m_sTable,n.arg).getInt()));
+   else if(op == "lightness-shift")
+      pXfrm.reset(new lightnessShift(argEvaluator(m_sTable,n.arg).getInt()));
+   else if(op == "to-mono")
+   {
+      pCri.reset(new lightnessPixelCriteria(argEvaluator(m_sTable,n.arg).getReal()));
+      pXfrm.reset(new toMonochromeShift(*pCri.get()));
+   }
+   else
+      throw std::runtime_error("unknown transform");
+
+   m_log.s().s() << "running pixel transform " << op << " " << std::endl;
+   auto& attr = n.root().fetch<graphicsAttribute>();
+
+   pixelTransformer pt(attr.pCanvas,m_log);
+   pt.run(*pXfrm.get());
+
    visitChildren(n);
 }
