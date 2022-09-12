@@ -19,7 +19,7 @@ void executor::visit(loadImageNode& n)
    attr.pApi.reset(m_gFac.open(0));
 
    // load the file
-   autoReleasePtr<iFileType> pBmpFmt(attr.pApi->createFileType(0));
+   autoReleasePtr<iFileType> pBmpFmt(attr.pApi->createFileType(iFileType::kBmp));
    attr.pImage.reset(pBmpFmt->loadBitmap(path.c_str()));
    attr.pCanvas.reset(attr.pImage.get());
 
@@ -32,7 +32,7 @@ void executor::visit(saveImageNode& n)
    m_log.s().s() << "saving image '" << path << "'" << std::endl;
    auto& attr = n.root().fetch<graphicsAttribute>();
 
-   autoReleasePtr<iFileType> pBmpFmt(attr.pApi->createFileType(0));
+   autoReleasePtr<iFileType> pBmpFmt(attr.pApi->createFileType(iFileType::kBmp));
    pBmpFmt->saveBitmap(attr.pImage,path.c_str());
 
    visitChildren(n);

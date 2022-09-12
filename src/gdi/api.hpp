@@ -12,6 +12,7 @@ public:
    ~api();
 
    virtual iFileType *createFileType(size_t i);
+   virtual iFileTranslator *createFileTranslator(size_t fromFmt, size_t toFmt);
    virtual iFont *createFont(const char *face, size_t size, COLORREF color, size_t options);
    virtual void diagnostics();
 
