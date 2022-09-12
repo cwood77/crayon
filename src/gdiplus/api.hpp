@@ -49,5 +49,3 @@ private:
 
 cdwImplAddrefRelease();
 };
-
-std::wstring widen(const std::string& s);

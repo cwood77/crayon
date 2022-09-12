@@ -51,6 +51,7 @@ dirs:
 
 CMN_SRC = \
 	src/crayon/cfile.cpp \
+	src/crayon/path.cpp \
 	src/graphics/cmn.cpp \
 
 CMN_DEBUG_OBJ = $(subst src,$(OBJ_DIR)/debug,$(patsubst %.cpp,%.o,$(CMN_SRC)))
@@ -77,6 +78,7 @@ $(CMN_RELEASE_OBJ): $(OBJ_DIR)/release/%.o: src/%.cpp
 # crayon
 
 CRAYON_SRC = \
+	src/crayon/cmnTest.cpp \
 	src/crayon/executor.cpp \
 	src/crayon/log.cpp \
 	src/crayon/main.cpp \

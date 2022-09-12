@@ -2,3 +2,5 @@ load-image r"scribble.bmp":
 
    # hello
    save-image r"out-scribble.bmp"
+
+   save-image r"out-scribble.png"

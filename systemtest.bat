@@ -11,6 +11,8 @@ bin\out\debug\crayon testdata\basic.cray > nul
 if not errorlevel 0 goto fail
 fc /b testdata\scribble.bmp testdata\out-scribble.bmp
 if not errorlevel 0 goto fail
+fc /b testdata\expected-scribble.png testdata\out-scribble.png
+if not errorlevel 0 goto fail
 
 rem snip, overlay and frame
 bin\out\debug\crayon testdata\snip+overlay.cray > nul
