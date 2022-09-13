@@ -188,9 +188,13 @@ iSnippet *canvas::Snip(iSnippetAllocator& a, iTransform& t, iCanvas& c)
 {
    long w,h;
    c.getDims(w,h);
-   t.translateDims(w,h);
    autoReleasePtr<iSnippet> pSnippet;
-   pSnippet.holdTemp(a.allocate(w,h));
+   {
+      long sw = w;
+      long sh = h;
+      t.translateDims(sw,sh);
+      pSnippet.holdTemp(a.allocate(sw,sh));
+   }
 
    for(long x=0;x<w;x++)
    {
@@ -213,6 +217,28 @@ void canvas::Overlay(iSnippet& s, COLORREF transparent, iCanvas& c)
 {
    long w,h;
    s.getDims(w,h);
+
+   // resize if necessary
+   {
+      long cw,ch;
+      c.getDims(cw,ch);
+      bool tooSmall = (cw < w || ch < h);
+      if(tooSmall)
+      {
+         bitmap *pBit = dynamic_cast<bitmap*>(&c);
+         if(pBit)
+         {
+            long newW = w > cw ? w : cw;
+            long newH = h > ch ? h : ch;
+            ::printf("resizing bitmap from (%ld,%ld) => %ld,%ld\n",
+               cw,ch,newW,newH);
+            pBit->setDims(newW,newH);
+         }
+         else
+            throw std::runtime_error("canvas is too small for snippet; use a bitmap instead");
+      }
+   }
+
    for(long x=0;x<w;x++)
    {
       for(long y=0;y<h;y++)

@@ -72,6 +72,8 @@ void parser::parseImageBlock(scriptNode& n)
       m_l.advance();
       auto *pNoob = new snipNode;
 
+      parseArgOpt(pNoob->xfrm);
+
       m_l.demandAndEat(lexor::kArrow);
 
       parseArgReq(pNoob->varName);

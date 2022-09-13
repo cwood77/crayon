@@ -80,9 +80,14 @@ void executor::visit(snipNode& n)
 
    std::unique_ptr<snipSymbol> pVar(new snipSymbol());
 
-   snippetAllocator sAlloc;
    nullTransform nullXfrm;
-   pVar->pSnippet.reset(attr.pCanvas->snip(sAlloc,nullXfrm));
+   clockwiseTransform clwXfrm;
+   iTransform *pXfrm = &nullXfrm;
+   if(argEvaluator(m_sTable,n.xfrm).getString() == "cw")
+      pXfrm = &clwXfrm;
+
+   snippetAllocator sAlloc;
+   pVar->pSnippet.reset(attr.pCanvas->snip(sAlloc,*pXfrm));
 
    m_sTable.overwrite(n.varName,*pVar.release());
    m_log.s().s() << "saved to " << n.varName << std::endl;
@@ -96,14 +101,28 @@ void executor::visit(overlayNode& n)
    auto& attr = n.root().fetch<graphicsAttribute>();
 
    auto& pSnip = m_sTable.demand(n.varName).as<snipSymbol>().pSnippet;
-   long w,h;
-   pSnip->getDims(w,h);
 
    auto origin = argEvaluator(m_sTable,n.pnt).getPoint();
+   autoReleasePtr<iCanvas> pCan;
 
-   autoReleasePtr<iCanvas> pSubCan(attr.pCanvas->subset(rect(origin.x,origin.y,w,h)));
-   pSubCan->overlay(pSnip,argEvaluator(m_sTable,n.transparent).getColor());
-   pSubCan.reset();
+   if(origin.x != 0 || origin.y != 0)
+   {
+      // non-zero origin, create a new canvas
+      long w,h;
+      attr.pCanvas->getDims(w,h);
+      pCan.reset(attr.pCanvas->subset(
+         rect(
+            origin.x,
+            origin.y,
+            w - origin.x,
+            h - origin.y)));
+   }
+   else
+      // otherwise just reuse
+      pCan.reset(attr.pCanvas.get());
+
+   pCan->overlay(pSnip,argEvaluator(m_sTable,n.transparent).getColor());
+   pCan.reset();
 
    visitChildren(n);
 }

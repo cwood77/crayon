@@ -150,6 +150,7 @@ public:
    virtual void acceptVisitor(iNodeVisitor& v) { v.visit(*this); }
 
    std::string varName;
+   std::string xfrm;
 };
 
 class overlayNode : public scriptNode {

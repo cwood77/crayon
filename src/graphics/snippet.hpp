@@ -31,3 +31,16 @@ public:
    virtual void translateDims(long& w, long& h) {}
    virtual void translateCoords(point& p) {}
 };
+
+class clockwiseTransform : public iTransform {
+public:
+   clockwiseTransform() : m_offset(0,0) {}
+   virtual void translateDims(long& w, long& h);
+   virtual void translateCoords(point& p);
+
+private:
+   void toCartesian(point& p);
+   void toGraphics(point& p);
+
+   point m_offset;
+};
