@@ -1,2 +1,6 @@
 sweep real 5 > -2 -3 -> x :
    echo $x
+
+load-image r"nerd.bmp" :
+   get-dims -> d
+   echo "dims are '{$d}'"

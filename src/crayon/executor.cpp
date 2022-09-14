@@ -523,3 +523,22 @@ void executor::visit(pixelTransformNode& n)
 
    visitChildren(n);
 }
+
+void executor::visit(getDimsNode& n)
+{
+   m_log.s().s() << "reading dims" << std::endl;
+   auto& attr = n.root().fetch<graphicsAttribute>();
+
+   long w,h;
+   attr.pCanvas->getDims(w,h);
+   std::stringstream value;
+   value
+      << "rect[tl,br]{pnt{0,0},"
+      << "pnt{" << (w-1) << "," << (h-1) << "}"
+      << "}"
+   ;
+
+   m_sTable.overwrite(n.varName,*new stringSymbol(value.str()));
+
+   visitChildren(n);
+}

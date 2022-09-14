@@ -172,7 +172,7 @@ rect argEvaluator::getRect()
       if(rval != 4) throw std::runtime_error("can't parse rect");
       return rect(x,y,x2-x+1,y2-y+1);
    }
-   else if(::strncmp(in.c_str(),"rect[l,r,b]{pnt{",16)==0)
+   else if(::strncmp(in.c_str(),"rect[l,r,b]{pnt{",16)==0) // used?
    {
       unsigned long lx,ly,rx,ry,bx,by;
       auto rval = ::sscanf(in.c_str()+16,"%lu,%lu},pnt{%lu,%lu},pnt{%lu,%lu",

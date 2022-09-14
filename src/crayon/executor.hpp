@@ -59,6 +59,7 @@ public:
    virtual void visit(selectFontNode& n);
    virtual void visit(deselectFontNode& n);
    virtual void visit(pixelTransformNode& n);
+   virtual void visit(getDimsNode& n);
 
 private:
    std::string trimTrailingNewlines(const std::string& s);

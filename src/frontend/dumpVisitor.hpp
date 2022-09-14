@@ -37,6 +37,7 @@ public:
    virtual void visit(selectFontNode& n);
    virtual void visit(deselectFontNode& n);
    virtual void visit(pixelTransformNode& n) { throw std::runtime_error("unimpled"); }
+   virtual void visit(getDimsNode& n) { throw std::runtime_error("unimpled"); }
 
 private:
    log& m_l;
