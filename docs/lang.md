@@ -9,6 +9,7 @@
 ## Reference
 
 ### Working with Variables
+------------------------------------------------------------------
 
 #### `define`: Define a constant
 
@@ -57,6 +58,7 @@ Goodbye world!
 `echo text`
 
 ### Loading and Saving Images
+------------------------------------------------------------------
 
 #### `load-image`: Load an image
 
@@ -73,6 +75,7 @@ Goodbye world!
 - Save supports both the 24-bit bitmap file format and the PNG format.
 
 ### Cut and Paste
+------------------------------------------------------------------
 
 #### `snip`: Copy an image to memory
 
@@ -98,11 +101,44 @@ snip -90 -> x2 # copy the selection, and rotate it clockwise 90 degrees
 - `overlay` will attempt to expand the active selection boundaries if the snippet is too big. If expansion is required but only a subset is the active selection (e.g. you've used `select-object`) crayon will error.
 
 ### Selection
+------------------------------------------------------------------
+#### `select-object`: Limit the active selection to an object
+
+`select-object [n] [hilight] :`
+
+- `select-object` uses an edge detection algorithm to find unique objects. Objects are numbered from left to right, top to bottom, in that order.
+- `n` identifies the object in selection order (if omitted, it defaults to 0)
+- the flag `hilight` can be optionally indicated to draw a green box around each found object for debugging purposes
+
+------------------------------------------------------------------
+in work
+
+crop
 
 ### Text
+------------------------------------------------------------------
+with-font fnt{"Calibri",10} [rgb{0,0,0}] [bold] [italics] [underline] [strikeout] ...
+draw-text pnt{0,0}/rect{}?? "text"
 
 ### Adding and Removing Outlines
+------------------------------------------------------------------
+survey-frame [rgb{0,0,0}] :
+fill [rgb{0,0,0}]
+tighten method [arg] [rgb{0,0,0}]
+loosen rgb{0,0,0}
 
 ### Demarcation (i.e. Finding Image Landmarks)
+------------------------------------------------------------------
+survey-whiskers :
+find-point rgb{0,0,0} rgb{0,0,0} -> varName
+trim
 
 ### Pixel Transforms
+------------------------------------------------------------------
+xfrm-pixels op arg
+
+--- MORE
+get-dims
+new-image
+if
+error
