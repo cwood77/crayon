@@ -82,7 +82,7 @@ void executor::visit(snipNode& n)
 
    std::unique_ptr<iTransform> pXfrm(new nullTransform);
    if(!n.xfrm.empty())
-      pXfrm.reset(new clockwiseTransform(argEvaluator(m_sTable,n.xfrm).getReal()));
+      pXfrm.reset(new rotateTransform(argEvaluator(m_sTable,n.xfrm).getReal()));
 
    snippetAllocator sAlloc;
    pVar->pSnippet.reset(attr.pCanvas->snip(sAlloc,*pXfrm.get()));

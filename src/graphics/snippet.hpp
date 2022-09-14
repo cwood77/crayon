@@ -32,9 +32,9 @@ public:
    virtual void translateCoords(point& p) {}
 };
 
-class clockwiseTransform : public iTransform {
+class rotateTransform : public iTransform {
 public:
-   explicit clockwiseTransform(double angle);
+   explicit rotateTransform(double angle);
    virtual void translateDims(long& w, long& h);
    virtual void translateCoords(point& p);
 

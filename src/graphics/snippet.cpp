@@ -26,14 +26,14 @@ pixel& snippet::index(const point& p)
    return m_pBlock[p.x + p.y*m_w];
 }
 
-clockwiseTransform::clockwiseTransform(double angle)
+rotateTransform::rotateTransform(double angle)
 : m_offset(0,0)
 {
    // convert from degrees to radians
    m_angle = angle * M_PI / 180.0;
 }
 
-void clockwiseTransform::translateDims(long& w, long& h)
+void rotateTransform::translateDims(long& w, long& h)
 {
    long max = w > h ? w : h;
 
@@ -47,7 +47,7 @@ void clockwiseTransform::translateDims(long& w, long& h)
    ::printf("h offset is %ld\n",m_offset.y);
 }
 
-void clockwiseTransform::translateCoords(point& p)
+void rotateTransform::translateCoords(point& p)
 {
    point cartPnt = p;
    toCartesian(cartPnt);
@@ -60,12 +60,12 @@ void clockwiseTransform::translateCoords(point& p)
    toGraphics(p);
 }
 
-void clockwiseTransform::toCartesian(point& p)
+void rotateTransform::toCartesian(point& p)
 {
    p = point(p.x,-p.y);
 }
 
-void clockwiseTransform::toGraphics(point& p)
+void rotateTransform::toGraphics(point& p)
 {
    p = point(p.x+m_offset.x,-p.y+m_offset.y);
 }
