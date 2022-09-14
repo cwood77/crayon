@@ -337,6 +337,7 @@ class getDimsNode : public scriptNode {
 public:
    virtual void acceptVisitor(iNodeVisitor& v) { v.visit(*this); }
 
+   std::string obj;
    std::string varName;
 };
 

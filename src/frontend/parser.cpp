@@ -211,6 +211,8 @@ void parser::parseImageBlock(scriptNode& n)
       m_l.advance();
       auto *pNoob = new getDimsNode;
 
+      parseArgOpt(pNoob->obj);
+
       m_l.demandAndEat(lexor::kArrow);
 
       parseArgReq(pNoob->varName);

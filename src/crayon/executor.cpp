@@ -530,7 +530,14 @@ void executor::visit(getDimsNode& n)
    auto& attr = n.root().fetch<graphicsAttribute>();
 
    long w,h;
-   attr.pCanvas->getDims(w,h);
+   if(!n.obj.empty())
+   {
+      auto& pSnip = m_sTable.demand(n.obj).as<snipSymbol>().pSnippet;
+      pSnip->getDims(w,h);
+   }
+   else
+      attr.pCanvas->getDims(w,h);
+
    std::stringstream value;
    value
       << "rect[tl,br]{pnt{0,0},"
