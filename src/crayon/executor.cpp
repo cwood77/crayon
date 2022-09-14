@@ -80,9 +80,12 @@ void executor::visit(snipNode& n)
 
    std::unique_ptr<snipSymbol> pVar(new snipSymbol());
 
+   std::unique_ptr<iTransform> pXfrm(new nullTransform);
+   if(!n.xfrm.empty())
+      pXfrm.reset(new rotateTransform(argEvaluator(m_sTable,n.xfrm).getReal()));
+
    snippetAllocator sAlloc;
-   nullTransform nullXfrm;
-   pVar->pSnippet.reset(attr.pCanvas->snip(sAlloc,nullXfrm));
+   pVar->pSnippet.reset(attr.pCanvas->snip(sAlloc,*pXfrm.get()));
 
    m_sTable.overwrite(n.varName,*pVar.release());
    m_log.s().s() << "saved to " << n.varName << std::endl;
@@ -96,14 +99,28 @@ void executor::visit(overlayNode& n)
    auto& attr = n.root().fetch<graphicsAttribute>();
 
    auto& pSnip = m_sTable.demand(n.varName).as<snipSymbol>().pSnippet;
-   long w,h;
-   pSnip->getDims(w,h);
 
    auto origin = argEvaluator(m_sTable,n.pnt).getPoint();
+   autoReleasePtr<iCanvas> pCan;
 
-   autoReleasePtr<iCanvas> pSubCan(attr.pCanvas->subset(rect(origin.x,origin.y,w,h)));
-   pSubCan->overlay(pSnip,argEvaluator(m_sTable,n.transparent).getColor());
-   pSubCan.reset();
+   if(origin.x != 0 || origin.y != 0)
+   {
+      // non-zero origin, create a new canvas
+      long w,h;
+      attr.pCanvas->getDims(w,h);
+      pCan.reset(attr.pCanvas->subset(
+         rect(
+            origin.x,
+            origin.y,
+            w - origin.x,
+            h - origin.y)));
+   }
+   else
+      // otherwise just reuse
+      pCan.reset(attr.pCanvas.get());
+
+   pCan->overlay(pSnip,argEvaluator(m_sTable,n.transparent).getColor());
+   pCan.reset();
 
    visitChildren(n);
 }
@@ -503,6 +520,85 @@ void executor::visit(pixelTransformNode& n)
 
    pixelTransformer pt(attr.pCanvas,m_log);
    pt.run(*pXfrm.get());
+
+   visitChildren(n);
+}
+
+void executor::visit(getDimsNode& n)
+{
+   m_log.s().s() << "reading dims" << std::endl;
+   auto& attr = n.root().fetch<graphicsAttribute>();
+
+   long w,h;
+   if(!n.obj.empty())
+   {
+      auto& pSnip = m_sTable.demand(n.obj).as<snipSymbol>().pSnippet;
+      pSnip->getDims(w,h);
+   }
+   else
+      attr.pCanvas->getDims(w,h);
+
+   std::stringstream value;
+   value
+      << "rect[tl,br]{pnt{0,0},"
+      << "pnt{" << (w-1) << "," << (h-1) << "}"
+      << "}"
+   ;
+
+   m_sTable.overwrite(n.varName,*new stringSymbol(value.str()));
+
+   visitChildren(n);
+}
+
+void executor::visit(newImageNode& n)
+{
+   m_log.s().s() << "creating new image" << std::endl;
+   auto& attr = n.root().fetch<graphicsAttribute>();
+
+   // open the API
+   if(attr.pApi)
+      throw std::runtime_error("graphics API already in use during new");
+   attr.pApi.reset(m_gFac.open(0));
+
+   // create a fresh canvas
+   auto dims = argEvaluator(m_sTable,n.dims).getRect();
+   auto color = argEvaluator(m_sTable,n.color).getColor();
+   autoReleasePtr<iFileType> pBmpFmt(attr.pApi->createFileType(iFileType::kBmp));
+   attr.pImage.reset(pBmpFmt->createNew(dims,color));
+   attr.pCanvas.reset(attr.pImage.get());
+
+   visitChildren(n);
+}
+
+void executor::visit(endIfNode& n)
+{
+   visitChildren(n);
+}
+
+void executor::visit(ifNode& n)
+{
+   auto lhs = argEvaluator(m_sTable,n.lhs).getString();
+   auto op  = argEvaluator(m_sTable,n.op).getString();
+   auto rhs = argEvaluator(m_sTable,n.rhs).getString();
+
+   bool ans;
+   if(op == "!=")
+      ans = (lhs != rhs);
+   else
+      throw std::runtime_error("unsupported operation for 'if'");
+
+   if(ans)
+      visitChildren(n);
+}
+
+void executor::visit(errorNode& n)
+{
+   auto text = argEvaluator(m_sTable,n.text).getString();
+
+   if(text.empty())
+      throw std::runtime_error("user requested halt");
+   else
+      m_errLog.s().s() << text << std::endl;
 
    visitChildren(n);
 }

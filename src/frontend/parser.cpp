@@ -33,10 +33,25 @@ void parser::parseFile()
       }
       else if(m_l.isHText("load-image"))
       {
+         // TODO HACK - this is copied!  Maintain the other
          m_l.advance();
          auto *pNoob = new loadImageNode;
 
          parsePathReq(pNoob->path);
+
+         m_l.demandAndEat(lexor::kColon);
+         pFile->addChild(*pNoob);
+         m_indent++;
+         parseImageBlock(*pNoob);
+      }
+      else if(m_l.isHText("new-image"))
+      {
+         // TODO HACK - this is copied!  Maintain the other
+         m_l.advance();
+         auto *pNoob = new newImageNode;
+
+         parseArgReq(pNoob->dims);
+         parseArgOpt(pNoob->color);
 
          m_l.demandAndEat(lexor::kColon);
          pFile->addChild(*pNoob);
@@ -71,6 +86,8 @@ void parser::parseImageBlock(scriptNode& n)
    {
       m_l.advance();
       auto *pNoob = new snipNode;
+
+      parseArgOpt(pNoob->xfrm);
 
       m_l.demandAndEat(lexor::kArrow);
 
@@ -185,6 +202,20 @@ void parser::parseImageBlock(scriptNode& n)
       parseArgReq(pNoob->op);
 
       parseArgReq(pNoob->arg);
+
+      n.addChild(*pNoob);
+      parseImageBlock(n);
+   }
+   else if(m_l.isHText("get-dims"))
+   {
+      m_l.advance();
+      auto *pNoob = new getDimsNode;
+
+      parseArgOpt(pNoob->obj);
+
+      m_l.demandAndEat(lexor::kArrow);
+
+      parseArgReq(pNoob->varName);
 
       n.addChild(*pNoob);
       parseImageBlock(n);
@@ -335,6 +366,20 @@ void parser::parseForeachBlock(scriptNode& n)
       m_indent++;
       parseImageBlock(*pNoob);
    }
+   else if(m_l.isHText("new-image"))
+   {
+      // TODO HACK - this is a copy!
+      m_l.advance();
+      auto *pNoob = new newImageNode;
+
+      parseArgReq(pNoob->dims);
+      parseArgOpt(pNoob->color);
+
+      m_l.demandAndEat(lexor::kColon);
+      n.addChild(*pNoob);
+      m_indent++;
+      parseImageBlock(*pNoob);
+   }
    else if(parseAnywhere(n,false))
       ;
    else
@@ -394,7 +439,25 @@ bool parser::parseAnywhere(scriptNode& n, bool inImageBlock)
          parseForeachBlock(*pNoob);
       return true;
    }
-   if(m_l.isHText("echo"))
+   else if(m_l.isHText("if"))
+   {
+      m_l.advance();
+      auto *pNoob = new ifNode;
+
+      parseArgReq(pNoob->lhs);
+      parseArgReq(pNoob->op);
+      parseArgReq(pNoob->rhs);
+
+      m_l.demandAndEat(lexor::kColon);
+      n.addChild(*pNoob);
+      m_indent++;
+      if(inImageBlock)
+         parseImageBlock(*pNoob);
+      else
+         parseForeachBlock(*pNoob);
+      return true;
+   }
+   else if(m_l.isHText("echo"))
    {
       m_l.advance();
       auto *pNoob = new echoNode;
@@ -402,10 +465,16 @@ bool parser::parseAnywhere(scriptNode& n, bool inImageBlock)
       parseArgReq(pNoob->text);
 
       n.addChild(*pNoob);
-      if(inImageBlock)
-         parseImageBlock(n);
-      else
-         parseForeachBlock(n);
+      return true;
+   }
+   else if(m_l.isHText("error"))
+   {
+      m_l.advance();
+      auto *pNoob = new errorNode;
+
+      parseArgOpt(pNoob->text);
+
+      n.addChild(*pNoob);
       return true;
    }
    else

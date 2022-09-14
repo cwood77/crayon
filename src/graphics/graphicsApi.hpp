@@ -18,6 +18,15 @@ inline bool operator<(const point& lhs, const point& rhs)
    return (lhs.x == rhs.x) ? lhs.y < rhs.y : lhs.x < rhs.x;
 }
 
+class polPoint {
+public:
+   static polPoint fromCartesian(const point& p);
+   point toCartesian() const;
+
+   double r;
+   double theta; // in radians
+};
+
 class rect {
 public:
    rect() : x(0), y(0), w(0), h(0) {}
@@ -146,6 +155,7 @@ public:
    virtual void addref() = 0;
    virtual void release() = 0;
    virtual iBitmap *loadBitmap(const char *path) = 0;
+   virtual iBitmap *createNew(const rect& r, COLORREF c) = 0;
    virtual void saveBitmap(iBitmap& b, const char *path) = 0;
 };
 

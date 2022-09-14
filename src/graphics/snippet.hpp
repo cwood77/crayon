@@ -31,3 +31,17 @@ public:
    virtual void translateDims(long& w, long& h) {}
    virtual void translateCoords(point& p) {}
 };
+
+class rotateTransform : public iTransform {
+public:
+   explicit rotateTransform(double angle);
+   virtual void translateDims(long& w, long& h);
+   virtual void translateCoords(point& p);
+
+private:
+   void toCartesian(point& p);
+   void toGraphics(point& p);
+
+   double m_angle;
+   point m_offset;
+};

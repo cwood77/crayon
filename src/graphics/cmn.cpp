@@ -1,4 +1,25 @@
 #include "graphicsApi.hpp"
+#include <cmath>
+
+#include <cstdio>
+
+polPoint polPoint::fromCartesian(const point& p)
+{
+   polPoint pp;
+
+   pp.r = sqrt(p.x*p.x + p.y*p.y);
+   pp.theta = ::atan2(p.y,p.x);
+
+   return pp;
+}
+
+point polPoint::toCartesian() const // (420,417)
+{
+   point cp(0,0);
+   cp.x = ::round(r * ::cos(theta));
+   cp.y = ::round(r * ::sin(theta));
+   return cp;
+}
 
 void rect::growToInclude(const point& p)
 {

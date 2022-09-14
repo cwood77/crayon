@@ -69,9 +69,14 @@ public:
    std::stringstream buffer;
 };
 
-class coutLog : public iLog {
+class ostreamLog : public iLog {
 public:
-   virtual void write(const char *msg);
+   explicit ostreamLog(std::ostream& sink) : m_sink(sink) {}
+
+   virtual void write(const char *msg) { m_sink << msg; }
+
+private:
+   std::ostream& m_sink;
 };
 
 inline tmpLog::~tmpLog()

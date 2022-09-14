@@ -34,6 +34,11 @@ class drawTextNode;
 class selectFontNode;
 class deselectFontNode;
 class pixelTransformNode;
+class getDimsNode;
+class newImageNode;
+class endIfNode;
+class ifNode;
+class errorNode;
 
 class iNodeVisitor {
 public:
@@ -66,6 +71,11 @@ public:
    virtual void visit(selectFontNode& n) = 0;
    virtual void visit(deselectFontNode& n) = 0;
    virtual void visit(pixelTransformNode& n) = 0;
+   virtual void visit(getDimsNode& n) = 0;
+   virtual void visit(newImageNode& n) = 0;
+   virtual void visit(endIfNode& n) = 0;
+   virtual void visit(ifNode& n) = 0;
+   virtual void visit(errorNode& n) = 0;
 
 protected:
    void visitChildren(scriptNode& n);
@@ -150,6 +160,7 @@ public:
    virtual void acceptVisitor(iNodeVisitor& v) { v.visit(*this); }
 
    std::string varName;
+   std::string xfrm;
 };
 
 class overlayNode : public scriptNode {
@@ -326,4 +337,45 @@ public:
 
    std::string op;
    std::string arg;
+};
+
+class getDimsNode : public scriptNode {
+public:
+   virtual void acceptVisitor(iNodeVisitor& v) { v.visit(*this); }
+
+   std::string obj;
+   std::string varName;
+};
+
+class newImageNode : public scriptNode, public iBlockNode {
+public:
+   newImageNode() : color("rgb{255,255,255}") {}
+
+   virtual scriptNode *createCloseNode() { return new closeImageNode(); }
+   virtual void acceptVisitor(iNodeVisitor& v) { v.visit(*this); }
+
+   std::string dims;
+   std::string color;
+};
+
+class endIfNode : public scriptNode {
+public:
+   virtual void acceptVisitor(iNodeVisitor& v) { v.visit(*this); }
+};
+
+class ifNode : public scriptNode, public iBlockNode {
+public:
+   virtual scriptNode *createCloseNode() { return new endIfNode(); }
+   virtual void acceptVisitor(iNodeVisitor& v) { v.visit(*this); }
+
+   std::string lhs;
+   std::string op;
+   std::string rhs;
+};
+
+class errorNode : public scriptNode {
+public:
+   virtual void acceptVisitor(iNodeVisitor& v) { v.visit(*this); }
+
+   std::string text;
 };

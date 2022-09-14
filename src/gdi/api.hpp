@@ -88,6 +88,17 @@ private:
    bool m_valid;
 };
 
+class autoBackgroundColor {
+public:
+   autoBackgroundColor(HDC hdc, COLORREF newColor);
+   ~autoBackgroundColor();
+
+private:
+   HDC m_dc;
+   COLORREF m_oldColor;
+   bool m_valid;
+};
+
 class autoBackgroundMode {
 public:
    autoBackgroundMode(HDC hdc, int mode);
@@ -161,6 +172,7 @@ cdwImplAddrefRelease();
 class bmpFileType : public iFileType, public subObject {
 public:
    virtual iBitmap *loadBitmap(const char *path);
+   virtual iBitmap *createNew(const rect& r, COLORREF c);
    virtual void saveBitmap(iBitmap& b, const char *path);
 
 private:

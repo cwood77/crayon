@@ -32,6 +32,29 @@ iBitmap *bmpFileType::loadBitmap(const char *path)
    return pBitmap.leakTemp();
 }
 
+iBitmap *bmpFileType::createNew(const rect& r, COLORREF c)
+{
+   autoReleasePtr<bitmap> pBitmap;
+   pBitmap.holdTemp(new bitmap(Api));
+
+   pBitmap->width = r.w;
+   pBitmap->height = r.h;
+
+   auto bit = (HBITMAP)::CreateCompatibleBitmap(::GetDC(NULL),r.w,r.h);
+   Api.Log.s().s() << "created hbitmap at " << (size_t)bit << std::endl;
+   if(!bit)
+      throw std::runtime_error("failed to load bitmap");
+   pBitmap->hBmp = bit;
+   pBitmap->activate();
+
+   // can't find any way to do this automatically with GDI :(
+   for(long x=0;x<pBitmap->width;x++)
+      for(long y=0;y<pBitmap->height;y++)
+         pBitmap->setPixel(point(x,y),c);
+
+   return pBitmap.leakTemp();
+}
+
 void bmpFileType::saveBitmap(iBitmap& _b, const char *path)
 {
    auto& b = dynamic_cast<bitmap&>(_b);
