@@ -167,6 +167,21 @@ autoTextColor::~autoTextColor()
       ::SetTextColor(m_dc,m_oldColor);
 }
 
+autoBackgroundColor::autoBackgroundColor(HDC hdc, COLORREF newColor)
+: m_dc(hdc), m_valid(true)
+{
+   if(newColor != 0xFFFFFFFF)
+      m_oldColor = ::SetBkColor(m_dc,newColor);
+   else
+      m_valid = false;
+}
+
+autoBackgroundColor::~autoBackgroundColor()
+{
+   if(m_valid)
+      ::SetBkColor(m_dc,m_oldColor);
+}
+
 autoBackgroundMode::autoBackgroundMode(HDC hdc, int mode)
 : m_dc(hdc)
 {
@@ -218,25 +233,13 @@ void canvas::Overlay(iSnippet& s, COLORREF transparent, iCanvas& c)
    long w,h;
    s.getDims(w,h);
 
-   // resize if necessary
+   // detect too small
    {
       long cw,ch;
       c.getDims(cw,ch);
       bool tooSmall = (cw < w || ch < h);
       if(tooSmall)
-      {
-         bitmap *pBit = dynamic_cast<bitmap*>(&c);
-         if(pBit)
-         {
-            long newW = w > cw ? w : cw;
-            long newH = h > ch ? h : ch;
-            ::printf("resizing bitmap from (%ld,%ld) => %ld,%ld\n",
-               cw,ch,newW,newH);
-            pBit->setDims(newW,newH);
-         }
-         else
-            throw std::runtime_error("canvas is too small for snippet; use a bitmap instead");
-      }
+         throw std::runtime_error("canvas is too small for overlay");
    }
 
    for(long x=0;x<w;x++)

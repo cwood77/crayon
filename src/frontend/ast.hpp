@@ -35,6 +35,7 @@ class selectFontNode;
 class deselectFontNode;
 class pixelTransformNode;
 class getDimsNode;
+class newImageNode;
 
 class iNodeVisitor {
 public:
@@ -68,6 +69,7 @@ public:
    virtual void visit(deselectFontNode& n) = 0;
    virtual void visit(pixelTransformNode& n) = 0;
    virtual void visit(getDimsNode& n) = 0;
+   virtual void visit(newImageNode& n) = 0;
 
 protected:
    void visitChildren(scriptNode& n);
@@ -336,4 +338,15 @@ public:
    virtual void acceptVisitor(iNodeVisitor& v) { v.visit(*this); }
 
    std::string varName;
+};
+
+class newImageNode : public scriptNode, public iBlockNode {
+public:
+   newImageNode() : color("rgb{255,255,255}") {}
+
+   virtual scriptNode *createCloseNode() { return new closeImageNode(); }
+   virtual void acceptVisitor(iNodeVisitor& v) { v.visit(*this); }
+
+   std::string dims;
+   std::string color;
 };

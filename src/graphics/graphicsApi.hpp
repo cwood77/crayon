@@ -155,6 +155,7 @@ public:
    virtual void addref() = 0;
    virtual void release() = 0;
    virtual iBitmap *loadBitmap(const char *path) = 0;
+   virtual iBitmap *createNew(const rect& r, COLORREF c) = 0;
    virtual void saveBitmap(iBitmap& b, const char *path) = 0;
 };
 

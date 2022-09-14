@@ -542,3 +542,23 @@ void executor::visit(getDimsNode& n)
 
    visitChildren(n);
 }
+
+void executor::visit(newImageNode& n)
+{
+   m_log.s().s() << "creating new image" << std::endl;
+   auto& attr = n.root().fetch<graphicsAttribute>();
+
+   // open the API
+   if(attr.pApi)
+      throw std::runtime_error("graphics API already in use during new");
+   attr.pApi.reset(m_gFac.open(0));
+
+   // create a fresh canvas
+   auto dims = argEvaluator(m_sTable,n.dims).getRect();
+   auto color = argEvaluator(m_sTable,n.color).getColor();
+   autoReleasePtr<iFileType> pBmpFmt(attr.pApi->createFileType(iFileType::kBmp));
+   attr.pImage.reset(pBmpFmt->createNew(dims,color));
+   attr.pCanvas.reset(attr.pImage.get());
+
+   visitChildren(n);
+}

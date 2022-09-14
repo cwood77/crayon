@@ -33,10 +33,25 @@ void parser::parseFile()
       }
       else if(m_l.isHText("load-image"))
       {
+         // TODO HACK - this is copied!  Maintain the other
          m_l.advance();
          auto *pNoob = new loadImageNode;
 
          parsePathReq(pNoob->path);
+
+         m_l.demandAndEat(lexor::kColon);
+         pFile->addChild(*pNoob);
+         m_indent++;
+         parseImageBlock(*pNoob);
+      }
+      else if(m_l.isHText("new-image"))
+      {
+         // TODO HACK - this is copied!  Maintain the other
+         m_l.advance();
+         auto *pNoob = new newImageNode;
+
+         parseArgReq(pNoob->dims);
+         parseArgOpt(pNoob->color);
 
          m_l.demandAndEat(lexor::kColon);
          pFile->addChild(*pNoob);
@@ -343,6 +358,20 @@ void parser::parseForeachBlock(scriptNode& n)
       auto *pNoob = new loadImageNode;
 
       parsePathReq(pNoob->path);
+
+      m_l.demandAndEat(lexor::kColon);
+      n.addChild(*pNoob);
+      m_indent++;
+      parseImageBlock(*pNoob);
+   }
+   else if(m_l.isHText("new-image"))
+   {
+      // TODO HACK - this is a copy!
+      m_l.advance();
+      auto *pNoob = new newImageNode;
+
+      parseArgReq(pNoob->dims);
+      parseArgOpt(pNoob->color);
 
       m_l.demandAndEat(lexor::kColon);
       n.addChild(*pNoob);

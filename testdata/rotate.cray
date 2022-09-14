@@ -3,7 +3,7 @@ load-image r"nerd.bmp" :
       crop
    snip -90 -> rotated
 
-load-image r"empty.bmp" :
+new-image rect[tl,br]{pnt{0,0},pnt{1000,1000}} :
    overlay $rotated
    select-object 0 :
       crop

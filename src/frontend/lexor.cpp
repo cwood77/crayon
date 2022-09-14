@@ -49,6 +49,7 @@ lexor::lexor(const char *pText)
    m_words["sweep"]             = kHyphenatedWord;
    m_words["xfrm-pixels"]       = kHyphenatedWord;
    m_words["get-dims"]          = kHyphenatedWord;
+   m_words["new-image"]         = kHyphenatedWord;
    m_words["->"]                = kArrow;
    m_words[":"]                 = kColon;
    m_words["   "]               = kIndent;
