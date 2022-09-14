@@ -10,23 +10,14 @@ polPoint polPoint::fromCartesian(const point& p)
    pp.r = sqrt(p.x*p.x + p.y*p.y);
    pp.theta = ::atan2(p.y,p.x);
 
-   ::printf("XY(%ld,%ld) => rT(%lf,%lf)\n",p.x,p.y,pp.r,pp.theta);
    return pp;
 }
 
 point polPoint::toCartesian() const // (420,417)
 {
    point cp(0,0);
-   cp.x = r * ::cos(theta);
-   cp.y = r * ::sin(theta);
-   ::printf("rT(%lf,%lf) => XY(%ld,%ld)\n",r,theta,cp.x,cp.y);
-   ::printf("      ...(cos(t)=%lf)\n",::cos(theta));
-   ::printf("      ...(r=%lf)\n",r);
-   ::printf("      ...(r'=%lf)\n",r*::cos(theta));
-   ::printf("      ...(r'=%ld)\n",(long)(r*::cos(theta)));
-   ::printf("      ...(r''=%ld)\n",(long)(-1.0));
-   double fuckingNeg1 = -1.0;
-   ::printf("      ...(r'''=%ld)\n",(long)fuckingNeg1);
+   cp.x = ::round(r * ::cos(theta));
+   cp.y = ::round(r * ::sin(theta));
    return cp;
 }
 

@@ -55,17 +55,10 @@ void clockwiseTransform::translateCoords(point& p)
 
 void clockwiseTransform::toCartesian(point& p)
 {
-   ::printf("g(%ld,%ld) => ",p.x,p.y);
-   //p = point(p.x,-(p.y-m_offset.y));
    p = point(p.x,-p.y);
-   ::printf("XY(%ld,%ld)\n",p.x,p.y);
 }
 
 void clockwiseTransform::toGraphics(point& p)
 {
-   ::printf("XY(%ld,%ld) => ",p.x,p.y);
-   //p = point(p.x,(-p.y)+m_offset.y);
-   //p = point(p.x,-p.y);
-   p = point(p.x+m_offset.x,p.y+m_offset.y);
-   ::printf("g(%ld,%ld)\n",p.x,p.y);
+   p = point(p.x+m_offset.x,-p.y+m_offset.y);
 }
