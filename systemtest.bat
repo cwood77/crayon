@@ -50,6 +50,12 @@ if not errorlevel 0 goto fail
 fc /b testdata\expected-recttext-yorick.bmp testdata\out-recttext-yorick.bmp
 if not errorlevel 0 goto fail
 
+rem rotation
+bin\out\debug\crayon testdata\rotate.cray > nul
+if not errorlevel 0 goto fail
+fc /b testdata\expected-rotatedNerd.bmp testdata\out-rotatedNerd.bmp
+if not errorlevel 0 goto fail
+
 :win
 echo all clear
 goto end

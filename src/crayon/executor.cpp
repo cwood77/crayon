@@ -80,14 +80,12 @@ void executor::visit(snipNode& n)
 
    std::unique_ptr<snipSymbol> pVar(new snipSymbol());
 
-   nullTransform nullXfrm;
-   clockwiseTransform clwXfrm;
-   iTransform *pXfrm = &nullXfrm;
-   if(argEvaluator(m_sTable,n.xfrm).getString() == "cw")
-      pXfrm = &clwXfrm;
+   std::unique_ptr<iTransform> pXfrm(new nullTransform);
+   if(!n.xfrm.empty())
+      pXfrm.reset(new clockwiseTransform(argEvaluator(m_sTable,n.xfrm).getReal()));
 
    snippetAllocator sAlloc;
-   pVar->pSnippet.reset(attr.pCanvas->snip(sAlloc,*pXfrm));
+   pVar->pSnippet.reset(attr.pCanvas->snip(sAlloc,*pXfrm.get()));
 
    m_sTable.overwrite(n.varName,*pVar.release());
    m_log.s().s() << "saved to " << n.varName << std::endl;

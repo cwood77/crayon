@@ -34,7 +34,7 @@ public:
 
 class clockwiseTransform : public iTransform {
 public:
-   clockwiseTransform() : m_offset(0,0) {}
+   explicit clockwiseTransform(double angle);
    virtual void translateDims(long& w, long& h);
    virtual void translateCoords(point& p);
 
@@ -42,5 +42,6 @@ private:
    void toCartesian(point& p);
    void toGraphics(point& p);
 
+   double m_angle;
    point m_offset;
 };

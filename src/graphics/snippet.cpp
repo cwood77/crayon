@@ -26,6 +26,13 @@ pixel& snippet::index(const point& p)
    return m_pBlock[p.x + p.y*m_w];
 }
 
+clockwiseTransform::clockwiseTransform(double angle)
+: m_offset(0,0)
+{
+   // convert from degrees to radians
+   m_angle = angle * M_PI / 180.0;
+}
+
 void clockwiseTransform::translateDims(long& w, long& h)
 {
    long max = w > h ? w : h;
@@ -47,7 +54,7 @@ void clockwiseTransform::translateCoords(point& p)
    auto polar = polPoint::fromCartesian(cartPnt);
    // pi/2 = 90 degrees
    // subtract means rotate clockwise
-   polar.theta -= (M_PI / 2.0);
+   polar.theta += m_angle;
    cartPnt = polar.toCartesian();
    p = cartPnt;
    toGraphics(p);
