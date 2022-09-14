@@ -569,3 +569,36 @@ void executor::visit(newImageNode& n)
 
    visitChildren(n);
 }
+
+void executor::visit(endIfNode& n)
+{
+   visitChildren(n);
+}
+
+void executor::visit(ifNode& n)
+{
+   auto lhs = argEvaluator(m_sTable,n.lhs).getString();
+   auto op  = argEvaluator(m_sTable,n.op).getString();
+   auto rhs = argEvaluator(m_sTable,n.rhs).getString();
+
+   bool ans;
+   if(op == "!=")
+      ans = (lhs != rhs);
+   else
+      throw std::runtime_error("unsupported operation for 'if'");
+
+   if(ans)
+      visitChildren(n);
+}
+
+void executor::visit(errorNode& n)
+{
+   auto text = argEvaluator(m_sTable,n.text).getString();
+
+   if(text.empty())
+      throw std::runtime_error("user requested halt");
+   else
+      m_errLog.s().s() << text << std::endl;
+
+   visitChildren(n);
+}

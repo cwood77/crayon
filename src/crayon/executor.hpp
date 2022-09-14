@@ -27,8 +27,8 @@ public:
 
 class executor : public iNodeVisitor {
 public:
-   executor(log& l, graphicsApiFactory& g, symbolTable& sTable)
-   : m_log(l), m_gFac(g), m_sTable(sTable) {}
+   executor(log& l, log& errLog, graphicsApiFactory& g, symbolTable& sTable)
+   : m_log(l), m_errLog(errLog), m_gFac(g), m_sTable(sTable) {}
 
    virtual void visit(scriptNode& n) { visitChildren(n); }
    virtual void visit(fileNode& n) { visitChildren(n); }
@@ -61,11 +61,15 @@ public:
    virtual void visit(pixelTransformNode& n);
    virtual void visit(getDimsNode& n);
    virtual void visit(newImageNode& n);
+   virtual void visit(endIfNode& n);
+   virtual void visit(ifNode& n);
+   virtual void visit(errorNode& n);
 
 private:
    std::string trimTrailingNewlines(const std::string& s);
 
    log& m_log;
+   log& m_errLog;
    graphicsApiFactory& m_gFac;
    symbolTable& m_sTable;
 };

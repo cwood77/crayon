@@ -2,11 +2,6 @@
 #include "test.hpp"
 #include <iostream>
 
-void coutLog::write(const char *msg)
-{
-   std::cout << msg;
-}
-
 #ifdef cdwTestBuild
 
 cdwTest(log_acceptance)

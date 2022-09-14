@@ -1,5 +1,6 @@
 #include "../frontend/ast.hpp"
 #include "../frontend/crawler.hpp"
+#include "../frontend/dumpVisitor.hpp"
 #include "../frontend/lexor.hpp"
 #include "../frontend/parser.hpp"
 #include "../graphics/graphicsApi.hpp"
@@ -15,8 +16,10 @@ int main(int argc, const char *argv[])
 {
    try
    {
-      coutLog lSink;
+      ostreamLog lSink(std::cout);
       log Log(lSink);
+      ostreamLog lErrSink(std::cerr);
+      log errLog(lErrSink);
 
       if(argc == (1+1) && argv[1] == std::string("diag"))
       {
@@ -54,16 +57,25 @@ int main(int argc, const char *argv[])
             inCFile::readAllContents(scriptPath,blk);
 
             // parse
+            try
             {
                lexor l(blk.pBlock);
                parser p(l,scriptPath,*pRoot.get());
                p.parseFile();
             }
+            catch(std::exception& x)
+            {
+               Log.s().s() << "dumping parse output {{" << std::endl;
+               dumpVisitor v(Log);
+               pRoot->acceptVisitor(v);
+               Log.s().s() << "}}" << std::endl;
+               throw;
+            }
          }
 
          // execute
          symbolTable sTable;
-         executor xfrm(Log,graf,sTable);
+         executor xfrm(Log,errLog,graf,sTable);
          pRoot->acceptVisitor(xfrm);
 
          // teardown

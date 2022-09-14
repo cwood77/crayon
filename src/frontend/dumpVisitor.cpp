@@ -147,3 +147,31 @@ void dumpVisitor::visit(deselectFontNode& n)
    autoIndent _i(m_l);
    visitChildren(n);
 }
+
+void dumpVisitor::visit(getDimsNode& n)
+{
+   m_l.s().s() << indent(m_l) << "getDimsNode" << std::endl;
+   autoIndent _i(m_l);
+   visitChildren(n);
+}
+
+void dumpVisitor::visit(endIfNode& n)
+{
+   m_l.s().s() << indent(m_l) << "endIfNode" << std::endl;
+   autoIndent _i(m_l);
+   visitChildren(n);
+}
+
+void dumpVisitor::visit(ifNode& n)
+{
+   m_l.s().s() << indent(m_l) << "ifNode" << std::endl;
+   autoIndent _i(m_l);
+   visitChildren(n);
+}
+
+void dumpVisitor::visit(errorNode& n)
+{
+   m_l.s().s() << indent(m_l) << "errorNode" << std::endl;
+   autoIndent _i(m_l);
+   visitChildren(n);
+}

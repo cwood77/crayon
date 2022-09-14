@@ -439,7 +439,25 @@ bool parser::parseAnywhere(scriptNode& n, bool inImageBlock)
          parseForeachBlock(*pNoob);
       return true;
    }
-   if(m_l.isHText("echo"))
+   else if(m_l.isHText("if"))
+   {
+      m_l.advance();
+      auto *pNoob = new ifNode;
+
+      parseArgReq(pNoob->lhs);
+      parseArgReq(pNoob->op);
+      parseArgReq(pNoob->rhs);
+
+      m_l.demandAndEat(lexor::kColon);
+      n.addChild(*pNoob);
+      m_indent++;
+      if(inImageBlock)
+         parseImageBlock(*pNoob);
+      else
+         parseForeachBlock(*pNoob);
+      return true;
+   }
+   else if(m_l.isHText("echo"))
    {
       m_l.advance();
       auto *pNoob = new echoNode;
@@ -447,10 +465,16 @@ bool parser::parseAnywhere(scriptNode& n, bool inImageBlock)
       parseArgReq(pNoob->text);
 
       n.addChild(*pNoob);
-      if(inImageBlock)
-         parseImageBlock(n);
-      else
-         parseForeachBlock(n);
+      return true;
+   }
+   else if(m_l.isHText("error"))
+   {
+      m_l.advance();
+      auto *pNoob = new errorNode;
+
+      parseArgOpt(pNoob->text);
+
+      n.addChild(*pNoob);
       return true;
    }
    else

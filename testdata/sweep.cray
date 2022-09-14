@@ -1,9 +1,2 @@
 sweep real 5 > -2 -3 -> x :
    echo $x
-
-load-image r"nerd.bmp" :
-   get-dims -> d
-   echo "dims are '{$d}'"
-
-new-image rect[tl,br]{pnt{0,0},pnt{19,29}} rgb{0,255,0} :
-   save-image r"out-noob.bmp"

@@ -56,6 +56,10 @@ if not errorlevel 0 goto fail
 fc /b testdata\expected-rotatedNerd.bmp testdata\out-rotatedNerd.bmp
 if not errorlevel 0 goto fail
 
+rem if
+bin\out\debug\crayon testdata\if.cray > nul 2>&1
+if errorlevel 0 goto fail
+
 :win
 echo all clear
 goto end
