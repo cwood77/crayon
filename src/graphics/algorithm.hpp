@@ -108,6 +108,7 @@ private:
    void categorizeHoriz();
    void markVertWhisker(long x, long y, COLORREF c);
    void markHorizWhisker(long x, long y, COLORREF c);
+   void dupWhiskerError(bool h, COLORREF col, long old, long nu);
 
    iCanvas& m_canvas;
    log& m_log;

@@ -7,7 +7,7 @@ foreach-stringset r"hamlet.txt" {title,body} -> text :
          find-point rgb{0,0,0} rgb{0,0,0} -> tl
          find-point $yellowish $yellowish -> br
 
-      with-font font{"Calibri",8} : #rgb{0,0,255} :
+      with-font font{'Calibri',8} : #rgb{0,0,255} :
          draw-text rect[tl,br]{{$tl},{$br}} $text.body
 
       save-image r"out-recttext-{$text.title}.bmp"

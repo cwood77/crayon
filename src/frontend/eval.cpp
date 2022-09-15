@@ -193,10 +193,10 @@ void argEvaluator::getFont(std::string& face, size_t& pnt)
 {
    std::string in = getString();
 
-   if(::strncmp(in.c_str(),"font{\"",6)!=0)
+   if(::strncmp(in.c_str(),"font{'",6)!=0)
       throw std::runtime_error("invalid font syntax");
    char buffer[MAX_PATH];
-   auto rval = ::sscanf(in.c_str()+6,"%[^\"]\",%llu",buffer,&pnt);
+   auto rval = ::sscanf(in.c_str()+6,"%[^']',%llu",buffer,&pnt);
    if(rval != 2) throw std::runtime_error("can't parse font");
    face = buffer;
 }
@@ -263,13 +263,13 @@ cdwTest(interpolation_oneRefBrace)
 cdwTest(interpolation_fancy)
 {
    std::list<std::string> parts;
-   expandInterpolationParts("font{{$typeface},10}",parts);
+   expandInterpolationParts("font{'{$typeface}',10}",parts);
 
    std::stringstream expected,actual;
    expected
-      << "font{" << std::endl
+      << "font{'" << std::endl
       << "$typeface" << std::endl
-      << ",10}" << std::endl
+      << "',10}" << std::endl
    ;
    for(auto s : parts)
       actual << s << std::endl;
