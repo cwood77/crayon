@@ -86,10 +86,7 @@ size_t objectSurvey::findAdjacentMembership(const point& p)
 void objectSurvey::addToObject(const point& p, size_t i)
 {
    if(i == 0)
-   {
       i = m_nextObjId++;
-      //m_log.s().s() << "[find-object] found new object " << i << " starting at (" << p.x << "," << p.y << ")" << std::endl;
-   }
    m_objects[i].insert(p);
    m_map[p] = i;
 }
@@ -107,8 +104,6 @@ size_t objectSurvey::mergeObjectsIf(size_t oldObj, size_t newObj)
 
    if(winer == 0 || loser == winer)
       return loser;
-
-   //m_log.s().s() << "[find-object] merging objects " << winer << " <- " << loser << std::endl;
 
    // move all newObj's pnts to oldObj
    std::set<point>& lPnts = m_objects[loser];
