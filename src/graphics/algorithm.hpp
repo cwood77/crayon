@@ -70,7 +70,7 @@ public:
 
    size_t getNumFoundObjects() const { return m_objects.size(); }
 
-   rect findObject(size_t n, bool dbgHilight);
+   rect findObject(size_t n );
 
 private:
    void run();
@@ -79,8 +79,6 @@ private:
    size_t mergeObjectsIf(size_t oldObj, size_t newObj);
 
    void makeBounds(size_t id, const point& p);
-
-   void hilight(const rect& r, COLORREF c);
 
    iCanvas& m_canvas;
    log& m_log;

@@ -184,6 +184,3 @@ private:
 cdwImplSubObject(bmpFileType);
 cdwImplAddrefRelease();
 };
-
-// misc
-void drawBox(const RECT& r, COLORREF col, iCanvas& can);

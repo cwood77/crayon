@@ -269,3 +269,6 @@ private: \
 
 // adjust b by +/-d but ceil/floor b at 255/0
 BYTE adjByteBndChk(BYTE b, long d);
+
+// misc
+void drawBox(const RECT& r, COLORREF col, iCanvas& can);

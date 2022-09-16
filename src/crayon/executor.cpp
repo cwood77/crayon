@@ -253,13 +253,16 @@ void executor::visit(selectObjectNode& n)
    objectSurvey os(attr.pCanvas,m_log);
    m_log.s().s() << " found " << os.getNumFoundObjects() << " object(s)" << std::endl;
 
-   bool dbg = argEvaluator(m_sTable,n.hilight).getFlag("hilight");
-
-   if(dbg)
+   if(argEvaluator(m_sTable,n.hilight).getFlag("hilight"))
+   {
       for(size_t i=0;i<os.getNumFoundObjects();i++)
-         os.findObject(i,true);
+      {
+         rect r = os.findObject(i);
+         ::drawBox(r.toRect(),RGB(0,255,0),attr.pCanvas);
+      }
+   }
 
-   rect r = os.findObject(argEvaluator(m_sTable,n.n).getInt(),dbg);
+   rect r = os.findObject(argEvaluator(m_sTable,n.n).getInt());
    attr.pCanvas.reset(attr.pCanvas->subset(r));
 
    visitChildren(n);

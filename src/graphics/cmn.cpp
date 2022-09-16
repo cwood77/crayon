@@ -62,3 +62,17 @@ BYTE adjByteBndChk(BYTE b, long d)
    else
       return x;
 }
+
+void drawBox(const RECT& r, COLORREF col, iCanvas& can)
+{
+   for(long x=r.left;x<=r.right;x++)
+   {
+      can.setPixel(point(x,r.top),col);
+      can.setPixel(point(x,r.bottom),col);
+   }
+   for(long y=r.top;y<=r.bottom;y++)
+   {
+      can.setPixel(point(r.left,y),col);
+      can.setPixel(point(r.right,y),col);
+   }
+}

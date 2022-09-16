@@ -10,7 +10,7 @@ objectSurvey::objectSurvey(iCanvas& c, log& l)
    run();
 }
 
-rect objectSurvey::findObject(size_t n, bool dbgHilight)
+rect objectSurvey::findObject(size_t n)
 {
    if(n >= m_objects.size())
       throw std::runtime_error("object index out of bounds");
@@ -31,10 +31,7 @@ rect objectSurvey::findObject(size_t n, bool dbgHilight)
       it = m_bounds.find(n);
    }
 
-   auto& r = it->second;
-   if(dbgHilight)
-      hilight(r,RGB(0,255,0));
-   return r;
+   return it->second;
 }
 
 void objectSurvey::run()
@@ -133,21 +130,4 @@ void objectSurvey::makeBounds(size_t id, const point& p)
       r.setOrigin(p);
    else
       r.growToInclude(p);
-}
-
-void objectSurvey::hilight(const rect& r, COLORREF c)
-{
-   // h lines
-   for(long x=r.x;x<r.x+r.w;x++)
-   {
-      m_canvas.setPixel(point(x,r.y),c);
-      m_canvas.setPixel(point(x,r.y+r.h-1),c);
-   }
-
-   // vlines
-   for(long y=r.y;y<r.y+r.h;y++)
-   {
-      m_canvas.setPixel(point(r.x,y),c);
-      m_canvas.setPixel(point(r.x+r.w-1,y),c);
-   }
 }
