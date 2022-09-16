@@ -1,0 +1,54 @@
+#ifndef cdwAstNode
+#error bad info file usage 1
+#endif
+#ifndef cdwAstBlockNode
+#error bad info file usage 2
+#endif
+
+// node type, parent type
+cdwAstNode(fileNode,scriptNode)
+
+// vars
+cdwAstNode(defineNode,scriptNode)
+cdwAstNode(sweepVarNode,scriptNode)
+cdwAstNode(foreachStringSetNode,scriptNode)
+cdwAstNode(ifNode,scriptNode)
+cdwAstNode(echoNode,scriptNode)
+cdwAstNode(errorNode,scriptNode)
+
+// images
+cdwAstBlockNode(loadImageNode,scriptNode,closeImageNode)
+cdwAstBlockNode(newImageNode,scriptNode,closeImageNode)
+cdwAstNode(closeImageNode,scriptNode)
+cdwAstNode(saveImageNode,scriptNode)
+
+// cut/paste
+cdwAstNode(snipNode,scriptNode)
+cdwAstNode(overlayNode,scriptNode)
+
+// selection
+cdwAstBlockNode(selectObjectNode,scriptNode,deselectObjectNode)
+cdwAstNode(deselectObjectNode,scriptNode)
+cdwAstNode(getDimsNode,scriptNode)
+cdwAstNode(cropNode,scriptNode)
+
+// text
+cdwAstBlockNode(selectFontNode,scriptNode,deselectFontNode)
+cdwAstNode(deselectFontNode,scriptNode)
+cdwAstNode(drawTextNode,scriptNode)
+
+// outlines
+cdwAstBlockNode(surveyFrameNode,scriptNode,desurveyFrameNode)
+cdwAstNode(desurveyFrameNode,scriptNode)
+cdwAstNode(fillNode,scriptNode)
+cdwAstNode(tightenNode,scriptNode)
+cdwAstNode(loosenNode,scriptNode)
+
+// demarcation
+cdwAstBlockNode(surveyWhiskersNode,scriptNode,desurveyWhiskersNode)
+cdwAstNode(desurveyWhiskersNode,scriptNode)
+cdwAstNode(findWhiskerPointNode,scriptNode)
+cdwAstNode(trimWhiskersNode,scriptNode)
+
+// transforms
+cdwAstNode(pixelTransformNode,scriptNode)

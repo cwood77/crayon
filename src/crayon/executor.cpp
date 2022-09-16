@@ -8,6 +8,106 @@
 #include "symbolTable.hpp"
 #include <memory>
 
+void executor::visit(defineNode& n)
+{
+   auto value = argEvaluator(m_sTable,n.value).getString();
+   m_log.s().s() << "defining user constant " << n.varName << std::endl;
+   m_sTable.overwrite(n.varName,*new stringSymbol(value));
+
+   visitChildren(n);
+}
+
+void executor::visit(sweepVarNode& n)
+{
+   iSweepableSymbol *pSymbol = iSweepableSymbol::create(
+      argEvaluator(m_sTable,n.type).getString());
+
+   argEvaluator start(m_sTable,n.start);
+   argEvaluator stopOp(m_sTable,n.stopOp);
+   argEvaluator stopVal(m_sTable,n.stopVal);
+   argEvaluator delta(m_sTable,n.delta);
+
+   pSymbol->start(start);
+
+   m_sTable.overwrite(n.varName,*pSymbol);
+
+   while(!pSymbol->isStop(stopOp,stopVal))
+   {
+      visitChildren(n);
+      pSymbol->adjust(delta);
+   }
+}
+
+void executor::visit(foreachStringSetNode& n)
+{
+   auto path = argEvaluator(m_sTable,n.filePath).getString();
+   auto schema = argEvaluator(m_sTable,n.schema).getSet();
+
+   m_log.s().s() << "pulling strings from '" << path << "'" << std::endl;
+
+   std::list<std::list<std::string> > stringSet;
+   stringFileParser::parse(path,schema,stringSet);
+   m_log.s().s() << "found " << stringSet.size() << " tuple(s)" << std::endl;
+
+   for(auto tuple : stringSet)
+   {
+      auto sit = schema.begin();
+      auto var = tuple.begin();
+      for(;sit!=schema.end();++sit,++var)
+      {
+         std::string fullName = n.varName + "." + *sit;
+         m_sTable.overwrite(fullName,*new stringSymbol(trimTrailingNewlines(*var)));
+      }
+      visitChildren(n);
+   }
+}
+
+void executor::visit(ifNode& n)
+{
+   auto lhs = argEvaluator(m_sTable,n.lhs).getString();
+   auto op  = argEvaluator(m_sTable,n.op).getString();
+   auto rhs = argEvaluator(m_sTable,n.rhs).getString();
+
+   bool ans;
+   if(op == "!=")
+      ans = (lhs != rhs);
+   else
+      throw std::runtime_error("unsupported operation for 'if'");
+
+   if(ans)
+      visitChildren(n);
+}
+
+void executor::visit(echoNode& n)
+{
+   m_log.s().s() << argEvaluator(m_sTable,n.text).getString() << std::endl;
+   visitChildren(n);
+}
+
+void executor::visit(errorNode& n)
+{
+#if 0
+   auto text = argEvaluator(m_sTable,n.text).getString();
+
+   auto& attr = n.root().fetch<graphicsAttribute>();
+   tagWriter(attr.pCanvas,m_log).write(text);
+
+   auto msg = tagReader(attr.pCanvas,m_log).readIf();
+   m_log.s().s() << "readback is '" << msg << "'" << std::endl;
+
+   visitChildren(n);
+#else
+   auto text = argEvaluator(m_sTable,n.text).getString();
+
+   if(text.empty())
+      throw std::runtime_error("user requested halt");
+   else
+      m_errLog.s().s() << text << std::endl;
+
+   visitChildren(n);
+#endif
+}
+
 void executor::visit(loadImageNode& n)
 {
    auto path = argEvaluator(m_sTable,n.path).getString();
@@ -23,6 +123,38 @@ void executor::visit(loadImageNode& n)
    autoReleasePtr<iFileType> pBmpFmt(attr.pApi->createFileType(iFileType::kBmp));
    attr.pImage.reset(pBmpFmt->loadBitmap(path.c_str()));
    attr.pCanvas.reset(attr.pImage.get());
+
+   visitChildren(n);
+}
+
+void executor::visit(newImageNode& n)
+{
+   m_log.s().s() << "creating new image" << std::endl;
+   auto& attr = n.root().fetch<graphicsAttribute>();
+
+   // open the API
+   if(attr.pApi)
+      throw std::runtime_error("graphics API already in use during new");
+   attr.pApi.reset(m_gFac.open(0));
+
+   // create a fresh canvas
+   auto dims = argEvaluator(m_sTable,n.dims).getRect();
+   auto color = argEvaluator(m_sTable,n.color).getColor();
+   autoReleasePtr<iFileType> pBmpFmt(attr.pApi->createFileType(iFileType::kBmp));
+   attr.pImage.reset(pBmpFmt->createNew(dims,color));
+   attr.pCanvas.reset(attr.pImage.get());
+
+   visitChildren(n);
+}
+
+void executor::visit(closeImageNode& n)
+{
+   m_log.s().s() << "closing image" << std::endl;
+   auto& attr = n.root().fetch<graphicsAttribute>();
+
+   attr.pCanvas.reset();
+   attr.pImage.reset();
+   attr.pApi.reset();
 
    visitChildren(n);
 }
@@ -57,18 +189,6 @@ void executor::visit(saveImageNode& n)
    }
    else
       pBmpFmt->saveBitmap(attr.pImage,path.c_str());
-
-   visitChildren(n);
-}
-
-void executor::visit(closeImageNode& n)
-{
-   m_log.s().s() << "closing image" << std::endl;
-   auto& attr = n.root().fetch<graphicsAttribute>();
-
-   attr.pCanvas.reset();
-   attr.pImage.reset();
-   attr.pApi.reset();
 
    visitChildren(n);
 }
@@ -125,84 +245,6 @@ void executor::visit(overlayNode& n)
    visitChildren(n);
 }
 
-void executor::visit(surveyFrameNode& n)
-{
-   m_log.s().s() << "surveying frame" << std::endl;
-   auto& attr = n.root().fetch<graphicsAttribute>();
-   auto& fattr = n.fetch<frameAttribute>();
-
-   fattr.pFramer.reset(new framer(attr.pCanvas));
-   if(n.color.empty())
-      fattr.pFramer->inferFrameColorFromOrigin();
-   else
-      fattr.pFramer->initFrameColor(argEvaluator(m_sTable,n.color).getColor());
-
-   fattr.pFramer->findFrame();
-
-   visitChildren(n);
-}
-
-void executor::visit(fillNode& n)
-{
-   m_log.s().s() << "filling" << std::endl;
-   auto& fattr = n.demandAncestor<surveyFrameNode>().fetch<frameAttribute>();
-
-   fattr.pFramer->colorFrame(argEvaluator(m_sTable,n.color).getColor());
-
-   visitChildren(n);
-}
-
-void executor::visit(tightenNode& n)
-{
-   m_log.s().s() << "tighening frame (this could take a while)" << std::endl;
-
-   // build criteria
-   std::unique_ptr<iPixelCriteria> pCri;
-   auto cri = argEvaluator(m_sTable,n.method).getString();
-   if(cri == "min-lightness")
-   {
-      double threshold = argEvaluator(m_sTable,n.arg).getReal();
-      pCri.reset(new lightnessPixelCriteria(threshold));
-   }
-   else
-      throw std::runtime_error("unknown tighten method");
-
-   auto& fattr = n.demandAncestor<surveyFrameNode>().fetch<frameAttribute>();
-   COLORREF col;
-   if(n.color.empty())
-      col = fattr.pFramer->getFrameColor();
-   else
-      col = argEvaluator(m_sTable,n.color).getColor();
-
-   auto& attr = n.root().fetch<graphicsAttribute>();
-   outliner o(attr.pCanvas,*fattr.pFramer.get(),m_log);
-   o.encroach(*pCri.get(),col);
-
-   visitChildren(n);
-}
-
-void executor::visit(loosenNode& n)
-{
-   m_log.s().s() << "loosening frame (this could take a while)" << std::endl;
-
-   auto& attr = n.root().fetch<graphicsAttribute>();
-   auto& fattr = n.demandAncestor<surveyFrameNode>().fetch<frameAttribute>();
-   outliner o(attr.pCanvas,*fattr.pFramer.get(),m_log);
-   o.retreat(argEvaluator(m_sTable,n.color).getColor());
-
-   visitChildren(n);
-}
-
-void executor::visit(desurveyFrameNode& n)
-{
-   m_log.s().s() << "closing frame survey" << std::endl;
-   auto& fattr = n.fetch<frameAttribute>();
-
-   fattr.pFramer.reset();
-
-   visitChildren(n);
-}
-
 void executor::visit(selectObjectNode& n)
 {
    m_log.s().s() << "selecting object " << std::endl;
@@ -224,6 +266,32 @@ void executor::visit(deselectObjectNode& n)
    auto& attr = n.root().fetch<graphicsAttribute>();
 
    attr.pCanvas.reset(attr.pCanvas->superset());
+
+   visitChildren(n);
+}
+
+void executor::visit(getDimsNode& n)
+{
+   m_log.s().s() << "reading dims" << std::endl;
+   auto& attr = n.root().fetch<graphicsAttribute>();
+
+   long w,h;
+   if(!n.obj.empty())
+   {
+      auto& pSnip = m_sTable.demand(n.obj).as<snipSymbol>().pSnippet;
+      pSnip->getDims(w,h);
+   }
+   else
+      attr.pCanvas->getDims(w,h);
+
+   std::stringstream value;
+   value
+      << "rect[tl,br]{pnt{0,0},"
+      << "pnt{" << (w-1) << "," << (h-1) << "}"
+      << "}"
+   ;
+
+   m_sTable.overwrite(n.varName,*new stringSymbol(value.str()));
 
    visitChildren(n);
 }
@@ -265,127 +333,42 @@ void executor::visit(cropNode& n)
    visitChildren(n);
 }
 
-void executor::visit(defineNode& n)
+void executor::visit(selectFontNode& n)
 {
-   auto value = argEvaluator(m_sTable,n.value).getString();
-   m_log.s().s() << "defining user constant " << n.varName << std::endl;
-   m_sTable.overwrite(n.varName,*new stringSymbol(value));
+   std::string face;
+   size_t pnt;
+   argEvaluator(m_sTable,n.fnt).getFont(face,pnt);
 
-   visitChildren(n);
-}
-
-void executor::visit(surveyWhiskersNode& n)
-{
-   m_log.s().s() << "finding whiskers" << std::endl;
+   m_log.s().s() << "creating font '" << face << "':" << pnt << std::endl;
    auto& attr = n.root().fetch<graphicsAttribute>();
-   auto& wattr = n.fetch<whiskerAttribute>();
 
-   wattr.pSurvey.reset(new whiskerSurvey(attr.pCanvas,m_log));
+   COLORREF color = 0xFFFFFFFF;
+   std::list<std::string> options = n.options;
+   auto maybeColor = argEvaluator(m_sTable,n.color).getString();
+   if(maybeColor.empty())
+      ; // ignore it
+   else if(::strncmp(maybeColor.c_str(),"rgb{",4)==0)
+      color = argEvaluator(m_sTable,n.color).getColor();
+   else
+      options.push_front(n.color);
 
-   visitChildren(n);
-}
+   std::map<std::string,size_t> table;
+   table["italic"]    = iFont::kItalic;
+   table["underline"] = iFont::kUnderline;
+   table["strikeout"] = iFont::kStrikeout;
+   table["opaquebk"]  = iFont::kOpaqueBackground;
+   table["bold"]      = iFont::kBold;
+   size_t flags = argEvaluator::computeBitFlags(m_sTable,options,table);
 
-void executor::visit(findWhiskerPointNode& n)
-{
-   m_log.s().s() << "finding whiskers" << std::endl;
-   auto& wattr = n.demandAncestor<surveyWhiskersNode>().fetch<whiskerAttribute>();
-
-   COLORREF xColor = whiskerSurvey::kCenter;
-   if(argEvaluator(m_sTable,n.x).getString() != "/")
-      xColor = argEvaluator(m_sTable,n.x).getColor();
-   COLORREF yColor = whiskerSurvey::kCenter;
-   if(argEvaluator(m_sTable,n.y).getString() != "/")
-      yColor = argEvaluator(m_sTable,n.y).getColor();
-
-   auto pnt = wattr.pSurvey->findPoint(xColor,yColor);
-   m_log.s().s() << "  whisker found at (" << pnt.x << "," << pnt.y << ")" << std::endl;
-
-   std::stringstream varBody;
-   varBody << "pnt{" << pnt.x << "," << pnt.y << "}";
-   m_sTable.overwrite(n.varName,*new stringSymbol(varBody.str()));
+   attr.pFont.reset(attr.pApi->createFont(face.c_str(),pnt,color,flags));
 
    visitChildren(n);
 }
 
-void executor::visit(trimWhiskersNode& n)
+void executor::visit(deselectFontNode& n)
 {
-   m_log.s().s() << "triming whiskers" << std::endl;
-   auto& wattr = n.demandAncestor<surveyWhiskersNode>().fetch<whiskerAttribute>();
-
-   wattr.pSurvey->clear();
-
-   visitChildren(n);
-}
-
-void executor::visit(desurveyWhiskersNode& n)
-{
-   m_log.s().s() << "closing whisker survey" << std::endl;
-   auto& wattr = n.demandAncestor<surveyWhiskersNode>().fetch<whiskerAttribute>();
-
-   wattr.pSurvey.reset();
-
-   visitChildren(n);
-}
-
-void executor::visit(foreachStringSetNode& n)
-{
-   auto path = argEvaluator(m_sTable,n.filePath).getString();
-   auto schema = argEvaluator(m_sTable,n.schema).getSet();
-
-   m_log.s().s() << "pulling strings from '" << path << "'" << std::endl;
-
-   std::list<std::list<std::string> > stringSet;
-   stringFileParser::parse(path,schema,stringSet);
-   m_log.s().s() << "found " << stringSet.size() << " tuple(s)" << std::endl;
-
-   for(auto tuple : stringSet)
-   {
-      auto sit = schema.begin();
-      auto var = tuple.begin();
-      for(;sit!=schema.end();++sit,++var)
-      {
-         std::string fullName = n.varName + "." + *sit;
-         m_sTable.overwrite(fullName,*new stringSymbol(trimTrailingNewlines(*var)));
-      }
-      visitChildren(n);
-   }
-}
-
-void executor::visit(closeStringSetNode& n)
-{
-   m_log.s().s() << "closing stringset" << std::endl;
-   visitChildren(n);
-}
-
-void executor::visit(sweepVarNode& n)
-{
-   iSweepableSymbol *pSymbol = iSweepableSymbol::create(
-      argEvaluator(m_sTable,n.type).getString());
-
-   argEvaluator start(m_sTable,n.start);
-   argEvaluator stopOp(m_sTable,n.stopOp);
-   argEvaluator stopVal(m_sTable,n.stopVal);
-   argEvaluator delta(m_sTable,n.delta);
-
-   pSymbol->start(start);
-
-   m_sTable.overwrite(n.varName,*pSymbol);
-
-   while(!pSymbol->isStop(stopOp,stopVal))
-   {
-      visitChildren(n);
-      pSymbol->adjust(delta);
-   }
-}
-
-void executor::visit(closeSweepVarNode& n)
-{
-   visitChildren(n);
-}
-
-void executor::visit(echoNode& n)
-{
-   m_log.s().s() << argEvaluator(m_sTable,n.text).getString() << std::endl;
+   auto& attr = n.root().fetch<graphicsAttribute>();
+   attr.pFont.reset();
    visitChildren(n);
 }
 
@@ -443,53 +426,134 @@ void executor::visit(drawTextNode& n)
    visitChildren(n);
 }
 
-std::string executor::trimTrailingNewlines(const std::string& s)
+void executor::visit(surveyFrameNode& n)
 {
-   if(s.length() == 0)
-      return s;
-
-   const char *pThumb = s.c_str()+s.length()-1;
-   for(;pThumb>s.c_str()&&(*pThumb=='\r'||*pThumb=='\n');--pThumb);
-
-   return std::string(s.c_str(),pThumb-s.c_str()+1);
-}
-
-void executor::visit(selectFontNode& n)
-{
-   std::string face;
-   size_t pnt;
-   argEvaluator(m_sTable,n.fnt).getFont(face,pnt);
-
-   m_log.s().s() << "creating font '" << face << "':" << pnt << std::endl;
+   m_log.s().s() << "surveying frame" << std::endl;
    auto& attr = n.root().fetch<graphicsAttribute>();
+   auto& fattr = n.fetch<frameAttribute>();
 
-   COLORREF color = 0xFFFFFFFF;
-   std::list<std::string> options = n.options;
-   auto maybeColor = argEvaluator(m_sTable,n.color).getString();
-   if(maybeColor.empty())
-      ; // ignore it
-   else if(::strncmp(maybeColor.c_str(),"rgb{",4)==0)
-      color = argEvaluator(m_sTable,n.color).getColor();
+   fattr.pFramer.reset(new framer(attr.pCanvas));
+   if(n.color.empty())
+      fattr.pFramer->inferFrameColorFromOrigin();
    else
-      options.push_front(n.color);
+      fattr.pFramer->initFrameColor(argEvaluator(m_sTable,n.color).getColor());
 
-   std::map<std::string,size_t> table;
-   table["italic"]    = iFont::kItalic;
-   table["underline"] = iFont::kUnderline;
-   table["strikeout"] = iFont::kStrikeout;
-   table["opaquebk"]  = iFont::kOpaqueBackground;
-   table["bold"]      = iFont::kBold;
-   size_t flags = argEvaluator::computeBitFlags(m_sTable,options,table);
-
-   attr.pFont.reset(attr.pApi->createFont(face.c_str(),pnt,color,flags));
+   fattr.pFramer->findFrame();
 
    visitChildren(n);
 }
 
-void executor::visit(deselectFontNode& n)
+void executor::visit(desurveyFrameNode& n)
 {
+   m_log.s().s() << "closing frame survey" << std::endl;
+   auto& fattr = n.fetch<frameAttribute>();
+
+   fattr.pFramer.reset();
+
+   visitChildren(n);
+}
+
+void executor::visit(fillNode& n)
+{
+   m_log.s().s() << "filling" << std::endl;
+   auto& fattr = n.demandAncestor<surveyFrameNode>().fetch<frameAttribute>();
+
+   fattr.pFramer->colorFrame(argEvaluator(m_sTable,n.color).getColor());
+
+   visitChildren(n);
+}
+
+void executor::visit(tightenNode& n)
+{
+   m_log.s().s() << "tighening frame (this could take a while)" << std::endl;
+
+   // build criteria
+   std::unique_ptr<iPixelCriteria> pCri;
+   auto cri = argEvaluator(m_sTable,n.method).getString();
+   if(cri == "min-lightness")
+   {
+      double threshold = argEvaluator(m_sTable,n.arg).getReal();
+      pCri.reset(new lightnessPixelCriteria(threshold));
+   }
+   else
+      throw std::runtime_error("unknown tighten method");
+
+   auto& fattr = n.demandAncestor<surveyFrameNode>().fetch<frameAttribute>();
+   COLORREF col;
+   if(n.color.empty())
+      col = fattr.pFramer->getFrameColor();
+   else
+      col = argEvaluator(m_sTable,n.color).getColor();
+
    auto& attr = n.root().fetch<graphicsAttribute>();
-   attr.pFont.reset();
+   outliner o(attr.pCanvas,*fattr.pFramer.get(),m_log);
+   o.encroach(*pCri.get(),col);
+
+   visitChildren(n);
+}
+
+void executor::visit(loosenNode& n)
+{
+   m_log.s().s() << "loosening frame (this could take a while)" << std::endl;
+
+   auto& attr = n.root().fetch<graphicsAttribute>();
+   auto& fattr = n.demandAncestor<surveyFrameNode>().fetch<frameAttribute>();
+   outliner o(attr.pCanvas,*fattr.pFramer.get(),m_log);
+   o.retreat(argEvaluator(m_sTable,n.color).getColor());
+
+   visitChildren(n);
+}
+
+void executor::visit(surveyWhiskersNode& n)
+{
+   m_log.s().s() << "finding whiskers" << std::endl;
+   auto& attr = n.root().fetch<graphicsAttribute>();
+   auto& wattr = n.fetch<whiskerAttribute>();
+
+   wattr.pSurvey.reset(new whiskerSurvey(attr.pCanvas,m_log));
+
+   visitChildren(n);
+}
+
+void executor::visit(desurveyWhiskersNode& n)
+{
+   m_log.s().s() << "closing whisker survey" << std::endl;
+   auto& wattr = n.demandAncestor<surveyWhiskersNode>().fetch<whiskerAttribute>();
+
+   wattr.pSurvey.reset();
+
+   visitChildren(n);
+}
+
+void executor::visit(findWhiskerPointNode& n)
+{
+   m_log.s().s() << "finding whiskers" << std::endl;
+   auto& wattr = n.demandAncestor<surveyWhiskersNode>().fetch<whiskerAttribute>();
+
+   COLORREF xColor = whiskerSurvey::kCenter;
+   if(argEvaluator(m_sTable,n.x).getString() != "/")
+      xColor = argEvaluator(m_sTable,n.x).getColor();
+   COLORREF yColor = whiskerSurvey::kCenter;
+   if(argEvaluator(m_sTable,n.y).getString() != "/")
+      yColor = argEvaluator(m_sTable,n.y).getColor();
+
+   auto pnt = wattr.pSurvey->findPoint(xColor,yColor);
+   m_log.s().s() << "  whisker found at (" << pnt.x << "," << pnt.y << ")" << std::endl;
+
+   std::stringstream varBody;
+   varBody << "pnt{" << pnt.x << "," << pnt.y << "}";
+   m_sTable.overwrite(n.varName,*new stringSymbol(varBody.str()));
+
+   visitChildren(n);
+}
+
+void executor::visit(trimWhiskersNode& n)
+{
+   m_log.s().s() << "triming whiskers" << std::endl;
+   auto& wattr = n.demandAncestor<surveyWhiskersNode>().fetch<whiskerAttribute>();
+
+   wattr.pSurvey->clear();
+
    visitChildren(n);
 }
 
@@ -524,93 +588,13 @@ void executor::visit(pixelTransformNode& n)
    visitChildren(n);
 }
 
-void executor::visit(getDimsNode& n)
+std::string executor::trimTrailingNewlines(const std::string& s)
 {
-   m_log.s().s() << "reading dims" << std::endl;
-   auto& attr = n.root().fetch<graphicsAttribute>();
+   if(s.length() == 0)
+      return s;
 
-   long w,h;
-   if(!n.obj.empty())
-   {
-      auto& pSnip = m_sTable.demand(n.obj).as<snipSymbol>().pSnippet;
-      pSnip->getDims(w,h);
-   }
-   else
-      attr.pCanvas->getDims(w,h);
+   const char *pThumb = s.c_str()+s.length()-1;
+   for(;pThumb>s.c_str()&&(*pThumb=='\r'||*pThumb=='\n');--pThumb);
 
-   std::stringstream value;
-   value
-      << "rect[tl,br]{pnt{0,0},"
-      << "pnt{" << (w-1) << "," << (h-1) << "}"
-      << "}"
-   ;
-
-   m_sTable.overwrite(n.varName,*new stringSymbol(value.str()));
-
-   visitChildren(n);
-}
-
-void executor::visit(newImageNode& n)
-{
-   m_log.s().s() << "creating new image" << std::endl;
-   auto& attr = n.root().fetch<graphicsAttribute>();
-
-   // open the API
-   if(attr.pApi)
-      throw std::runtime_error("graphics API already in use during new");
-   attr.pApi.reset(m_gFac.open(0));
-
-   // create a fresh canvas
-   auto dims = argEvaluator(m_sTable,n.dims).getRect();
-   auto color = argEvaluator(m_sTable,n.color).getColor();
-   autoReleasePtr<iFileType> pBmpFmt(attr.pApi->createFileType(iFileType::kBmp));
-   attr.pImage.reset(pBmpFmt->createNew(dims,color));
-   attr.pCanvas.reset(attr.pImage.get());
-
-   visitChildren(n);
-}
-
-void executor::visit(endIfNode& n)
-{
-   visitChildren(n);
-}
-
-void executor::visit(ifNode& n)
-{
-   auto lhs = argEvaluator(m_sTable,n.lhs).getString();
-   auto op  = argEvaluator(m_sTable,n.op).getString();
-   auto rhs = argEvaluator(m_sTable,n.rhs).getString();
-
-   bool ans;
-   if(op == "!=")
-      ans = (lhs != rhs);
-   else
-      throw std::runtime_error("unsupported operation for 'if'");
-
-   if(ans)
-      visitChildren(n);
-}
-
-void executor::visit(errorNode& n)
-{
-#if 0
-   auto text = argEvaluator(m_sTable,n.text).getString();
-
-   auto& attr = n.root().fetch<graphicsAttribute>();
-   tagWriter(attr.pCanvas,m_log).write(text);
-
-   auto msg = tagReader(attr.pCanvas,m_log).readIf();
-   m_log.s().s() << "readback is '" << msg << "'" << std::endl;
-
-   visitChildren(n);
-#else
-   auto text = argEvaluator(m_sTable,n.text).getString();
-
-   if(text.empty())
-      throw std::runtime_error("user requested halt");
-   else
-      m_errLog.s().s() << text << std::endl;
-
-   visitChildren(n);
-#endif
+   return std::string(s.c_str(),pThumb-s.c_str()+1);
 }

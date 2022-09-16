@@ -6,76 +6,20 @@
 #include <vector>
 
 class scriptNode;
-class fileNode;
-class loadImageNode;
-class saveImageNode;
-class closeImageNode;
-class snipNode;
-class overlayNode;
-class surveyFrameNode;
-class fillNode;
-class tightenNode;
-class loosenNode;
-class desurveyFrameNode;
-class selectObjectNode;
-class deselectObjectNode;
-class cropNode;
-class defineNode;
-class surveyWhiskersNode;
-class findWhiskerPointNode;
-class trimWhiskersNode;
-class desurveyWhiskersNode;
-class foreachStringSetNode;
-class closeStringSetNode;
-class sweepVarNode;
-class closeSweepVarNode;
-class echoNode;
-class drawTextNode;
-class selectFontNode;
-class deselectFontNode;
-class pixelTransformNode;
-class getDimsNode;
-class newImageNode;
-class endIfNode;
-class ifNode;
-class errorNode;
+#define cdwAstNode(__type__,__p__) class __type__;
+#define cdwAstBlockNode(__type__,__p__,__c__) cdwAstNode(__type__,__p__)
+#include "ast.info"
+#undef cdwAstBlockNode
+#undef cdwAstNode
 
 class iNodeVisitor {
 public:
    virtual void visit(scriptNode& n) = 0;
-   virtual void visit(fileNode& n) = 0;
-   virtual void visit(loadImageNode& n) = 0;
-   virtual void visit(saveImageNode& n) = 0;
-   virtual void visit(closeImageNode& n) = 0;
-   virtual void visit(snipNode& n) = 0;
-   virtual void visit(overlayNode& n) = 0;
-   virtual void visit(surveyFrameNode& n) = 0;
-   virtual void visit(fillNode& n) = 0;
-   virtual void visit(tightenNode& n) = 0;
-   virtual void visit(loosenNode& n) = 0;
-   virtual void visit(desurveyFrameNode& n) = 0;
-   virtual void visit(selectObjectNode& n) = 0;
-   virtual void visit(deselectObjectNode& n) = 0;
-   virtual void visit(cropNode& n) = 0;
-   virtual void visit(defineNode& n) = 0;
-   virtual void visit(surveyWhiskersNode& n) = 0;
-   virtual void visit(findWhiskerPointNode& n) = 0;
-   virtual void visit(trimWhiskersNode& n) = 0;
-   virtual void visit(desurveyWhiskersNode& n) = 0;
-   virtual void visit(foreachStringSetNode& n) = 0;
-   virtual void visit(closeStringSetNode& n) = 0;
-   virtual void visit(sweepVarNode& n) = 0;
-   virtual void visit(closeSweepVarNode& n) = 0;
-   virtual void visit(echoNode& n) = 0;
-   virtual void visit(drawTextNode& n) = 0;
-   virtual void visit(selectFontNode& n) = 0;
-   virtual void visit(deselectFontNode& n) = 0;
-   virtual void visit(pixelTransformNode& n) = 0;
-   virtual void visit(getDimsNode& n) = 0;
-   virtual void visit(newImageNode& n) = 0;
-   virtual void visit(endIfNode& n) = 0;
-   virtual void visit(ifNode& n) = 0;
-   virtual void visit(errorNode& n) = 0;
+#define cdwAstNode(__type__,__p__) virtual void visit(__type__& n) = 0;
+#define cdwAstBlockNode(__type__,__p__,__c__) cdwAstNode(__type__,__p__)
+#include "ast.info"
+#undef cdwAstBlockNode
+#undef cdwAstNode
 
 protected:
    void visitChildren(scriptNode& n);
@@ -89,6 +33,7 @@ public:
    scriptNode *getParent() { return m_pParent; }
    void addChild(scriptNode& n);
 
+   virtual const char *getName() const { return "scriptNode"; }
    virtual void acceptVisitor(iNodeVisitor& v) { v.visit(*this); }
 
    scriptNode& root()
@@ -124,166 +69,31 @@ private:
 
 class iBlockNode {
 public:
-   virtual scriptNode *createCloseNode() = 0;
+   virtual scriptNode *createCloseNode() { return NULL; }
 };
 
 class fileNode : public scriptNode {
 public:
+   virtual const char *getName() const { return "fileNode"; }
    virtual void acceptVisitor(iNodeVisitor& v) { v.visit(*this); }
 
    std::string scriptPath;
 };
 
-class loadImageNode : public scriptNode, public iBlockNode {
-public:
-   virtual scriptNode *createCloseNode();
-
-   virtual void acceptVisitor(iNodeVisitor& v) { v.visit(*this); }
-
-   std::string path;
-};
-
-class saveImageNode : public scriptNode {
-public:
-   virtual void acceptVisitor(iNodeVisitor& v) { v.visit(*this); }
-
-   std::string path;
-};
-
-class closeImageNode : public scriptNode {
-public:
-   virtual void acceptVisitor(iNodeVisitor& v) { v.visit(*this); }
-};
-
-class snipNode : public scriptNode {
-public:
-   virtual void acceptVisitor(iNodeVisitor& v) { v.visit(*this); }
-
-   std::string varName;
-   std::string xfrm;
-};
-
-class overlayNode : public scriptNode {
-public:
-   overlayNode() : pnt("pnt{0,0}"), transparent("rgb{255,255,255}") {}
-
-   virtual void acceptVisitor(iNodeVisitor& v) { v.visit(*this); }
-
-   std::string varName;
-   std::string pnt;
-   std::string transparent;
-};
-
-class surveyFrameNode : public scriptNode, public iBlockNode {
-public:
-   virtual scriptNode *createCloseNode();
-   virtual void acceptVisitor(iNodeVisitor& v) { v.visit(*this); }
-
-   std::string color;
-};
-
-class fillNode : public scriptNode {
-public:
-   fillNode() : color("rgb{255,255,255}") {}
-
-   virtual void acceptVisitor(iNodeVisitor& v) { v.visit(*this); }
-
-   std::string color;
-};
-
-class tightenNode : public scriptNode {
-public:
-   virtual void acceptVisitor(iNodeVisitor& v) { v.visit(*this); }
-
-   std::string method;
-   std::string arg;
-   std::string color;
-};
-
-class loosenNode : public scriptNode {
-public:
-   virtual void acceptVisitor(iNodeVisitor& v) { v.visit(*this); }
-
-   std::string color;
-};
-
-class desurveyFrameNode : public scriptNode {
-public:
-   virtual void acceptVisitor(iNodeVisitor& v) { v.visit(*this); }
-};
-
-class selectObjectNode : public scriptNode, public iBlockNode {
-public:
-   selectObjectNode() : n("0") {}
-
-   virtual scriptNode *createCloseNode();
-   virtual void acceptVisitor(iNodeVisitor& v) { v.visit(*this); }
-
-   std::string n;
-   std::string hilight;
-};
-
-class deselectObjectNode : public scriptNode {
-public:
-   virtual void acceptVisitor(iNodeVisitor& v) { v.visit(*this); }
-};
-
-class cropNode : public scriptNode {
-public:
-   virtual void acceptVisitor(iNodeVisitor& v) { v.visit(*this); }
-};
+// vars -----------------------------------------------------------
 
 class defineNode : public scriptNode {
 public:
+   virtual const char *getName() const { return "defineNode"; }
    virtual void acceptVisitor(iNodeVisitor& v) { v.visit(*this); }
 
    std::string varName;
    std::string value;
 };
 
-class surveyWhiskersNode : public scriptNode, public iBlockNode {
-public:
-   virtual scriptNode *createCloseNode();
-   virtual void acceptVisitor(iNodeVisitor& v) { v.visit(*this); }
-};
-
-class findWhiskerPointNode : public scriptNode {
-public:
-   virtual void acceptVisitor(iNodeVisitor& v) { v.visit(*this); }
-
-   std::string x;
-   std::string y;
-   std::string varName;
-};
-
-class trimWhiskersNode : public scriptNode {
-public:
-   virtual void acceptVisitor(iNodeVisitor& v) { v.visit(*this); }
-};
-
-class desurveyWhiskersNode : public scriptNode {
-public:
-   virtual void acceptVisitor(iNodeVisitor& v) { v.visit(*this); }
-};
-
-class foreachStringSetNode : public scriptNode, public iBlockNode {
-public:
-   virtual scriptNode *createCloseNode();
-   virtual void acceptVisitor(iNodeVisitor& v) { v.visit(*this); }
-
-   std::string filePath;
-   std::string schema;
-   std::string varName;
-};
-
-class closeStringSetNode : public scriptNode {
-public:
-   virtual void acceptVisitor(iNodeVisitor& v) { v.visit(*this); }
-};
-
 class sweepVarNode : public scriptNode, public iBlockNode {
 public:
-   virtual scriptNode *createCloseNode();
+   virtual const char *getName() const { return "sweepVarNode"; }
    virtual void acceptVisitor(iNodeVisitor& v) { v.visit(*this); }
 
    std::string type;
@@ -294,32 +104,144 @@ public:
    std::string varName;
 };
 
-class closeSweepVarNode : public scriptNode {
+class foreachStringSetNode : public scriptNode, public iBlockNode {
 public:
+   virtual const char *getName() const { return "foreachStringSetNode"; }
    virtual void acceptVisitor(iNodeVisitor& v) { v.visit(*this); }
+
+   std::string filePath;
+   std::string schema;
+   std::string varName;
+};
+
+class ifNode : public scriptNode, public iBlockNode {
+public:
+   virtual const char *getName() const { return "ifNode"; }
+   virtual void acceptVisitor(iNodeVisitor& v) { v.visit(*this); }
+
+   std::string lhs;
+   std::string op;
+   std::string rhs;
 };
 
 class echoNode : public scriptNode {
 public:
+   virtual const char *getName() const { return "echoNode"; }
    virtual void acceptVisitor(iNodeVisitor& v) { v.visit(*this); }
 
    std::string text;
 };
 
-class drawTextNode : public scriptNode {
+class errorNode : public scriptNode {
 public:
+   virtual const char *getName() const { return "errorNode"; }
    virtual void acceptVisitor(iNodeVisitor& v) { v.visit(*this); }
 
-   std::string pt;
    std::string text;
-
-   std::list<std::string> options;
 };
+
+// images -----------------------------------------------------------
+
+class loadImageNode : public scriptNode, public iBlockNode {
+public:
+   virtual const char *getName() const { return "loadImageNode"; }
+   virtual void acceptVisitor(iNodeVisitor& v) { v.visit(*this); }
+   virtual scriptNode *createCloseNode();
+
+   std::string path;
+};
+
+class newImageNode : public scriptNode, public iBlockNode {
+public:
+   newImageNode() : color("rgb{255,255,255}") {}
+
+   virtual const char *getName() const { return "newImageNode"; }
+   virtual void acceptVisitor(iNodeVisitor& v) { v.visit(*this); }
+   virtual scriptNode *createCloseNode();
+
+   std::string dims;
+   std::string color;
+};
+
+class closeImageNode : public scriptNode {
+public:
+   virtual const char *getName() const { return "closeImageNode"; }
+   virtual void acceptVisitor(iNodeVisitor& v) { v.visit(*this); }
+};
+
+class saveImageNode : public scriptNode {
+public:
+   virtual const char *getName() const { return "saveImageNode"; }
+   virtual void acceptVisitor(iNodeVisitor& v) { v.visit(*this); }
+
+   std::string path;
+};
+
+// cut/paste -----------------------------------------------------------
+
+class snipNode : public scriptNode {
+public:
+   virtual const char *getName() const { return "snipNode"; }
+   virtual void acceptVisitor(iNodeVisitor& v) { v.visit(*this); }
+
+   std::string varName;
+   std::string xfrm;
+};
+
+class overlayNode : public scriptNode {
+public:
+   overlayNode() : pnt("pnt{0,0}"), transparent("rgb{255,255,255}") {}
+
+   virtual const char *getName() const { return "overlayNode"; }
+   virtual void acceptVisitor(iNodeVisitor& v) { v.visit(*this); }
+
+   std::string varName;
+   std::string pnt;
+   std::string transparent;
+};
+
+// selection -----------------------------------------------------------
+
+class selectObjectNode : public scriptNode, public iBlockNode {
+public:
+   selectObjectNode() : n("0") {}
+
+   virtual const char *getName() const { return "selectObjectNode"; }
+   virtual void acceptVisitor(iNodeVisitor& v) { v.visit(*this); }
+   virtual scriptNode *createCloseNode();
+
+   std::string n;
+   std::string hilight;
+};
+
+class deselectObjectNode : public scriptNode {
+public:
+   virtual const char *getName() const { return "deselectObjectNode"; }
+   virtual void acceptVisitor(iNodeVisitor& v) { v.visit(*this); }
+};
+
+class getDimsNode : public scriptNode {
+public:
+   virtual const char *getName() const { return "getDimsNode"; }
+   virtual void acceptVisitor(iNodeVisitor& v) { v.visit(*this); }
+
+   std::string obj;
+   std::string varName;
+};
+
+class cropNode : public scriptNode {
+public:
+   virtual const char *getName() const { return "cropNode"; }
+   virtual void acceptVisitor(iNodeVisitor& v) { v.visit(*this); }
+};
+
+// text -----------------------------------------------------------
 
 class selectFontNode : public scriptNode, public iBlockNode {
 public:
-   virtual scriptNode *createCloseNode();
+   virtual const char *getName() const { return "selectFontNode"; }
    virtual void acceptVisitor(iNodeVisitor& v) { v.visit(*this); }
+   virtual scriptNode *createCloseNode();
 
    std::string fnt;
    std::string color;
@@ -328,54 +250,122 @@ public:
 
 class deselectFontNode : public scriptNode {
 public:
+   virtual const char *getName() const { return "deselectFontNode"; }
    virtual void acceptVisitor(iNodeVisitor& v) { v.visit(*this); }
 };
 
+class drawTextNode : public scriptNode {
+public:
+   virtual const char *getName() const { return "drawTextNode"; }
+   virtual void acceptVisitor(iNodeVisitor& v) { v.visit(*this); }
+
+   std::string pt;
+   std::string text;
+
+   std::list<std::string> options;
+};
+
+// outlines -----------------------------------------------------------
+
+class surveyFrameNode : public scriptNode, public iBlockNode {
+public:
+   virtual const char *getName() const { return "surveyFrameNode"; }
+   virtual void acceptVisitor(iNodeVisitor& v) { v.visit(*this); }
+   virtual scriptNode *createCloseNode();
+
+   std::string color;
+};
+
+class desurveyFrameNode : public scriptNode {
+public:
+   virtual const char *getName() const { return "desurveyFrameNode"; }
+   virtual void acceptVisitor(iNodeVisitor& v) { v.visit(*this); }
+};
+
+class fillNode : public scriptNode {
+public:
+   fillNode() : color("rgb{255,255,255}") {}
+
+   virtual const char *getName() const { return "fillNode"; }
+   virtual void acceptVisitor(iNodeVisitor& v) { v.visit(*this); }
+
+   std::string color;
+};
+
+class tightenNode : public scriptNode {
+public:
+   virtual const char *getName() const { return "tightenNode"; }
+   virtual void acceptVisitor(iNodeVisitor& v) { v.visit(*this); }
+
+   std::string method;
+   std::string arg;
+   std::string color;
+};
+
+class loosenNode : public scriptNode {
+public:
+   virtual const char *getName() const { return "loosenNode"; }
+   virtual void acceptVisitor(iNodeVisitor& v) { v.visit(*this); }
+
+   std::string color;
+};
+
+// demarcation -----------------------------------------------------------
+
+class surveyWhiskersNode : public scriptNode, public iBlockNode {
+public:
+   virtual const char *getName() const { return "surveyWhiskersNode"; }
+   virtual void acceptVisitor(iNodeVisitor& v) { v.visit(*this); }
+   virtual scriptNode *createCloseNode();
+};
+
+class desurveyWhiskersNode : public scriptNode {
+public:
+   virtual const char *getName() const { return "desurveyWhiskersNode"; }
+   virtual void acceptVisitor(iNodeVisitor& v) { v.visit(*this); }
+};
+
+class findWhiskerPointNode : public scriptNode {
+public:
+   virtual const char *getName() const { return "findWhiskerPointNode"; }
+   virtual void acceptVisitor(iNodeVisitor& v) { v.visit(*this); }
+
+   std::string x;
+   std::string y;
+   std::string varName;
+};
+
+class trimWhiskersNode : public scriptNode {
+public:
+   virtual const char *getName() const { return "trimWhiskersNode"; }
+   virtual void acceptVisitor(iNodeVisitor& v) { v.visit(*this); }
+};
+
+// transforms -----------------------------------------------------------
+
 class pixelTransformNode : public scriptNode {
 public:
+   virtual const char *getName() const { return "pixelTransformNode"; }
    virtual void acceptVisitor(iNodeVisitor& v) { v.visit(*this); }
 
    std::string op;
    std::string arg;
 };
 
-class getDimsNode : public scriptNode {
+// impl block nodes
+#define cdwAstNode(__type__,__p__)
+#define cdwAstBlockNode(__type__,__p__,__c__) \
+inline scriptNode *__type__::createCloseNode() { return new __c__(); }
+#include "ast.info"
+#undef cdwAstBlockNode
+#undef cdwAstNode
+
+class nodeVisitor : public iNodeVisitor {
 public:
-   virtual void acceptVisitor(iNodeVisitor& v) { v.visit(*this); }
-
-   std::string obj;
-   std::string varName;
-};
-
-class newImageNode : public scriptNode, public iBlockNode {
-public:
-   newImageNode() : color("rgb{255,255,255}") {}
-
-   virtual scriptNode *createCloseNode() { return new closeImageNode(); }
-   virtual void acceptVisitor(iNodeVisitor& v) { v.visit(*this); }
-
-   std::string dims;
-   std::string color;
-};
-
-class endIfNode : public scriptNode {
-public:
-   virtual void acceptVisitor(iNodeVisitor& v) { v.visit(*this); }
-};
-
-class ifNode : public scriptNode, public iBlockNode {
-public:
-   virtual scriptNode *createCloseNode() { return new endIfNode(); }
-   virtual void acceptVisitor(iNodeVisitor& v) { v.visit(*this); }
-
-   std::string lhs;
-   std::string op;
-   std::string rhs;
-};
-
-class errorNode : public scriptNode {
-public:
-   virtual void acceptVisitor(iNodeVisitor& v) { v.visit(*this); }
-
-   std::string text;
+   virtual void visit(scriptNode& n) {}
+#define cdwAstNode(__type__,__p__) virtual void visit(__type__& n) {}
+#define cdwAstBlockNode(__type__,__p__,__c__) cdwAstNode(__type__,__p__)
+#include "ast.info"
+#undef cdwAstBlockNode
+#undef cdwAstNode
 };

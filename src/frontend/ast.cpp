@@ -19,38 +19,3 @@ void scriptNode::addChild(scriptNode& n)
    m_children.push_back(&n);
    n.m_pParent = this;
 }
-
-scriptNode *loadImageNode::createCloseNode()
-{
-   return new closeImageNode();
-}
-
-scriptNode *surveyFrameNode::createCloseNode()
-{
-   return new desurveyFrameNode();
-}
-
-scriptNode *selectObjectNode::createCloseNode()
-{
-   return new deselectObjectNode();
-}
-
-scriptNode *surveyWhiskersNode::createCloseNode()
-{
-   return new desurveyWhiskersNode();
-}
-
-scriptNode *foreachStringSetNode::createCloseNode()
-{
-   return new closeStringSetNode();
-}
-
-scriptNode *sweepVarNode::createCloseNode()
-{
-   return new closeSweepVarNode();
-}
-
-scriptNode *selectFontNode::createCloseNode()
-{
-   return new deselectFontNode();
-}

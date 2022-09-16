@@ -239,7 +239,8 @@ bool parser::closeOrContinueBlock(scriptNode& n)
       {
          // close the block(s)
          auto *pClose = dynamic_cast<iBlockNode&>(n).createCloseNode();
-         n.addChild(*pClose);
+         if(pClose)
+            n.addChild(*pClose);
          m_indent--;
          return true; // remember the indents I've already eaten (m_indentsEaten)
                       // this is only meaningful if m_indent was > 1
