@@ -64,14 +64,16 @@ private:
    log& m_log;
 };
 
-class objectFinder {
+class objectSurvey {
 public:
-   static rect run(iCanvas& c, size_t n, bool dbgHilight, log& Log);
+   objectSurvey(iCanvas& c, log& l);
+
+   size_t getNumFoundObjects() const { return m_objects.size(); }
+
+   rect findObject(size_t n, bool dbgHilight);
 
 private:
-   objectFinder(iCanvas& c, log& l);
-
-   rect _run(size_t n, bool dbgHilight);
+   void run();
    size_t findAdjacentMembership(const point& p);
    void addToObject(const point& p, size_t i);
    size_t mergeObjectsIf(size_t oldObj, size_t newObj);

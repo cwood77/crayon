@@ -1,21 +1,43 @@
 #include "../../crayon/log.hpp"
 #include "../algorithm.hpp"
 
-rect objectFinder::run(iCanvas& c, size_t n, bool dbgHilight, log& l)
-{
-   objectFinder self(c,l);
-   return self._run(n,dbgHilight);
-}
-
-objectFinder::objectFinder(iCanvas& c, log& l)
+objectSurvey::objectSurvey(iCanvas& c, log& l)
 : m_canvas(c)
 , m_log(l)
 , m_nextObjId(1)
 {
    m_canvas.getDims(m_w,m_h);
+   run();
 }
 
-rect objectFinder::_run(size_t n, bool dbgHilight)
+rect objectSurvey::findObject(size_t n, bool dbgHilight)
+{
+   if(n >= m_objects.size())
+      throw std::runtime_error("object index out of bounds");
+
+   auto it = m_bounds.find(n);
+   if(it==m_bounds.end())
+   {
+      // lazy-create the bounds
+
+      // objects get created and destroyed/merged during find, so
+      // object IDs do not strictly correlate to n
+      auto oit = m_objects.begin();
+      for(size_t i=0;i<n;i++,++oit);
+
+      auto& pts = oit->second;
+      for(auto pt : pts)
+         makeBounds(n,pt);
+      it = m_bounds.find(n);
+   }
+
+   auto& r = it->second;
+   if(dbgHilight)
+      hilight(r,RGB(0,255,0));
+   return r;
+}
+
+void objectSurvey::run()
 {
    for(long y=0;y<m_h;y++)
    {
@@ -29,40 +51,11 @@ rect objectFinder::_run(size_t n, bool dbgHilight)
          addToObject(point(x,y),objId);
       }
    }
-
-   m_log.s().s() << "found " << m_objects.size() << " object(s)" << std::endl;
-   for(auto it=m_objects.begin();it!=m_objects.end();++it)
-   {
-      for(auto pt : it->second)
-         makeBounds(it->first,pt);
-
-      auto& r = m_bounds[it->first];
-      /*
-      m_log.s().s() << "object " << it->first << " {"
-         << r.x << ","
-         << r.y << ","
-         << r.w << ","
-         << r.h << "}" << std::endl;
-         */
-
-      if(dbgHilight)
-         hilight(r,RGB(0,255,0));
-   }
-
-   if(n >= m_bounds.size())
-      throw std::runtime_error("object index out of bounds");
-   else
-   {
-      auto it = m_bounds.begin();
-      for(size_t i=0;i<n;i++)
-         ++it;
-      return it->second;
-   }
 }
 
 // b/c of the direction of the sweep, it's only worth looking above and to the left
 // for precedent
-size_t objectFinder::findAdjacentMembership(const point& p)
+size_t objectSurvey::findAdjacentMembership(const point& p)
 {
    size_t ans = 0;
 
@@ -93,7 +86,7 @@ size_t objectFinder::findAdjacentMembership(const point& p)
    return ans;
 }
 
-void objectFinder::addToObject(const point& p, size_t i)
+void objectSurvey::addToObject(const point& p, size_t i)
 {
    if(i == 0)
    {
@@ -104,7 +97,7 @@ void objectFinder::addToObject(const point& p, size_t i)
    m_map[p] = i;
 }
 
-size_t objectFinder::mergeObjectsIf(size_t oldObj, size_t newObj)
+size_t objectSurvey::mergeObjectsIf(size_t oldObj, size_t newObj)
 {
    // winer is the smaller of the two
    size_t loser = oldObj;
@@ -131,7 +124,7 @@ size_t objectFinder::mergeObjectsIf(size_t oldObj, size_t newObj)
    return winer;
 }
 
-void objectFinder::makeBounds(size_t id, const point& p)
+void objectSurvey::makeBounds(size_t id, const point& p)
 {
    auto it = m_bounds.find(id);
    bool noob = (it == m_bounds.end());
@@ -142,7 +135,7 @@ void objectFinder::makeBounds(size_t id, const point& p)
       r.growToInclude(p);
 }
 
-void objectFinder::hilight(const rect& r, COLORREF c)
+void objectSurvey::hilight(const rect& r, COLORREF c)
 {
    // h lines
    for(long x=r.x;x<r.x+r.w;x++)
