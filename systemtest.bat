@@ -3,6 +3,7 @@
 rem unit
 bin\out\debug\crayon test > nul
 if not errorlevel 0 goto fail
+rem goto win
 
 del testdata\out-*.bmp > nul 2>&1
 

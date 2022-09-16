@@ -593,6 +593,17 @@ void executor::visit(ifNode& n)
 
 void executor::visit(errorNode& n)
 {
+#if 0
+   auto text = argEvaluator(m_sTable,n.text).getString();
+
+   auto& attr = n.root().fetch<graphicsAttribute>();
+   tagWriter(attr.pCanvas,m_log).write(text);
+
+   auto msg = tagReader(attr.pCanvas,m_log).readIf();
+   m_log.s().s() << "readback is '" << msg << "'" << std::endl;
+
+   visitChildren(n);
+#else
    auto text = argEvaluator(m_sTable,n.text).getString();
 
    if(text.empty())
@@ -601,4 +612,5 @@ void executor::visit(errorNode& n)
       m_errLog.s().s() << text << std::endl;
 
    visitChildren(n);
+#endif
 }

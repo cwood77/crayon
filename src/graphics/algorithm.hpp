@@ -171,3 +171,28 @@ private:
    iCanvas& m_c;
    log& m_l;
 };
+
+class tagWriter {
+public:
+   tagWriter(iCanvas& c, log& l) : m_c(c), m_l(l) {}
+
+   void write(const std::string& text);
+   std::string readIf();
+
+private:
+   iCanvas& m_c;
+   log& m_l;
+};
+
+class tagReader {
+public:
+   tagReader(iCanvas& c, log& l) : m_c(c), m_l(l) {}
+
+   std::string readIf();
+
+private:
+   static char getTagChar(COLORREF c, bool& isValid);
+
+   iCanvas& m_c;
+   log& m_l;
+};

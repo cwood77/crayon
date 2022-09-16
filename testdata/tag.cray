@@ -1,0 +1,3 @@
+new-image rect[tl,br]{pnt{0,0},pnt{1000,1000}} :
+   error "here lies the text"
+   save-image r"out-tag.bmp"
