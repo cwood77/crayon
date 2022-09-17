@@ -122,6 +122,29 @@ void parser::parseImageBlock(scriptNode& n)
       m_indent++;
       parseFrameBlock(*pNoob);
    }
+   else if(m_l.isHText("survey-objects"))
+   {
+      m_l.advance();
+      auto *pNoob = new surveyObjectsNode;
+
+      m_l.demandAndEat(lexor::kColon);
+      n.addChild(*pNoob);
+      m_indent++;
+      parseImageBlock(*pNoob);
+   }
+   else if(m_l.isHText("select"))
+   {
+      m_l.advance();
+      auto *pNoob = new selectObjectNode;
+
+      parseArgReq(pNoob->method);
+      parseArgReq(pNoob->arg);
+
+      m_l.demandAndEat(lexor::kColon);
+      n.addChild(*pNoob);
+      m_indent++;
+      parseImageBlock(*pNoob);
+   }
    else if(m_l.isHText("select-object"))
    {
       m_l.advance();

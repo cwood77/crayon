@@ -215,6 +215,16 @@ public:
    virtual void acceptVisitor(iNodeVisitor& v) { v.visit(*this); }
 };
 
+class selectObjectNode : public scriptNode, public iBlockNode {
+public:
+   virtual const char *getName() const { return "selectObjectNode"; }
+   virtual void acceptVisitor(iNodeVisitor& v) { v.visit(*this); }
+   virtual scriptNode *createCloseNode();
+
+   std::string method;
+   std::string arg;
+};
+
 class selectObjectNodeOLD : public scriptNode, public iBlockNode {
 public:
    selectObjectNodeOLD() : n("0") {}

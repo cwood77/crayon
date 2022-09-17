@@ -53,8 +53,9 @@ public:
    virtual void visit(snipNode& n);
    virtual void visit(overlayNode& n);
 
-   virtual void visit(surveyObjectsNode& n) {}
-   virtual void visit(desurveyObjectsNode& n) {}
+   virtual void visit(surveyObjectsNode& n);
+   virtual void visit(desurveyObjectsNode& n);
+   virtual void visit(selectObjectNode& n);
    virtual void visit(selectObjectNodeOLD& n);
    virtual void visit(deselectObjectNode& n);
    virtual void visit(getDimsNode& n);

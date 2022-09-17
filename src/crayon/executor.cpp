@@ -245,6 +245,49 @@ void executor::visit(overlayNode& n)
    visitChildren(n);
 }
 
+void executor::visit(surveyObjectsNode& n)
+{
+   m_log.s().s() << "surveying objects" << std::endl;
+   auto& attr = n.root().fetch<graphicsAttribute>();
+   auto& oattr = n.fetch<objectAttribute>();
+
+   oattr.pObjects.reset(new objectSurvey(attr.pCanvas,m_log));
+   oattr.pObjects->consumeTags(); // TODO remove this later!
+   m_log.s().s() << " found " << oattr.pObjects->getNumFoundObjects() << " object(s)" << std::endl;
+
+   visitChildren(n);
+}
+
+void executor::visit(desurveyObjectsNode& n)
+{
+   m_log.s().s() << "closing survey" << std::endl;
+
+   auto& oattr = n.demandAncestor<surveyObjectsNode>().fetch<objectAttribute>();
+   oattr.pObjects.reset();
+
+   visitChildren(n);
+}
+
+void executor::visit(selectObjectNode& n)
+{
+   auto method = argEvaluator(m_sTable,n.method).getString();
+   auto arg = argEvaluator(m_sTable,n.arg).getString();
+   m_log.s().s() << "selecting object " << method << ", " << arg << std::endl;
+
+   auto& attr = n.root().fetch<graphicsAttribute>();
+   auto& oattr = n.demandAncestor<surveyObjectsNode>().fetch<objectAttribute>();
+
+   if(method == "idx")
+   {
+      rect r = oattr.pObjects->findObject(argEvaluator(m_sTable,n.arg).getInt());
+      attr.pCanvas.reset(attr.pCanvas->subset(r));
+   }
+   else
+      throw std::runtime_error("unsupported selection mode: " + method);
+
+   visitChildren(n);
+}
+
 void executor::visit(selectObjectNodeOLD& n)
 {
    m_log.s().s() << "selecting object " << std::endl;
