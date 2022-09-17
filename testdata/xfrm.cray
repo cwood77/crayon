@@ -1,8 +1,9 @@
 sweep int 0 < 255 +10 -> shift :
 
    load-image r"nerd.bmp" :
-      select-object 0 :
-         crop
+      survey-objects:
+         select idx 0 :
+            crop
 
       xfrm-pixels green-shift $shift
 
@@ -11,8 +12,9 @@ sweep int 0 < 255 +10 -> shift :
 sweep real 0.30 < 0.97 +0.05 -> light :
 
    load-image r"nerd.bmp" :
-      select-object 0 :
-         crop
+      survey-objects:
+         select idx 0 :
+            crop
 
       xfrm-pixels to-mono $light
 
