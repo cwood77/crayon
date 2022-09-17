@@ -160,6 +160,18 @@ void parser::parseImageBlock(scriptNode& n)
       m_indent++;
       parseImageBlock(*pNoob);
    }
+   else if(m_l.isHText("box"))
+   {
+      m_l.advance();
+      auto *pNoob = new boxNode;
+
+      parseArgOpt(pNoob->outlineCol);
+      parseArgOpt(pNoob->rect);
+      parseArgOpt(pNoob->fillCol);
+
+      n.addChild(*pNoob);
+      parseImageBlock(n);
+   }
    else if(m_l.isHText("crop"))
    {
       if(!dynamic_cast<selectObjectNodeOLD*>(&n) && !dynamic_cast<selectObjectNode*>(&n))

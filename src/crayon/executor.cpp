@@ -355,6 +355,30 @@ void executor::visit(getDimsNode& n)
    visitChildren(n);
 }
 
+void executor::visit(boxNode& n)
+{
+   auto& attr = n.root().fetch<graphicsAttribute>();
+
+   COLORREF outl = RGB(0,255,0);
+   rect r;
+   COLORREF fill = RGB(255,255,255);
+
+   if(!n.outlineCol.empty())
+      outl = argEvaluator(m_sTable,n.outlineCol).getColor();
+   if(n.rect.empty())
+   {
+      long w,h;
+      attr.pCanvas->getDims(w,h);
+      r = rect(0,0,w,h);
+   }
+   else
+      r = argEvaluator(m_sTable,n.rect).getRect();
+   if(!n.fillCol.empty())
+      fill = argEvaluator(m_sTable,n.fillCol).getColor();
+
+   drawBox(r,outl,fill,attr.pCanvas);
+}
+
 void executor::visit(cropNode& n)
 {
    m_log.s().s() << "cropping" << std::endl;

@@ -253,6 +253,16 @@ public:
    std::string varName;
 };
 
+class boxNode : public scriptNode {
+public:
+   virtual const char *getName() const { return "boxNode"; }
+   virtual void acceptVisitor(iNodeVisitor& v) { v.visit(*this); }
+
+   std::string outlineCol;
+   std::string rect;
+   std::string fillCol;
+};
+
 class cropNode : public scriptNode {
 public:
    virtual const char *getName() const { return "cropNode"; }

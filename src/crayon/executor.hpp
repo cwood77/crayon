@@ -59,6 +59,7 @@ public:
    virtual void visit(selectObjectNodeOLD& n);
    virtual void visit(deselectObjectNode& n);
    virtual void visit(getDimsNode& n);
+   virtual void visit(boxNode& n);
    virtual void visit(cropNode& n);
 
    virtual void visit(selectFontNode& n);

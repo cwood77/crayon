@@ -82,6 +82,9 @@ void lexor::advance(modes m)
          {
             if(::strncmp(m_pThumb,it->first.c_str(),it->first.length())==0)
             {
+               if(it->second == kIllegal)
+                  error("illegal lexeme: " + it->first);
+
                m_pThumb += it->first.length();
                m_lexeme = it->first;
                m_token = it->second;
