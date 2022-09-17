@@ -71,6 +71,7 @@ public:
    virtual void visit(pixelTransformNode& n);
 
    virtual void visit(writeTagNode& n);
+   virtual void visit(readTagNode& n);
 
 private:
    std::string trimTrailingNewlines(const std::string& s);

@@ -363,6 +363,14 @@ public:
    std::string text;
 };
 
+class readTagNode : public scriptNode {
+public:
+   virtual const char *getName() const { return "readTagNode"; }
+   virtual void acceptVisitor(iNodeVisitor& v) { v.visit(*this); }
+
+   std::string varName;
+};
+
 // impl block nodes
 #define cdwAstNode(__type__,__p__)
 #define cdwAstBlockNode(__type__,__p__,__c__) \

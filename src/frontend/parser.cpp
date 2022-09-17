@@ -231,6 +231,18 @@ void parser::parseImageBlock(scriptNode& n)
       n.addChild(*pNoob);
       parseImageBlock(n);
    }
+   else if(m_l.isHText("read-tag"))
+   {
+      m_l.advance();
+      auto *pNoob = new readTagNode;
+
+      m_l.demandAndEat(lexor::kArrow);
+
+      parseArgReq(pNoob->varName);
+
+      n.addChild(*pNoob);
+      parseImageBlock(n);
+   }
    else if(parseAnywhere(n,true))
       ;
    else

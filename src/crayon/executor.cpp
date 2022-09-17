@@ -631,8 +631,17 @@ void executor::visit(writeTagNode& n)
          pFnt);
    }
 
-   auto readback = tagReader(attr.pCanvas,m_log).readIf();
-   m_log.s().s() << "sanity check; tag readback = '" << readback << "'" << std::endl;
+   visitChildren(n);
+}
+
+void executor::visit(readTagNode& n)
+{
+   auto& attr = n.root().fetch<graphicsAttribute>();
+
+   auto value = tagReader(attr.pCanvas,m_log).readIf();
+   m_log.s().s() << "read tag '" << value << "'" << std::endl;
+
+   m_sTable.overwrite(n.varName,*new stringSymbol(value));
 
    visitChildren(n);
 }

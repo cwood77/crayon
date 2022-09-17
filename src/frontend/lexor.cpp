@@ -28,34 +28,39 @@ lexor::lexor(const char *pText)
 , m_token(kEOI)
 , m_mode(kSuppressComments)
 {
-   m_words["load-image"]        = kHyphenatedWord;
-   m_words["save-image"]        = kHyphenatedWord;
-   m_words["snip"]              = kHyphenatedWord;
-   m_words["overlay"]           = kHyphenatedWord;
-   m_words["survey-frame"]      = kHyphenatedWord;
-   m_words["fill"]              = kHyphenatedWord;
-   m_words["tighten"]           = kHyphenatedWord;
-   m_words["loosen"]            = kHyphenatedWord;
-   m_words["select-object"]     = kHyphenatedWord;
-   m_words["crop"]              = kHyphenatedWord;
-   m_words["define"]            = kHyphenatedWord;
-   m_words["survey-whiskers"]   = kHyphenatedWord;
-   m_words["find-point"]        = kHyphenatedWord;
-   m_words["trim"]              = kHyphenatedWord;
-   m_words["foreach-stringset"] = kHyphenatedWord;
-   m_words["echo"]              = kHyphenatedWord;
-   m_words["draw-text"]         = kHyphenatedWord;
-   m_words["with-font"]         = kHyphenatedWord;
-   m_words["sweep"]             = kHyphenatedWord;
-   m_words["xfrm-pixels"]       = kHyphenatedWord;
-   m_words["get-dims"]          = kHyphenatedWord;
-   m_words["new-image"]         = kHyphenatedWord;
-   m_words["if"]                = kHyphenatedWord;
-   m_words["error"]             = kHyphenatedWord;
-   m_words["write-tag"]         = kHyphenatedWord;
    m_words["->"]                = kArrow;
    m_words[":"]                 = kColon;
    m_words["   "]               = kIndent;
+   m_words["box"]               = kHyphenatedWord;
+   m_words["crop"]              = kHyphenatedWord;
+   m_words["define"]            = kHyphenatedWord;
+   m_words["draw-text"]         = kHyphenatedWord;
+   m_words["echo"]              = kHyphenatedWord;
+   m_words["error"]             = kHyphenatedWord;
+   m_words["fill"]              = kHyphenatedWord;
+   m_words["find-point"]        = kHyphenatedWord;
+   m_words["foreach"]           = kHyphenatedWord;
+   m_words["foreach-stringset"] = kHyphenatedWord;
+   m_words["get-dims"]          = kHyphenatedWord;
+   m_words["if"]                = kHyphenatedWord;
+   m_words["load-image"]        = kHyphenatedWord;
+   m_words["loosen"]            = kHyphenatedWord;
+   m_words["new-image"]         = kHyphenatedWord;
+   m_words["overlay"]           = kHyphenatedWord;
+   m_words["read-tag"]          = kHyphenatedWord;
+   m_words["save-image"]        = kHyphenatedWord;
+   m_words["select"]            = kHyphenatedWord;
+   m_words["select-object"]     = kHyphenatedWord;
+   m_words["snip"]              = kHyphenatedWord;
+   m_words["survey-frame"]      = kHyphenatedWord;
+   m_words["survey-objects"]    = kHyphenatedWord;
+   m_words["survey-whiskers"]   = kHyphenatedWord;
+   m_words["sweep"]             = kHyphenatedWord;
+   m_words["tighten"]           = kHyphenatedWord;
+   m_words["trim"]              = kHyphenatedWord;
+   m_words["with-font"]         = kHyphenatedWord;
+   m_words["write-tag"]         = kHyphenatedWord;
+   m_words["xfrm-pixels"]       = kHyphenatedWord;
 
    advance();
 }
@@ -73,7 +78,7 @@ void lexor::advance(modes m)
       for(size_t i=0;i<2;i++)
       {
          // check word bank
-         for(auto it=m_words.begin();it!=m_words.end();++it)
+         for(auto it=m_words.rbegin();it!=m_words.rend();++it)
          {
             if(::strncmp(m_pThumb,it->first.c_str(),it->first.length())==0)
             {

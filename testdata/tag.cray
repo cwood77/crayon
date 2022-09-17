@@ -1,6 +1,10 @@
 # generate some tags
 new-image rect[tl,br]{pnt{0,0},pnt{112,60}} :
    write-tag "As if increase of appetite had grown. By what it fed on: and yet, within a month--Let me not think on't--Frailty, thy name is woman!-- A little month, or ere those shoes were old."
+
+   read-tag -> tag
+   echo "readback got '{$tag}'"
+
    save-image r"out-tag.bmp"
 
 # temp
@@ -27,5 +31,5 @@ load-image r"tag.bmp" :
 #
 #  # read tag off object
 #  load-image r"tag.bmp" :
-#     read-tags -> t                       ********
+#     read-tag -> t                        ********
 #     echo $t

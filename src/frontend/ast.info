@@ -55,3 +55,4 @@ cdwAstNode(pixelTransformNode,scriptNode)
 
 // tags
 cdwAstNode(writeTagNode,scriptNode)
+cdwAstNode(readTagNode,scriptNode)
