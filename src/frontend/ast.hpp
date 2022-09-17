@@ -215,11 +215,11 @@ public:
    virtual void acceptVisitor(iNodeVisitor& v) { v.visit(*this); }
 };
 
-class selectObjectNode : public scriptNode, public iBlockNode {
+class selectObjectNodeOLD : public scriptNode, public iBlockNode {
 public:
-   selectObjectNode() : n("0") {}
+   selectObjectNodeOLD() : n("0") {}
 
-   virtual const char *getName() const { return "selectObjectNode"; }
+   virtual const char *getName() const { return "selectObjectNodeOLD"; }
    virtual void acceptVisitor(iNodeVisitor& v) { v.visit(*this); }
    virtual scriptNode *createCloseNode();
 

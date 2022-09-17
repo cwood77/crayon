@@ -16,7 +16,7 @@ public:
    virtual void visit(saveImageNode& n);
    virtual void visit(snipNode& n);
    virtual void visit(overlayNode& n);
-   virtual void visit(selectObjectNode& n);
+   virtual void visit(selectObjectNodeOLD& n);
    virtual void visit(selectFontNode& n);
    virtual void visit(drawTextNode& n);
    virtual void visit(findWhiskerPointNode& n);

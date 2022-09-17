@@ -245,7 +245,7 @@ void executor::visit(overlayNode& n)
    visitChildren(n);
 }
 
-void executor::visit(selectObjectNode& n)
+void executor::visit(selectObjectNodeOLD& n)
 {
    m_log.s().s() << "selecting object " << std::endl;
    auto& attr = n.root().fetch<graphicsAttribute>();

@@ -125,7 +125,7 @@ void parser::parseImageBlock(scriptNode& n)
    else if(m_l.isHText("select-object"))
    {
       m_l.advance();
-      auto *pNoob = new selectObjectNode;
+      auto *pNoob = new selectObjectNodeOLD;
 
       parseArgOpt(pNoob->n);
 
@@ -139,7 +139,7 @@ void parser::parseImageBlock(scriptNode& n)
    }
    else if(m_l.isHText("crop"))
    {
-      if(!dynamic_cast<selectObjectNode*>(&n))
+      if(!dynamic_cast<selectObjectNodeOLD*>(&n))
          throw std::runtime_error("crop without select-object will have no effect");
 
       m_l.advance();
@@ -599,9 +599,9 @@ cdwTest(parser_indent)
       << "         saveImageNode(Q:\\bar)" << std::endl
       << "         closeImageNode" << std::endl
       << "      loadImageNode(Q:\\foo)" << std::endl
-      << "         selectObjectNode(0,)" << std::endl
-      << "            selectObjectNode(0,)" << std::endl
-      << "               selectObjectNode(0,)" << std::endl
+      << "         selectObjectNodeOLD(0,)" << std::endl
+      << "            selectObjectNodeOLD(0,)" << std::endl
+      << "               selectObjectNodeOLD(0,)" << std::endl
       << "                  deselectObjectNode" << std::endl
       << "               deselectObjectNode" << std::endl
       << "            deselectObjectNode" << std::endl

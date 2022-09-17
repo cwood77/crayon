@@ -41,7 +41,7 @@ void dumpFieldVisitor::visit(overlayNode& n)
    m_l.s().s() << "(" << n.varName << "," << n.transparent << ")";
 }
 
-void dumpFieldVisitor::visit(selectObjectNode& n)
+void dumpFieldVisitor::visit(selectObjectNodeOLD& n)
 {
    m_l.s().s() << "(" << n.n << "," << n.hilight << ")";
 }
