@@ -253,12 +253,20 @@ void executor::visit(selectObjectNode& n)
    objectSurvey os(attr.pCanvas,m_log);
    m_log.s().s() << " found " << os.getNumFoundObjects() << " object(s)" << std::endl;
 
+   bool withTags = argEvaluator(m_sTable,n.withTags).getFlag("withTags");
+   if(withTags)
+   {
+      os.consumeTags();
+      auto tag = os.getTag(argEvaluator(m_sTable,n.n).getInt());
+      m_log.s().s() << "tag is '" << tag << "'" << std::endl;
+   }
+
    if(argEvaluator(m_sTable,n.hilight).getFlag("hilight"))
    {
       for(size_t i=0;i<os.getNumFoundObjects();i++)
       {
          rect r = os.findObject(i);
-         ::drawBox(r.toRect(),RGB(0,255,0),attr.pCanvas);
+         drawBox(r,RGB(0,255,0),attr.pCanvas);
       }
    }
 
@@ -592,6 +600,39 @@ void executor::visit(pixelTransformNode& n)
 
    pixelTransformer pt(attr.pCanvas,m_log);
    pt.run(*pXfrm.get());
+
+   visitChildren(n);
+}
+
+void executor::visit(writeTagNode& n)
+{
+   auto text = argEvaluator(m_sTable,n.text).getString();
+   m_log.s().s() << "generating tag '" << text << "'" << std::endl;
+
+   auto& attr = n.root().fetch<graphicsAttribute>();
+   auto tagEnd = tagWriter(attr.pCanvas,m_log).write(text);
+
+   // write human text underneath
+   rect textBox(0,tagEnd+2,102,50);
+   rect textBnd(3,tagEnd+2,101,49);
+   drawBox(textBox,RGB(0,0,0),RGB(255,174,201),attr.pCanvas);
+   {
+      autoReleasePtr<iFont> pFnt(attr.pApi->createFont("system",8,RGB(0,0,0),0));
+
+      size_t flags = 0;
+      flags |= DT_NOPREFIX;
+      flags |= DT_TOP;
+      flags |= DT_WORDBREAK;
+      flags |= DT_END_ELLIPSIS;
+      attr.pCanvas->drawText(
+         textBnd,
+         text.c_str(),
+         flags,
+         pFnt);
+   }
+
+   auto readback = tagReader(attr.pCanvas,m_log).readIf();
+   m_log.s().s() << "sanity check; tag readback = '" << readback << "'" << std::endl;
 
    visitChildren(n);
 }

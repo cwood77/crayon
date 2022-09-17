@@ -272,3 +272,9 @@ BYTE adjByteBndChk(BYTE b, long d);
 
 // misc
 void drawBox(const RECT& r, COLORREF col, iCanvas& can);
+void drawBox(const RECT& r, COLORREF col, COLORREF fillCol, iCanvas& can);
+
+inline void drawBox(const rect& r, COLORREF col, iCanvas& can)
+{ drawBox(r.toRect(),col,can); }
+inline void drawBox(const rect& r, COLORREF col, COLORREF fillCol, iCanvas& can)
+{ drawBox(r.toRect(),col,fillCol,can); }

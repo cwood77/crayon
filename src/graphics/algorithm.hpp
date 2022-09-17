@@ -70,7 +70,10 @@ public:
 
    size_t getNumFoundObjects() const { return m_objects.size(); }
 
-   rect findObject(size_t n );
+   rect& findObject(size_t n);
+
+   void consumeTags() { m_consumeTags = true; }
+   std::string getTag(size_t n);
 
 private:
    void run();
@@ -79,6 +82,8 @@ private:
    size_t mergeObjectsIf(size_t oldObj, size_t newObj);
 
    void makeBounds(size_t id, const point& p);
+
+   size_t countPixels(iCanvas& c, long y, long w);
 
    iCanvas& m_canvas;
    log& m_log;
@@ -89,6 +94,8 @@ private:
    std::map<size_t,std::set<point> > m_objects;
    std::map<point,size_t> m_map;
    std::map<size_t,rect> m_bounds;
+   bool m_consumeTags;
+   std::map<size_t,std::string> m_tags;
 };
 
 class whiskerSurvey {
@@ -174,9 +181,11 @@ private:
 
 class tagWriter {
 public:
+   static const COLORREF tagBgCol;
+
    tagWriter(iCanvas& c, log& l) : m_c(c), m_l(l) {}
 
-   void write(const std::string& text);
+   long write(const std::string& text);
    std::string readIf();
 
 private:

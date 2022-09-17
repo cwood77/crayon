@@ -130,6 +130,7 @@ void parser::parseImageBlock(scriptNode& n)
       parseArgOpt(pNoob->n);
 
       parseArgOpt(pNoob->hilight);
+      parseArgOpt(pNoob->withTags);
 
       m_l.demandAndEat(lexor::kColon);
       n.addChild(*pNoob);
@@ -216,6 +217,16 @@ void parser::parseImageBlock(scriptNode& n)
       m_l.demandAndEat(lexor::kArrow);
 
       parseArgReq(pNoob->varName);
+
+      n.addChild(*pNoob);
+      parseImageBlock(n);
+   }
+   else if(m_l.isHText("write-tag"))
+   {
+      m_l.advance();
+      auto *pNoob = new writeTagNode;
+
+      parseArgReq(pNoob->text);
 
       n.addChild(*pNoob);
       parseImageBlock(n);

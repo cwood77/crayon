@@ -212,6 +212,7 @@ public:
 
    std::string n;
    std::string hilight;
+   std::string withTags;
 };
 
 class deselectObjectNode : public scriptNode {
@@ -350,6 +351,16 @@ public:
 
    std::string op;
    std::string arg;
+};
+
+// tags -----------------------------------------------------------
+
+class writeTagNode : public scriptNode {
+public:
+   virtual const char *getName() const { return "writeTagNode"; }
+   virtual void acceptVisitor(iNodeVisitor& v) { v.visit(*this); }
+
+   std::string text;
 };
 
 // impl block nodes

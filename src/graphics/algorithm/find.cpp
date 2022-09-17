@@ -5,12 +5,13 @@ objectSurvey::objectSurvey(iCanvas& c, log& l)
 : m_canvas(c)
 , m_log(l)
 , m_nextObjId(1)
+, m_consumeTags(false)
 {
    m_canvas.getDims(m_w,m_h);
    run();
 }
 
-rect objectSurvey::findObject(size_t n)
+rect& objectSurvey::findObject(size_t n)
 {
    if(n >= m_objects.size())
       throw std::runtime_error("object index out of bounds");
@@ -31,6 +32,33 @@ rect objectSurvey::findObject(size_t n)
       it = m_bounds.find(n);
    }
 
+   return it->second;
+}
+
+std::string objectSurvey::getTag(size_t n)
+{
+   auto it = m_tags.find(n);
+   if(it == m_tags.end())
+   {
+      rect& r = findObject(n);
+      autoReleasePtr<iCanvas> pSub(m_canvas.subset(r));
+      auto tag = tagReader(pSub,m_log).readIf();
+      if(!tag.empty() && m_consumeTags)
+      {
+         // remove the tag from the object
+         size_t tagWidth = countPixels(pSub,0,r.w);
+         size_t tagHeight = 1;
+         long y=1;
+         for(;y<r.h && countPixels(pSub,y,r.w)==tagWidth;y++) tagHeight++;
+         size_t lineHeight = 0;
+         for(;y<r.h && countPixels(pSub,y,r.w)==1;y++) lineHeight++;
+         r.y += (tagHeight + lineHeight);
+         r.h -= (tagHeight + lineHeight);
+      }
+
+      m_tags[n] = tag;
+      it = m_tags.find(n);
+   }
    return it->second;
 }
 
@@ -125,4 +153,16 @@ void objectSurvey::makeBounds(size_t id, const point& p)
       r.setOrigin(p);
    else
       r.growToInclude(p);
+}
+
+size_t objectSurvey::countPixels(iCanvas& c, long y, long w)
+{
+   size_t n = 0;
+   for(long x=0;x<w;x++)
+   {
+      auto col = c.getPixel(point(x,y));
+      if(col != RGB(255,255,255))
+         n++;
+   }
+   return n;
 }

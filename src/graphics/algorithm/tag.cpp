@@ -4,9 +4,9 @@
 // tags are encoded in 100px wide blocks, of arbitrary depth
 // they are always encased in purple, which is the reserved color meaning nothing
 // each pixel encodes three letters/bytes
-static const COLORREF purp = RGB(200,191,231);
+const COLORREF tagWriter::tagBgCol = RGB(200,191,231); // light purple
 
-void tagWriter::write(const std::string& text)
+long tagWriter::write(const std::string& text)
 {
    // write the message, encoded in the the B channel
    point pt(2,2);
@@ -24,15 +24,15 @@ void tagWriter::write(const std::string& text)
 
    // fill in the rest of the bottom line
    for(;pt.x != 100;pt.x++)
-      m_c.setPixel(pt,purp);
+      m_c.setPixel(pt,tagBgCol);
 
    // outline the tag in a black box
    // top/bottom
    for(long x=0;x<102;x++)
    {
       m_c.setPixel(point(x,0),RGB(0,0,0));
-      m_c.setPixel(point(x,1),purp);
-      m_c.setPixel(point(x,pt.y+1),purp);
+      m_c.setPixel(point(x,1),tagBgCol);
+      m_c.setPixel(point(x,pt.y+1),tagBgCol);
       m_c.setPixel(point(x,pt.y+2),RGB(0,0,0));
    }
    // left/right
@@ -41,6 +41,14 @@ void tagWriter::write(const std::string& text)
       m_c.setPixel(point(0,y),RGB(0,0,0));
       m_c.setPixel(point(101,y),RGB(0,0,0));
    }
+   // left/right (purple)
+   for(long y=1;y<pt.y+1;y++)
+   {
+      m_c.setPixel(point(1,y),tagBgCol);
+      m_c.setPixel(point(100,y),tagBgCol);
+   }
+
+   return pt.y;
 }
 
 std::string tagReader::readIf()

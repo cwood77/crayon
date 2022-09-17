@@ -70,6 +70,8 @@ public:
 
    virtual void visit(pixelTransformNode& n);
 
+   virtual void visit(writeTagNode& n);
+
 private:
    std::string trimTrailingNewlines(const std::string& s);
 

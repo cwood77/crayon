@@ -1,3 +1,7 @@
-new-image rect[tl,br]{pnt{0,0},pnt{1000,1000}} :
-   error "here lies the text"
+new-image rect[tl,br]{pnt{0,0},pnt{112,60}} :
+   write-tag "As if increase of appetite had grown. By what it fed on: and yet, within a month--Let me not think on't--Frailty, thy name is woman!-- A little month, or ere those shoes were old."
    save-image r"out-tag.bmp"
+
+load-image r"tag.bmp" :
+   select-object 0 hilight withTags :
+      save-image r"out-tagselect.bmp"

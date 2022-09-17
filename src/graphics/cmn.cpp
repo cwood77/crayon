@@ -76,3 +76,12 @@ void drawBox(const RECT& r, COLORREF col, iCanvas& can)
       can.setPixel(point(r.right,y),col);
    }
 }
+
+void drawBox(const RECT& r, COLORREF col, COLORREF fillCol, iCanvas& can)
+{
+   for(long x=r.left;x<r.right;x++)
+      for(long y=r.top;y<r.bottom;y++)
+         can.setPixel(point(x,y),fillCol);
+
+   drawBox(r,col,can);
+}
