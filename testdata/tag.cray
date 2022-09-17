@@ -1,7 +1,31 @@
+# generate some tags
 new-image rect[tl,br]{pnt{0,0},pnt{112,60}} :
    write-tag "As if increase of appetite had grown. By what it fed on: and yet, within a month--Let me not think on't--Frailty, thy name is woman!-- A little month, or ere those shoes were old."
    save-image r"out-tag.bmp"
 
+# temp
 load-image r"tag.bmp" :
    select-object 0 hilight withTags :
       save-image r"out-tagselect.bmp"
+
+#  # trim tags off a selection
+#  load-image r"tag.bmp" :
+#     survey-objects:                      ********
+#        foreach-idx -> i :                ********
+#           select idx $i :                ********
+#              box rgb{0,255,{$i}}         ********
+#     save-image r"out-tagselect.bmp"
+#
+#
+#  # find object by tag
+#  load-image r"tag.bmp" :
+#     survey-objects:
+#        select tag cave :                 ********
+#           box
+#     save-image r"out-tagselect2.bmp"
+#
+#
+#  # read tag off object
+#  load-image r"tag.bmp" :
+#     read-tags -> t                       ********
+#     echo $t
