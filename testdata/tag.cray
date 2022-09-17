@@ -27,9 +27,3 @@ load-image r"tag.bmp" :
 #        select tag cave :                 ********
 #           box
 #     save-image r"out-tagselect2.bmp"
-#
-#
-#  # read tag off object
-#  load-image r"tag.bmp" :
-#     read-tag -> t                        ********
-#     echo $t

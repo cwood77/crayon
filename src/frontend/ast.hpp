@@ -202,6 +202,19 @@ public:
 
 // selection -----------------------------------------------------------
 
+class surveyObjectsNode : public scriptNode, public iBlockNode {
+public:
+   virtual const char *getName() const { return "surveyObjectsNode"; }
+   virtual void acceptVisitor(iNodeVisitor& v) { v.visit(*this); }
+   virtual scriptNode *createCloseNode();
+};
+
+class desurveyObjectsNode : public scriptNode {
+public:
+   virtual const char *getName() const { return "desurveyObjectsNode"; }
+   virtual void acceptVisitor(iNodeVisitor& v) { v.visit(*this); }
+};
+
 class selectObjectNode : public scriptNode, public iBlockNode {
 public:
    selectObjectNode() : n("0") {}
