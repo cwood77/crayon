@@ -487,6 +487,26 @@ bool parser::parseAnywhere(scriptNode& n, bool inImageBlock)
          parseForeachBlock(*pNoob);
       return true;
    }
+   else if(m_l.isHText("foreach-file"))
+   {
+      m_l.advance();
+      auto *pNoob = new foreachFileNode;
+
+      parsePathReq(pNoob->pattern);
+
+      m_l.demandAndEat(lexor::kArrow);
+
+      parseArgReq(pNoob->varName);
+
+      m_l.demandAndEat(lexor::kColon);
+      n.addChild(*pNoob);
+      m_indent++;
+      if(inImageBlock)
+         parseImageBlock(*pNoob);
+      else
+         parseForeachBlock(*pNoob);
+      return true;
+   }
    else if(m_l.isHText("sweep"))
    {
       m_l.advance();

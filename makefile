@@ -80,6 +80,7 @@ $(CMN_RELEASE_OBJ): $(OBJ_DIR)/release/%.o: src/%.cpp
 CRAYON_SRC = \
 	src/crayon/cmnTest.cpp \
 	src/crayon/executor.cpp \
+	src/crayon/fileFinder.cpp \
 	src/crayon/log.cpp \
 	src/crayon/main.cpp \
 	src/crayon/stringFileParser.cpp \

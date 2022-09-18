@@ -5,6 +5,13 @@
 
 #ifdef cdwTestBuild
 
+cdwTest(getPathDirIf_basic)
+{
+   cdwAssertEqu("dir",getPathDirIf("dir\\file.txt"));
+   cdwAssertEqu("dir\\dir2",getPathDirIf("dir\\dir2\\file.txt"));
+   cdwAssertEqu("",getPathDirIf("file.txt"));
+}
+
 cdwTest(getPathExt_happy)
 {
    cdwAssertEqu("bar",getPathExtLowered("foo.bar"));

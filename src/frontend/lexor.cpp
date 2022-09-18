@@ -40,6 +40,7 @@ lexor::lexor(const char *pText)
    m_words["fill"]              = kHyphenatedWord;
    m_words["find-point"]        = kHyphenatedWord;
    m_words["foreach"]           = kHyphenatedWord;
+   m_words["foreach-file"]      = kHyphenatedWord;
    m_words["foreach-stringset"] = kHyphenatedWord;
    m_words["get-dims"]          = kHyphenatedWord;
    m_words["if"]                = kHyphenatedWord;

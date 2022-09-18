@@ -2,6 +2,7 @@
 #include "../graphics/algorithm.hpp"
 #include "../graphics/snippet.hpp"
 #include "executor.hpp"
+#include "fileFinder.hpp"
 #include "log.hpp"
 #include "path.hpp"
 #include "stringFileParser.hpp"
@@ -58,6 +59,26 @@ void executor::visit(foreachStringSetNode& n)
          std::string fullName = n.varName + "." + *sit;
          m_sTable.overwrite(fullName,*new stringSymbol(trimTrailingNewlines(*var)));
       }
+      visitChildren(n);
+   }
+}
+
+void executor::visit(foreachFileNode& n)
+{
+   auto patt = argEvaluator(m_sTable,n.pattern).getString();
+
+   std::map<std::string,std::string> results;
+   fileFinder::findAll(patt,results);
+   m_log.s().s() << "found " << results.size() << " file(s)" << std::endl;
+
+   auto *pPath = new stringSymbol("");
+   auto *pMatch = new stringSymbol("");
+   m_sTable.overwrite(n.varName,*pPath);
+   m_sTable.overwrite(n.varName+".match",*pMatch);
+   for(auto it=results.begin();it!=results.end();++it)
+   {
+      pPath->value = it->first;
+      pMatch->value = it->second;
       visitChildren(n);
    }
 }

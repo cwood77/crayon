@@ -114,6 +114,15 @@ public:
    std::string varName;
 };
 
+class foreachFileNode : public scriptNode, public iBlockNode {
+public:
+   virtual const char *getName() const { return "foreachFileNode"; }
+   virtual void acceptVisitor(iNodeVisitor& v) { v.visit(*this); }
+
+   std::string pattern;
+   std::string varName;
+};
+
 class ifNode : public scriptNode, public iBlockNode {
 public:
    virtual const char *getName() const { return "ifNode"; }

@@ -41,6 +41,7 @@ public:
    virtual void visit(defineNode& n);
    virtual void visit(sweepVarNode& n);
    virtual void visit(foreachStringSetNode& n);
+   virtual void visit(foreachFileNode& n);
    virtual void visit(ifNode& n);
    virtual void visit(echoNode& n);
    virtual void visit(errorNode& n);

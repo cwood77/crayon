@@ -12,7 +12,16 @@ void _lower(char& c)
       c += ('z' - 'Z');
 }
 
-};
+} // anonymous namespace
+
+std::string getPathDirIf(const std::string& path)
+{
+   const char *pEnd = path.c_str() + path.length() - 1;
+   for(;*pEnd&&*pEnd!='\\'&&*pEnd!='/';--pEnd);
+   if(*pEnd==0)
+      return "";
+   return std::string(path.c_str(),pEnd-path.c_str());
+}
 
 std::string getPathExtLowered(const std::string& path)
 {
