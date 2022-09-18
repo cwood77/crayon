@@ -1,2 +1,2 @@
-foreach-file r"*.cray" -> f :
+foreach-file r"*.cray" -> f:
    echo "found file {$f} with wildcard {$f.match}"

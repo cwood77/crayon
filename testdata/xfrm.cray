@@ -1,21 +1,21 @@
-load-image r"nerd.bmp" :
+load-image r"nerd.bmp":
    survey-objects:
-      select idx 0 :
+      select idx 0:
          crop
    snip -> nerd
 
-#sweep int 0 < 255 +10 -> shift :
+#sweep int 0 < 255 +10 -> shift:
 define shift = 80
 
-new-image $nerd :
+new-image $nerd:
    overlay $nerd
    xfrm-pixels green-shift $shift
    save-image r"out-nerd-blue{$shift}.bmp"
 
-#sweep real 0.30 < 0.97 +0.05 -> light :
+#sweep real 0.30 < 0.97 +0.05 -> light:
 define light = 0.6
 
-new-image $nerd :
+new-image $nerd:
    overlay $nerd
    xfrm-pixels to-mono $light
    save-image r"out-nerd-mono{$light}.bmp"

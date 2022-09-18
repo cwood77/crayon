@@ -29,7 +29,6 @@ lexor::lexor(const char *pText)
 , m_mode(kSuppressComments)
 {
    m_words["->"]                = kArrow;
-   m_words[":"]                 = kColon;
    m_words["   "]               = kIndent;
    m_words["box"]               = kHyphenatedWord;
    m_words["crop"]              = kHyphenatedWord;
@@ -78,6 +77,14 @@ void lexor::advance(modes m)
    {
       for(size_t i=0;i<2;i++)
       {
+         if(*m_pThumb == ':')
+         {
+            m_pThumb++;
+            m_lexeme = ":";
+            m_token = kColon;
+            return;
+         }
+
          // check word bank
          for(auto it=m_words.rbegin();it!=m_words.rend();++it)
          {
@@ -119,8 +126,9 @@ void lexor::advance(modes m)
       else if(hasQuote)
          m_pThumb++;
       char term = hasQuote ? '"' : ' ';
+      char colon = hasQuote ? 0 : ':';
       const char *pEnd = m_pThumb;
-      for(;*pEnd!=0&&*pEnd!='\r'&&*pEnd!='\n'&&*pEnd!=term;++pEnd);
+      for(;*pEnd!=0&&*pEnd!='\r'&&*pEnd!='\n'&&*pEnd!=term&&*pEnd!=colon;++pEnd);
       m_lexeme = std::string(m_pThumb,pEnd-m_pThumb);
       if(hasQuote && *pEnd != '"')
             throw std::runtime_error("unterminated string literal");

@@ -1,7 +1,7 @@
-load-image r"x.bmp" :
+load-image r"x.bmp":
    get-dims -> dims
 
-if $dims != rect[tl,br]{pnt{0,0},pnt{238,98}} :
+if $dims != rect[tl,br]{pnt{0,0},pnt{238,98}}:
    error "dims doesn't match expected"
    error "  actual dims = {$dims}"
    error

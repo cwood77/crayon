@@ -1,13 +1,13 @@
-load-image r"nerd.bmp" :
+load-image r"nerd.bmp":
    survey-objects:
-      select idx 0 :
+      select idx 0:
          crop
    snip -90 -> rotated
    get-dims $rotated -> size-with-padding
 
-new-image $size-with-padding :
+new-image $size-with-padding:
    overlay $rotated
    survey-objects:
-      select idx 0 :
+      select idx 0:
          crop
    save-image r"out-rotatedNerd.bmp"

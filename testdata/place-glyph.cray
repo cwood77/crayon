@@ -2,14 +2,14 @@ define myRed = rgb{237,28,36}
 
 load-image r"glyphs.bmp":
    survey-objects:
-      select idx 0 :
+      select idx 0:
          snip -> centerGlyph
-      select idx 1 :
+      select idx 1:
          snip -> pntGlyph
 
 load-image r"card-template.bmp":
    survey-objects:
-      select idx 0 : # centering requires I zoom in on the object
+      select idx 0: # centering requires I zoom in on the object
          survey-whiskers:
             find-point $myRed $myRed -> rXY
             find-point rgb{0,0,0} rgb{0,0,0} -> bXY
@@ -21,7 +21,7 @@ load-image r"card-template.bmp":
          overlay $centerGlyph $cen
 
    survey-objects: # resurvey to benefit from trim
-      select idx 0 :
+      select idx 0:
          crop
 
    save-image r"out-cardWithGlyph.bmp"

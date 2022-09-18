@@ -1,11 +1,11 @@
 load-image r"x.bmp":
    survey-objects:
-      foreach -> i :
-         select idx $i :
+      foreach -> i:
+         select idx $i:
             box
 
       save-image r"out-found.bmp"
 
-      select idx 3 :
+      select idx 3:
          crop
          save-image r"out-found3.bmp"
