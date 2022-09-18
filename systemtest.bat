@@ -66,8 +66,8 @@ bin\out\debug\crayon testdata\tag.cray > nul 2>&1
 if not errorlevel 0 goto fail
 fc /b testdata\expected-tag.bmp testdata\out-tag.bmp
 if not errorlevel 0 goto fail
-rem fc /b testdata\expected-tagselect.bmp testdata\out-tagselect.bmp
-rem if not errorlevel 0 goto fail
+fc /b testdata\expected-tagselect.bmp testdata\out-tagselect.bmp
+if not errorlevel 0 goto fail
 
 :win
 echo all clear

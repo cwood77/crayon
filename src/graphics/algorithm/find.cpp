@@ -22,13 +22,13 @@ rect& objectSurvey::findObject(size_t n)
       // lazy-create the bounds
 
       // objects get created and destroyed/merged during find, so
-      // object IDs do not strictly correlate to n
+      // object IDs do not strictly correlate to n (i.e. bounds indicies)
       auto oit = m_objects.begin();
       for(size_t i=0;i<n;i++,++oit);
 
-      auto& pts = oit->second;
-      for(auto pt : pts)
-         makeBounds(n,pt);
+      makeBounds(n,oit->first);
+      storeAndTrimTagIf(n,oit->first);
+
       it = m_bounds.find(n);
    }
 
@@ -37,6 +37,7 @@ rect& objectSurvey::findObject(size_t n)
 
 rect& objectSurvey::findObjectByTag(const std::string& tag)
 {
+   // let findObject do all the work
    for(size_t i=0;i<getNumFoundObjects();i++)
       if(getTag(i) == tag)
          return findObject(i);
@@ -48,23 +49,8 @@ std::string objectSurvey::getTag(size_t n)
    auto it = m_tags.find(n);
    if(it == m_tags.end())
    {
-      rect& r = findObject(n);
-      autoReleasePtr<iCanvas> pSub(m_canvas.subset(r));
-      auto tag = tagReader(pSub,m_log).readIf();
-      if(!tag.empty() && m_consumeTags)
-      {
-         // remove the tag from the object
-         size_t tagWidth = countPixels(pSub,0,r.w);
-         size_t tagHeight = 1;
-         long y=1;
-         for(;y<r.h && countPixels(pSub,y,r.w)==tagWidth;y++) tagHeight++;
-         size_t lineHeight = 0;
-         for(;y<r.h && countPixels(pSub,y,r.w)==1;y++) lineHeight++;
-         r.y += (tagHeight + lineHeight);
-         r.h -= (tagHeight + lineHeight);
-      }
-
-      m_tags[n] = tag;
+      // let findObject do all the work
+      findObject(n);
       it = m_tags.find(n);
    }
    return it->second;
@@ -152,6 +138,22 @@ size_t objectSurvey::mergeObjectsIf(size_t oldObj, size_t newObj)
    return winer;
 }
 
+// calculate bounds of this object by considering each member
+// point, and skipping the tagHeight
+void objectSurvey::makeBounds(size_t bndsIdx, size_t objId)
+{
+   long th = 0;
+   auto it = m_objectTagHeight.find(objId);
+   bool hasTh = (it!=m_objectTagHeight.end());
+   if(hasTh)
+      th = it->second;
+
+   auto& pts = m_objects[objId];
+   for(auto pt : pts)
+      if(!hasTh || pt.y > th)
+         makeBounds(bndsIdx,pt);
+}
+
 void objectSurvey::makeBounds(size_t id, const point& p)
 {
    auto it = m_bounds.find(id);
@@ -161,6 +163,30 @@ void objectSurvey::makeBounds(size_t id, const point& p)
       r.setOrigin(p);
    else
       r.growToInclude(p);
+}
+
+void objectSurvey::storeAndTrimTagIf(size_t bndsIdx, size_t objId)
+{
+   rect r = m_bounds[bndsIdx];
+   autoReleasePtr<iCanvas> pSub(m_canvas.subset(r));
+   auto tag = tagReader(pSub,m_log).readIf();
+   if(!tag.empty() && m_consumeTags)
+   {
+      // remove the tag from the object
+      size_t tagWidth = countPixels(pSub,0,r.w);
+      size_t tagHeight = 1;
+      long y=1;
+      for(;y<r.h && countPixels(pSub,y,r.w)==tagWidth;y++) tagHeight++;
+      size_t lineHeight = 0;
+      for(;y<r.h && countPixels(pSub,y,r.w)==1;y++) lineHeight++;
+
+      // record height to omit, and recalcuate the bounds
+      m_objectTagHeight[objId] = r.y + tagHeight + lineHeight - 1;
+      m_bounds.erase(bndsIdx);
+      makeBounds(bndsIdx,objId);
+   }
+
+   m_tags[bndsIdx] = tag;
 }
 
 size_t objectSurvey::countPixels(iCanvas& c, long y, long w)

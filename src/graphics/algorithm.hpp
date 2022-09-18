@@ -82,8 +82,10 @@ private:
    void addToObject(const point& p, size_t i);
    size_t mergeObjectsIf(size_t oldObj, size_t newObj);
 
+   void makeBounds(size_t bndsIdx, size_t objId);
    void makeBounds(size_t id, const point& p);
 
+   void storeAndTrimTagIf(size_t bndsIdx, size_t objId);
    size_t countPixels(iCanvas& c, long y, long w);
 
    iCanvas& m_canvas;
@@ -94,6 +96,7 @@ private:
    size_t m_nextObjId;
    std::map<size_t,std::set<point> > m_objects;
    std::map<point,size_t> m_map;
+   std::map<size_t,long> m_objectTagHeight;
    std::map<size_t,rect> m_bounds;
    bool m_consumeTags;
    std::map<size_t,std::string> m_tags;
