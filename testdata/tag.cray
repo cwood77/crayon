@@ -10,31 +10,7 @@ new-image rect[tl,br]{pnt{0,0},pnt{112,60}} :
 # temp
 load-image r"tag.bmp" :
    survey-objects:
-      foreach -> i :
-         select idx $i :
-            snip -> image[{$i}]
-         echo "---> tag is {$i.tag}"
-
-new-image $image[0] :
-   overlay $image[0]
-   survey-objects:
-      select idx 0 :
+      select tag "here lies the text" :
          crop
 
    save-image r"out-tagselect.bmp"
-
-#  # trim tags off a selection
-#  load-image r"tag.bmp" :
-#     survey-objects:                      ********
-#        foreach-idx -> i :                ********
-#           select idx $i :                ********
-#              box rgb{0,255,{$i}}         ********
-#     save-image r"out-tagselect.bmp"
-#
-#
-#  # find object by tag
-#  load-image r"tag.bmp" :
-#     survey-objects:
-#        select tag cave :                 ********
-#           box
-#     save-image r"out-tagselect2.bmp"

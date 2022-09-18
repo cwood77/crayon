@@ -71,6 +71,7 @@ public:
    size_t getNumFoundObjects() const { return m_objects.size(); }
 
    rect& findObject(size_t n);
+   rect& findObjectByTag(const std::string& tag);
 
    void consumeTags() { m_consumeTags = true; }
    std::string getTag(size_t n);

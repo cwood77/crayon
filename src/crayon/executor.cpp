@@ -315,6 +315,11 @@ void executor::visit(selectObjectNode& n)
       rect r = oattr.pObjects->findObject(argEvaluator(m_sTable,n.arg).getInt());
       attr.pCanvas.reset(attr.pCanvas->subset(r));
    }
+   else if(method == "tag")
+   {
+      rect r = oattr.pObjects->findObjectByTag(argEvaluator(m_sTable,n.arg).getString());
+      attr.pCanvas.reset(attr.pCanvas->subset(r));
+   }
    else
       throw std::runtime_error("unsupported selection mode: " + method);
 

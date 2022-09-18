@@ -35,6 +35,14 @@ rect& objectSurvey::findObject(size_t n)
    return it->second;
 }
 
+rect& objectSurvey::findObjectByTag(const std::string& tag)
+{
+   for(size_t i=0;i<getNumFoundObjects();i++)
+      if(getTag(i) == tag)
+         return findObject(i);
+   throw std::runtime_error("tag not found: " + tag);
+}
+
 std::string objectSurvey::getTag(size_t n)
 {
    auto it = m_tags.find(n);
