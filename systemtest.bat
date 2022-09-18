@@ -69,6 +69,20 @@ if not errorlevel 0 goto fail
 fc /b testdata\expected-tagselect.bmp testdata\out-tagselect.bmp
 if not errorlevel 0 goto fail
 
+rem outline
+bin\out\debug\crayon testdata\outline.cray > nul 2>&1
+if not errorlevel 0 goto fail
+fc /b testdata\expected-outline-0.93.bmp testdata\out-outline-0.93.bmp
+if not errorlevel 0 goto fail
+
+rem xfrm
+bin\out\debug\crayon testdata\xfrm.cray > nul 2>&1
+if not errorlevel 0 goto fail
+fc /b testdata\expected-nerd-blue80.bmp testdata\out-nerd-blue80.bmp
+if not errorlevel 0 goto fail
+fc /b testdata\expected-nerd-mono0.6.bmp testdata\out-nerd-mono0.6.bmp
+if not errorlevel 0 goto fail
+
 :win
 echo all clear
 goto end

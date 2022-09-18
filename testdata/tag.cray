@@ -7,7 +7,6 @@ new-image rect[tl,br]{pnt{0,0},pnt{112,60}} :
 
    save-image r"out-tag.bmp"
 
-# temp
 load-image r"tag.bmp" :
    survey-objects:
       select tag "here lies the text" :
