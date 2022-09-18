@@ -55,6 +55,7 @@ public:
 
    virtual void visit(surveyObjectsNode& n);
    virtual void visit(desurveyObjectsNode& n);
+   virtual void visit(foreachObjectNode& n);
    virtual void visit(selectObjectNode& n);
    virtual void visit(selectObjectNodeOLD& n);
    virtual void visit(deselectObjectNode& n);

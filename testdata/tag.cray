@@ -9,8 +9,12 @@ new-image rect[tl,br]{pnt{0,0},pnt{112,60}} :
 
 # temp
 load-image r"tag.bmp" :
-   select-object 0 hilight withTags :
-      save-image r"out-tagselect.bmp"
+   survey-objects:
+      foreach -> i :
+         select idx $i :
+            box
+   #select-object 0 hilight withTags :
+   save-image r"out-tagselect.bmp"
 
 #  # trim tags off a selection
 #  load-image r"tag.bmp" :

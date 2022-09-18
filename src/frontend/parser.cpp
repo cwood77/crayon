@@ -132,6 +132,19 @@ void parser::parseImageBlock(scriptNode& n)
       m_indent++;
       parseImageBlock(*pNoob);
    }
+   else if(m_l.isHText("foreach"))
+   {
+      m_l.advance();
+      auto *pNoob = new foreachObjectNode;
+
+      m_l.demandAndEat(lexor::kArrow);
+      parseArgReq(pNoob->varName);
+
+      m_l.demandAndEat(lexor::kColon);
+      n.addChild(*pNoob);
+      m_indent++;
+      parseImageBlock(*pNoob);
+   }
    else if(m_l.isHText("select"))
    {
       m_l.advance();

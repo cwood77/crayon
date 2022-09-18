@@ -215,6 +215,14 @@ public:
    virtual void acceptVisitor(iNodeVisitor& v) { v.visit(*this); }
 };
 
+class foreachObjectNode : public scriptNode, public iBlockNode {
+public:
+   virtual const char *getName() const { return "foreachObjectNode"; }
+   virtual void acceptVisitor(iNodeVisitor& v) { v.visit(*this); }
+
+   std::string varName;
+};
+
 class selectObjectNode : public scriptNode, public iBlockNode {
 public:
    virtual const char *getName() const { return "selectObjectNode"; }

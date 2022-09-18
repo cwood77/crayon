@@ -29,6 +29,7 @@ cdwAstNode(overlayNode,scriptNode)
 // selection
 cdwAstBlockNode(surveyObjectsNode,scriptNode,desurveyObjectsNode)
 cdwAstNode(desurveyObjectsNode,scriptNode)
+cdwAstNode(foreachObjectNode,scriptNode)
 cdwAstBlockNode(selectObjectNode,scriptNode,deselectObjectNode)
 cdwAstBlockNode(selectObjectNodeOLD,scriptNode,deselectObjectNode)
 cdwAstNode(deselectObjectNode,scriptNode)

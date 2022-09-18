@@ -268,6 +268,22 @@ void executor::visit(desurveyObjectsNode& n)
    visitChildren(n);
 }
 
+void executor::visit(foreachObjectNode& n)
+{
+   auto& oattr = n.demandAncestor<surveyObjectsNode>().fetch<objectAttribute>();
+   auto *pInt = new intSymbol();
+   auto *pStr = new stringSymbol("");
+   m_sTable.overwrite(n.varName,*pInt);
+   m_sTable.overwrite(n.varName+".tag",*pStr);
+
+   for(size_t i=0;i<oattr.pObjects->getNumFoundObjects();i++)
+   {
+      pInt->value = i;
+      pStr->value = oattr.pObjects->getTag(i);
+      visitChildren(n);
+   }
+}
+
 void executor::visit(selectObjectNode& n)
 {
    auto method = argEvaluator(m_sTable,n.method).getString();
@@ -361,7 +377,7 @@ void executor::visit(boxNode& n)
 
    COLORREF outl = RGB(0,255,0);
    rect r;
-   COLORREF fill = RGB(255,255,255);
+   COLORREF fill = 0xFFFFFFFF;
 
    if(!n.outlineCol.empty())
       outl = argEvaluator(m_sTable,n.outlineCol).getColor();
@@ -376,7 +392,10 @@ void executor::visit(boxNode& n)
    if(!n.fillCol.empty())
       fill = argEvaluator(m_sTable,n.fillCol).getColor();
 
-   drawBox(r,outl,fill,attr.pCanvas);
+   if(fill == 0xFFFFFFFF)
+      drawBox(r,outl,attr.pCanvas);
+   else
+      drawBox(r,outl,fill,attr.pCanvas);
 }
 
 void executor::visit(cropNode& n)
