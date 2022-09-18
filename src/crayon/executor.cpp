@@ -137,9 +137,25 @@ void executor::visit(newImageNode& n)
       throw std::runtime_error("graphics API already in use during new");
    attr.pApi.reset(m_gFac.open(0));
 
-   // create a fresh canvas
-   auto dims = argEvaluator(m_sTable,n.dims).getRect();
+   // parse args
+   rect dims;
+   snipSymbol *pSnip = NULL;
+   if(!n.dims.empty() && n.dims.c_str()[0] == '$')
+   {
+      iSymbol& sym = m_sTable.demand(n.dims);
+      pSnip = dynamic_cast<snipSymbol*>(&sym);
+      if(pSnip)
+      {
+         long w,h;
+         pSnip->pSnippet->getDims(w,h);
+         dims = rect(0,0,w,h);
+      }
+   }
+   if(!pSnip)
+      dims = argEvaluator(m_sTable,n.dims).getRect();
    auto color = argEvaluator(m_sTable,n.color).getColor();
+
+   // create a fresh canvas
    autoReleasePtr<iFileType> pBmpFmt(attr.pApi->createFileType(iFileType::kBmp));
    attr.pImage.reset(pBmpFmt->createNew(dims,color));
    attr.pCanvas.reset(attr.pImage.get());
@@ -207,8 +223,9 @@ void executor::visit(snipNode& n)
    snippetAllocator sAlloc;
    pVar->pSnippet.reset(attr.pCanvas->snip(sAlloc,*pXfrm.get()));
 
-   m_sTable.overwrite(n.varName,*pVar.release());
-   m_log.s().s() << "saved to " << n.varName << std::endl;
+   auto varName = argEvaluator(m_sTable,n.varName).getString();
+   m_sTable.overwrite(varName,*pVar.release());
+   m_log.s().s() << "saved to " << varName << std::endl;
 
    visitChildren(n);
 }
@@ -366,7 +383,8 @@ void executor::visit(getDimsNode& n)
       << "}"
    ;
 
-   m_sTable.overwrite(n.varName,*new stringSymbol(value.str()));
+   auto varName = argEvaluator(m_sTable,n.varName).getString();
+   m_sTable.overwrite(varName,*new stringSymbol(value.str()));
 
    visitChildren(n);
 }
