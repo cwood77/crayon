@@ -46,6 +46,7 @@ lexor::lexor(const char *pText)
    m_words["load-image"]        = kHyphenatedWord;
    m_words["loosen"]            = kHyphenatedWord;
    m_words["new-image"]         = kHyphenatedWord;
+   m_words["nudge"]             = kHyphenatedWord;
    m_words["overlay"]           = kHyphenatedWord;
    m_words["read-tag"]          = kHyphenatedWord;
    m_words["save-image"]        = kHyphenatedWord;

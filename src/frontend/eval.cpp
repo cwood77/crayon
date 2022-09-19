@@ -54,6 +54,17 @@ size_t argEvaluator::computeBitFlags(symbolTable& st, const std::list<std::strin
    return ans;
 }
 
+std::string argEvaluator::fmtRect(const rect& r)
+{
+   std::stringstream value;
+   value
+      << "rect[tl,br]{pnt{" << r.x << "," << r.y << "},"
+      << "pnt{" << (r.w-1) << "," << (r.h-1) << "}"
+      << "}"
+   ;
+   return value.str();
+}
+
 // expand variables
 // expansion forms:
 //    simple:       $g[0].f
@@ -199,6 +210,20 @@ void argEvaluator::getFont(std::string& face, size_t& pnt)
    auto rval = ::sscanf(in.c_str()+6,"%[^']',%llu",buffer,&pnt);
    if(rval != 2) throw std::runtime_error("can't parse font");
    face = buffer;
+}
+
+size_t argEvaluator::getPixelCount()
+{
+   std::string in = getString();
+
+   double x;
+   char units[MAX_PATH];
+   int rval = ::sscanf(in.c_str(),"%lf%s",&x,units);
+   if(rval != 2)
+      throw std::runtime_error("failed to parse measurment");
+   if(std::string(units) != "px")
+      throw std::runtime_error("unknown units: " + std::string(units));
+   return (size_t)x;
 }
 
 #ifdef cdwTestBuild

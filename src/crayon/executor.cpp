@@ -405,15 +405,8 @@ void executor::visit(getDimsNode& n)
    else
       attr.pCanvas->getDims(w,h);
 
-   std::stringstream value;
-   value
-      << "rect[tl,br]{pnt{0,0},"
-      << "pnt{" << (w-1) << "," << (h-1) << "}"
-      << "}"
-   ;
-
    auto varName = argEvaluator(m_sTable,n.varName).getString();
-   m_sTable.overwrite(varName,*new stringSymbol(value.str()));
+   m_sTable.overwrite(varName,*new stringSymbol(argEvaluator::fmtRect(rect(0,0,w,h))));
 
    visitChildren(n);
 }
@@ -702,6 +695,25 @@ void executor::visit(trimWhiskersNode& n)
    auto& wattr = n.demandAncestor<surveyWhiskersNode>().fetch<whiskerAttribute>();
 
    wattr.pSurvey->clear();
+
+   visitChildren(n);
+}
+
+void executor::visit(nudgeNode& n)
+{
+   auto mode = argEvaluator(m_sTable,n.mode).getString();
+   auto amt = argEvaluator(m_sTable,n.amt).getPixelCount();
+   auto varName = argEvaluator(m_sTable,n.varName).getString();
+
+   if(mode == "left-in")
+   {
+      auto r = argEvaluator(m_sTable,n.in).getRect();
+      r.x += amt;
+      r.w -= amt;
+      m_sTable.overwrite(varName,*new stringSymbol(argEvaluator::fmtRect(r)));
+   }
+   else
+      throw std::runtime_error("unknown nudge mode: " + mode);
 
    visitChildren(n);
 }

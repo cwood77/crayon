@@ -55,6 +55,7 @@ cdwAstBlockNode(surveyWhiskersNode,scriptNode,desurveyWhiskersNode)
 cdwAstNode(desurveyWhiskersNode,scriptNode)
 cdwAstNode(findWhiskerPointNode,scriptNode)
 cdwAstNode(trimWhiskersNode,scriptNode)
+cdwAstNode(nudgeNode,scriptNode)
 
 // transforms
 cdwAstNode(pixelTransformNode,scriptNode)

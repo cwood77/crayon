@@ -13,6 +13,8 @@ public:
       const std::list<std::string>& options,
       std::map<std::string,size_t>& table);
 
+   static std::string fmtRect(const rect& r);
+
    argEvaluator(symbolTable& st, const std::string& in)
    : m_sTable(st), m_in(in) {}
 
@@ -33,6 +35,9 @@ public:
    point getPoint();
    rect getRect();
    void getFont(std::string& face, size_t& pnt);
+
+   // measurement
+   size_t getPixelCount();
 
 private:
    symbolTable& m_sTable;

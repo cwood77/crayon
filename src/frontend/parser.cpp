@@ -570,6 +570,21 @@ bool parser::parseAnywhere(scriptNode& n, bool inImageBlock)
       n.addChild(*pNoob);
       return true;
    }
+   else if(m_l.isHText("nudge"))
+   {
+      m_l.advance();
+      auto *pNoob = new nudgeNode;
+
+      parseArgReq(pNoob->mode);
+      parseArgReq(pNoob->in);
+      parseArgReq(pNoob->amt);
+
+      m_l.demandAndEat(lexor::kArrow);
+      parseArgReq(pNoob->varName);
+
+      n.addChild(*pNoob);
+      return true;
+   }
    else
       return false;
 }

@@ -78,6 +78,7 @@ public:
    virtual void visit(desurveyWhiskersNode& n);
    virtual void visit(findWhiskerPointNode& n);
    virtual void visit(trimWhiskersNode& n);
+   virtual void visit(nudgeNode& n);
 
    virtual void visit(pixelTransformNode& n);
 

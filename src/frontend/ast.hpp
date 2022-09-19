@@ -393,6 +393,17 @@ public:
    virtual void acceptVisitor(iNodeVisitor& v) { v.visit(*this); }
 };
 
+class nudgeNode : public scriptNode {
+public:
+   virtual const char *getName() const { return "nudgeNode"; }
+   virtual void acceptVisitor(iNodeVisitor& v) { v.visit(*this); }
+
+   std::string mode;
+   std::string in;
+   std::string amt;
+   std::string varName;
+};
+
 // transforms -----------------------------------------------------------
 
 class pixelTransformNode : public scriptNode {
