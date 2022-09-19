@@ -66,10 +66,13 @@ void executor::visit(foreachStringSetNode& n)
 void executor::visit(foreachFileNode& n)
 {
    auto patt = argEvaluator(m_sTable,n.pattern).getString();
+   bool allowNone = argEvaluator(m_sTable,n.allowNone).getFlag("allowNone");
 
    std::map<std::string,std::string> results;
    fileFinder::findAll(patt,results);
    m_log.s().s() << "found " << results.size() << " file(s)" << std::endl;
+   if(results.size() == 0 && !allowNone)
+      throw std::runtime_error("found no files with pattern " + patt);
 
    auto *pPath = new stringSymbol("");
    auto *pMatch = new stringSymbol("");

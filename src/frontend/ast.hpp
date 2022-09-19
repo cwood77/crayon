@@ -120,6 +120,7 @@ public:
    virtual void acceptVisitor(iNodeVisitor& v) { v.visit(*this); }
 
    std::string pattern;
+   std::string allowNone;
    std::string varName;
 };
 
