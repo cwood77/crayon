@@ -48,6 +48,7 @@ public:
    bool is(COLORREF c) const
    {
       return
+         0 == (0xFF000000 & c) &&
          r == GetRValue(c) &&
          g == GetGValue(c) &&
          b == GetBValue(c) ;

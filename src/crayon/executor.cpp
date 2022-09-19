@@ -457,16 +457,9 @@ void executor::visit(cropNode& n)
    // clear all the canvas(es)
    attr.pCanvas.reset();
 
-   // clear the entire image
-   long w,h;
-   attr.pImage->getDims(w,h);
-   m_log.s().s() << "clearing canvas {" << w << "," << h << "}" << std::endl;
-   for(long x=0;x<w;x++)
-      for(long y=0;y<h;y++)
-         attr.pImage->setPixel(point(x,y),RGB(255,255,255));
-
    // restore the copy at (0,0)
-   attr.pImage->overlay(pSnip,RGB(255,255,255));
+   // use an invalid color so the overlay ignores transparency and unconditionally writes
+   attr.pImage->overlay(pSnip,0xFFFFFFFF);
 
    // resize image
    attr.pImage->setDims(sw,sh);
