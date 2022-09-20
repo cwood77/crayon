@@ -59,7 +59,7 @@ std::string argEvaluator::fmtRect(const rect& r)
    std::stringstream value;
    value
       << "rect[tl,br]{pnt{" << r.x << "," << r.y << "},"
-      << "pnt{" << (r.w-1) << "," << (r.h-1) << "}"
+      << "pnt{" << (r.x+r.w-1) << "," << (r.y+r.h-1) << "}"
       << "}"
    ;
    return value.str();
