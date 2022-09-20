@@ -110,17 +110,6 @@ void executor::visit(echoNode& n)
 
 void executor::visit(errorNode& n)
 {
-#if 0
-   auto text = argEvaluator(m_sTable,n.text).getString();
-
-   auto& attr = n.root().fetch<graphicsAttribute>();
-   tagWriter(attr.pCanvas,m_log).write(text);
-
-   auto msg = tagReader(attr.pCanvas,m_log).readIf();
-   m_log.s().s() << "readback is '" << msg << "'" << std::endl;
-
-   visitChildren(n);
-#else
    auto text = argEvaluator(m_sTable,n.text).getString();
 
    if(text.empty())
@@ -129,7 +118,43 @@ void executor::visit(errorNode& n)
       m_errLog.s().s() << text << std::endl;
 
    visitChildren(n);
-#endif
+}
+
+void executor::visit(accrueNode& n)
+{
+   auto set = argEvaluator(m_sTable,n.schema).getSet();
+
+   if(set.size() != n.values.size())
+      throw std::runtime_error("cardinality mismatch in array accrue");
+
+   arraySymbol *pSym = (arraySymbol*)m_sTable.fetch(n.varName);
+   if(pSym == NULL)
+   {
+      pSym = new arraySymbol();
+      m_sTable.overwrite(n.varName,*pSym);
+   }
+   pSym->elts.push_back(std::map<std::string,iSymbol*>());
+   auto& elt = pSym->elts.back();
+
+   auto nit=set.begin();
+   auto vit=n.values.begin();
+   for(;nit!=set.end();++nit,++vit)
+      elt[*nit] = m_sTable.demand(*vit).clone();
+
+   visitChildren(n);
+}
+
+void executor::visit(foreachEltNode& n)
+{
+   auto& arr = dynamic_cast<arraySymbol&>(m_sTable.demand(n.arrayVarName));
+   for(auto it=arr.elts.begin();it!=arr.elts.end();++it)
+   {
+      for(auto jit=it->begin();jit!=it->end();++jit)
+         m_sTable.overwrite(
+            n.eltVarName + "." + jit->first,
+            *jit->second->clone());
+      visitChildren(n);
+   }
 }
 
 void executor::visit(loadImageNode& n)

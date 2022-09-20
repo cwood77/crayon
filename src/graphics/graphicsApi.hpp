@@ -207,6 +207,9 @@ public:
    explicit autoReleasePtr(T *pPtr = NULL) : m_pPtr(pPtr), m_isTemp(false)
    { if(m_pPtr) m_pPtr->addref(); }
 
+   autoReleasePtr(const autoReleasePtr& source) : m_pPtr(source.m_pPtr), m_isTemp(false)
+   { if(m_pPtr) m_pPtr->addref(); }
+
    ~autoReleasePtr()
    { reset(NULL); }
 

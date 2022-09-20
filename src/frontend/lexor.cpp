@@ -30,6 +30,7 @@ lexor::lexor(const char *pText)
 {
    m_words["->"]                = kArrow;
    m_words["   "]               = kIndent;
+   m_words["accrue"]            = kHyphenatedWord;
    m_words["box"]               = kHyphenatedWord;
    m_words["crop"]              = kHyphenatedWord;
    m_words["define"]            = kHyphenatedWord;
@@ -39,6 +40,7 @@ lexor::lexor(const char *pText)
    m_words["fill"]              = kHyphenatedWord;
    m_words["find-point"]        = kHyphenatedWord;
    m_words["foreach"]           = kHyphenatedWord;
+   m_words["foreach-elt"]       = kHyphenatedWord;
    m_words["foreach-file"]      = kHyphenatedWord;
    m_words["foreach-stringset"] = kHyphenatedWord;
    m_words["get-dims"]          = kHyphenatedWord;

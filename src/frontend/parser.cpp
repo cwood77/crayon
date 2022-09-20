@@ -570,6 +570,43 @@ bool parser::parseAnywhere(scriptNode& n, bool inImageBlock)
       n.addChild(*pNoob);
       return true;
    }
+   else if(m_l.isHText("accrue"))
+   {
+      m_l.advance();
+      auto *pNoob = new accrueNode;
+
+      parseArgReq(pNoob->schema);
+      while(m_l.getCurrentToken() == lexor::kQuotedText)
+      {
+         pNoob->values.push_back(m_l.getCurrentLexeme());
+         m_l.advance();
+      }
+
+      m_l.demandAndEat(lexor::kArrow);
+      parseArgReq(pNoob->varName);
+
+      n.addChild(*pNoob);
+      return true;
+   }
+   else if(m_l.isHText("foreach-elt"))
+   {
+      m_l.advance();
+      auto *pNoob = new foreachEltNode;
+
+      parseArgReq(pNoob->arrayVarName);
+
+      m_l.demandAndEat(lexor::kArrow);
+      parseArgReq(pNoob->eltVarName);
+
+      m_l.demandAndEat(lexor::kColon);
+      n.addChild(*pNoob);
+      m_indent++;
+      if(inImageBlock)
+         parseImageBlock(*pNoob);
+      else
+         parseForeachBlock(*pNoob);
+      return true;
+   }
    else if(m_l.isHText("nudge"))
    {
       m_l.advance();

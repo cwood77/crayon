@@ -72,6 +72,23 @@ void doubleSymbol::adjust(argEvaluator& delta)
    value += delta.getReal();
 }
 
+arraySymbol::~arraySymbol()
+{
+   for(auto it=elts.begin();it!=elts.end();++it)
+      for(auto jit=it->begin();jit!=it->end();++jit)
+         delete jit->second;
+}
+
+std::string arraySymbol::asString() const
+{
+   throw std::runtime_error("can't convert an array to a string");
+}
+
+iSymbol *arraySymbol::clone() const
+{
+   throw std::runtime_error("unimpled 82");
+}
+
 symbolTable::~symbolTable()
 {
    for(auto it=m_pSymbols.begin();it!=m_pSymbols.end();++it)
@@ -88,8 +105,16 @@ void symbolTable::overwrite(const std::string& name, iSymbol& s)
 
 iSymbol& symbolTable::demand(const std::string& name)
 {
-   auto it = m_pSymbols.find(name.c_str()+1);
+   auto *pS = fetch(name.c_str()+1);
+   if(!pS)
+      throw std::runtime_error("referenced variable doesn't exist: " + name);
+   return *pS;
+}
+
+iSymbol *symbolTable::fetch(const std::string& name)
+{
+   auto it = m_pSymbols.find(name.c_str());
    if(it == m_pSymbols.end())
-      throw std::runtime_error("referenced variable doesn't exist");
-   return *it->second;
+      return NULL;
+   return it->second;
 }

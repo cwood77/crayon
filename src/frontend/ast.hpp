@@ -150,6 +150,25 @@ public:
    std::string text;
 };
 
+class accrueNode : public scriptNode {
+public:
+   virtual const char *getName() const { return "accrueNode"; }
+   virtual void acceptVisitor(iNodeVisitor& v) { v.visit(*this); }
+
+   std::string schema;
+   std::list<std::string> values;
+   std::string varName;
+};
+
+class foreachEltNode : public scriptNode, public iBlockNode {
+public:
+   virtual const char *getName() const { return "foreachEltNode"; }
+   virtual void acceptVisitor(iNodeVisitor& v) { v.visit(*this); }
+
+   std::string arrayVarName;
+   std::string eltVarName;
+};
+
 // images -----------------------------------------------------------
 
 class loadImageNode : public scriptNode, public iBlockNode {
