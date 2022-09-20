@@ -1,8 +1,8 @@
 #pragma once
-#ifdef cdwTestBuild
 #include <set>
 #include <sstream>
 #include <string>
+#ifdef cdwTestBuild
 
 class testBase;
 

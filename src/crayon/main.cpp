@@ -29,9 +29,13 @@ int main(int argc, const char *argv[])
       }
       else if(argc == (1+1) && argv[1] == std::string("test"))
       {
+#ifdef cdwTestBuild
          // run tests
          basicAsserter ba;
          testBase::runAll(ba);
+#else
+         Log.s().s() << "tests compiled out" << std::endl;
+#endif
       }
       else if(argc == (1+1))
       {
