@@ -95,6 +95,8 @@ void executor::visit(ifNode& n)
    bool ans;
    if(op == "!=")
       ans = (lhs != rhs);
+   else if(op == "==")
+      ans = (lhs == rhs);
    else
       throw std::runtime_error("unsupported operation for 'if'");
 
@@ -361,8 +363,16 @@ void executor::visit(selectObjectNode& n)
 
    if(method == "idx")
    {
-      rect r = oattr.pObjects->findObject(argEvaluator(m_sTable,n.arg).getInt());
-      attr.pCanvas.reset(attr.pCanvas->subset(r));
+      if(n.arg == "/")
+      {
+         rect r = oattr.pObjects->superset();
+         attr.pCanvas.reset(attr.pCanvas->subset(r));
+      }
+      else
+      {
+         rect r = oattr.pObjects->findObject(argEvaluator(m_sTable,n.arg).getInt());
+         attr.pCanvas.reset(attr.pCanvas->subset(r));
+      }
    }
    else if(method == "tag")
    {
@@ -720,15 +730,48 @@ void executor::visit(trimWhiskersNode& n)
 void executor::visit(nudgeNode& n)
 {
    auto mode = argEvaluator(m_sTable,n.mode).getString();
-   auto amt = argEvaluator(m_sTable,n.amt).getPixelCount();
    auto varName = argEvaluator(m_sTable,n.varName).getString();
 
    if(mode == "left-in")
    {
       auto r = argEvaluator(m_sTable,n.in).getRect();
+      auto amt = argEvaluator(m_sTable,n.amt).getPixelCount();
       r.x += amt;
       r.w -= amt;
       m_sTable.overwrite(varName,*new stringSymbol(argEvaluator::fmtRect(r)));
+   }
+   else if(mode == "up")
+   {
+      auto pt = argEvaluator(m_sTable,n.in).getPoint();
+      auto amt = argEvaluator(m_sTable,n.amt).getPixelCount();
+      pt.y -= amt;
+      m_sTable.overwrite(varName,*new stringSymbol(argEvaluator::fmtPoint(pt)));
+   }
+   else if(mode == "right")
+   {
+      auto pt = argEvaluator(m_sTable,n.in).getPoint();
+      auto amt = argEvaluator(m_sTable,n.amt).getPixelCount();
+      pt.x += amt;
+      m_sTable.overwrite(varName,*new stringSymbol(argEvaluator::fmtPoint(pt)));
+   }
+   else if(mode == "up-by-half")
+   {
+      auto pt = argEvaluator(m_sTable,n.in).getPoint();
+      auto& pSnip = m_sTable.demand(n.amt).as<snipSymbol>().pSnippet;
+      long w,h;
+      pSnip->getDims(w,h);
+      long up = h / 2.0;
+      pt.y -= up;
+      m_sTable.overwrite(varName,*new stringSymbol(argEvaluator::fmtPoint(pt)));
+   }
+   else if(mode == "right-by-width")
+   {
+      auto pt = argEvaluator(m_sTable,n.in).getPoint();
+      auto& pSnip = m_sTable.demand(n.amt).as<snipSymbol>().pSnippet;
+      long w,h;
+      pSnip->getDims(w,h);
+      pt.x += w;
+      m_sTable.overwrite(varName,*new stringSymbol(argEvaluator::fmtPoint(pt)));
    }
    else
       throw std::runtime_error("unknown nudge mode: " + mode);

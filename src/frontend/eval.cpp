@@ -54,6 +54,15 @@ size_t argEvaluator::computeBitFlags(symbolTable& st, const std::list<std::strin
    return ans;
 }
 
+std::string argEvaluator::fmtPoint(const point& p)
+{
+   std::stringstream value;
+   value
+      << "pnt{" << p.x << "," << p.y << "}"
+   ;
+   return value.str();
+}
+
 std::string argEvaluator::fmtRect(const rect& r)
 {
    std::stringstream value;

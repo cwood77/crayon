@@ -44,6 +44,27 @@ rect& objectSurvey::findObjectByTag(const std::string& tag)
    throw std::runtime_error("tag not found: " + tag);
 }
 
+rect objectSurvey::superset()
+{
+   rect rval;
+   bool first = true;
+
+   for(size_t i=0;i<getNumFoundObjects();i++)
+   {
+      auto& r = findObject(i);
+      if(first)
+      {
+         rval.setOrigin(point(r.x,r.y));
+         first = false;
+      }
+      else
+         rval.growToInclude(point(r.x,r.y));
+      rval.growToInclude(point(r.x+r.w-1,r.y+r.h-1));
+   }
+
+   return rval;
+}
+
 std::string objectSurvey::getTag(size_t n)
 {
    auto it = m_tags.find(n);
