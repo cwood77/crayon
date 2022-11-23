@@ -23,6 +23,12 @@ if not errorlevel 0 goto fail
 fc /b testdata\expected-scribbleWithOverlayDeFramed.bmp testdata\out-scribbleWithOverlayDeFramed.bmp
 if not errorlevel 0 goto fail
 
+rem different frame shapes
+bin\out\debug\crayon testdata\irregular-frame.cray > nul
+if not errorlevel 0 goto fail
+fc /b testdata\expected-stardeframed.bmp testdata\out-stardeframed.bmp
+if not errorlevel 0 goto fail
+
 rem find object
 bin\out\debug\crayon testdata\find-object.cray > nul
 if not errorlevel 0 goto fail

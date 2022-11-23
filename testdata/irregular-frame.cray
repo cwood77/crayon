@@ -1,0 +1,4 @@
+load-image r"star.bmp":
+   survey-frame:
+      fill
+   save-image r"out-stardeframed.bmp"

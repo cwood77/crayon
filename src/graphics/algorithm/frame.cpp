@@ -30,8 +30,11 @@ void framer::findFrame()
 
          if(isAdjacentPixelIn(point(x,y)))
             markIn(point(x,y));
+         else
+            reconsiderLater(point(x,y));
       }
    }
+   reconsider();
 }
 
 void framer::colorFrame(COLORREF c)
@@ -80,7 +83,7 @@ void framer::unmark(const point& p)
    m_inFrame.erase(p);
 }
 
-bool framer::isAdjacentPixelIn(const point& p)
+bool framer::isAdjacentPixelIn(const point& p, bool later)
 {
    if(p.x)
    {
@@ -91,7 +94,47 @@ bool framer::isAdjacentPixelIn(const point& p)
    if(p.y)
    {
       auto it = m_inFrame.find(point(p.x,p.y-1));
-      return it!=m_inFrame.end();
+      if(it!=m_inFrame.end())
+         return true;
+   }
+   if(later)
+   {
+      // on the second pass, we can look below and to the right
+      {
+         auto it = m_inFrame.find(point(p.x,p.y+1));
+         if(it!=m_inFrame.end())
+            return true;
+      }
+      {
+         auto it = m_inFrame.find(point(p.x+1,p.y));
+         if(it!=m_inFrame.end())
+            return true;
+      }
    }
    return false;
+}
+
+void framer::reconsiderLater(const point& p)
+{
+   m_later.insert(p);
+}
+
+void framer::reconsider()
+{
+   bool progress = false;
+   do
+   {
+      progress = false;
+      auto copy = m_later;
+      for(auto pt : copy)
+      {
+         if(isAdjacentPixelIn(pt,/*later=*/true))
+         {
+            m_inFrame.insert(pt);
+            m_later.erase(pt);
+            progress = true;
+         }
+      }
+   } while(progress);
+   m_later.clear();
 }

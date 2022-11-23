@@ -41,12 +41,15 @@ public:
    void unmark(const point& p);
 
 private:
-   bool isAdjacentPixelIn(const point& p);
+   bool isAdjacentPixelIn(const point& p, bool later = false);
+   void reconsiderLater(const point& p);
+   void reconsider();
 
    iCanvas& m_canvas;
    long m_w;
    long m_h;
    std::set<point> m_inFrame;
+   std::set<point> m_later;
    COLORREF m_frameColor;
 };
 
