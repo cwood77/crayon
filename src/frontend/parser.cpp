@@ -255,6 +255,22 @@ void parser::parseImageBlock(scriptNode& n)
       n.addChild(*pNoob);
       parseImageBlock(n);
    }
+   else if(m_l.isHText("anlyz-pixels"))
+   {
+      m_l.advance();
+      auto *pNoob = new pixelAnalysisNode;
+
+      parseArgReq(pNoob->op);
+
+      parseArgOpt(pNoob->arg);
+
+      m_l.demandAndEat(lexor::kArrow);
+
+      parseArgReq(pNoob->varName);
+
+      n.addChild(*pNoob);
+      parseImageBlock(n);
+   }
    else if(m_l.isHText("get-dims"))
    {
       m_l.advance();

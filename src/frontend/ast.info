@@ -61,6 +61,7 @@ cdwAstNode(nudgeNode,scriptNode)
 
 // transforms
 cdwAstNode(pixelTransformNode,scriptNode)
+cdwAstNode(pixelAnalysisNode,scriptNode)
 
 // tags
 cdwAstNode(writeTagNode,scriptNode)

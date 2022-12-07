@@ -2,9 +2,12 @@
 #include "graphicsApi.hpp"
 #include <list>
 #include <map>
+#include <memory>
 #include <set>
 
+class iSymbol;
 class log;
+class symbolTable;
 
 class iPixelCriteria {
 public:
@@ -19,6 +22,26 @@ public:
 
 private:
    double m_minLightness;
+};
+
+class notPixelCriteria : public iPixelCriteria {
+public:
+   explicit notPixelCriteria(iPixelCriteria& inner) : m_pInner(&inner) {}
+
+   virtual bool isEligible(COLORREF c) { return !m_pInner->isEligible(c); }
+
+private:
+   std::unique_ptr<iPixelCriteria> m_pInner;
+};
+
+class isPixelCriteria : public iPixelCriteria {
+public:
+   explicit isPixelCriteria(COLORREF x) : m_x(x) {}
+
+   virtual bool isEligible(COLORREF c) { return m_x == c; }
+
+private:
+   COLORREF m_x;
 };
 
 class framer {
@@ -184,6 +207,37 @@ public:
 
 private:
    iCanvas& m_c;
+   log& m_l;
+};
+
+class iPixelAnalysis {
+public:
+   virtual void addPixel(COLORREF c) = 0;
+   virtual iSymbol& complete() = 0;
+};
+
+class unattestedColorFinder : public iPixelAnalysis {
+public:
+   explicit unattestedColorFinder(COLORREF c) : m_col(c) {}
+
+   virtual void addPixel(COLORREF c) { m_attested.insert(c); }
+   virtual iSymbol& complete();
+
+private:
+   COLORREF m_col;
+   std::set<COLORREF> m_attested;
+};
+
+class pixelAnalyzer {
+public:
+   pixelAnalyzer(iCanvas& c, symbolTable& s, log& l)
+   : m_c(c), m_sTable(s), m_l(l) {}
+
+   void run(iPixelAnalysis& a, const std::string& varName);
+
+private:
+   iCanvas& m_c;
+   symbolTable& m_sTable;
    log& m_l;
 };
 

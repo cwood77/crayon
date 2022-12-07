@@ -95,6 +95,7 @@ CRAYON_SRC = \
 	src/frontend/parser.cpp \
 	src/graphics/algorithm/find.cpp \
 	src/graphics/algorithm/frame.cpp \
+	src/graphics/algorithm/analysis.cpp \
 	src/graphics/algorithm/outline.cpp \
 	src/graphics/algorithm/tag.cpp \
 	src/graphics/algorithm/transform.cpp \

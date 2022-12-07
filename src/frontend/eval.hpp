@@ -13,6 +13,7 @@ public:
       const std::list<std::string>& options,
       std::map<std::string,size_t>& table);
 
+   static std::string fmtColor(size_t c);
    static std::string fmtPoint(const point& p);
    static std::string fmtRect(const rect& r);
 

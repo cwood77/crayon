@@ -798,6 +798,14 @@ void executor::visit(pixelTransformNode& n)
       pCri.reset(new lightnessPixelCriteria(argEvaluator(m_sTable,n.arg).getReal()));
       pXfrm.reset(new toMonochromeShift(*pCri.get()));
    }
+   else if(op == "mono-unless")
+   {
+      pCri.reset(
+         new notPixelCriteria(
+            *new isPixelCriteria(
+               argEvaluator(m_sTable,n.arg).getColor())));
+      pXfrm.reset(new toMonochromeShift(*pCri.get()));
+   }
    else
       throw std::runtime_error("unknown transform");
 
@@ -806,6 +814,25 @@ void executor::visit(pixelTransformNode& n)
 
    pixelTransformer pt(attr.pCanvas,m_log);
    pt.run(*pXfrm.get());
+
+   visitChildren(n);
+}
+
+void executor::visit(pixelAnalysisNode& n)
+{
+   auto op = argEvaluator(m_sTable,n.op).getString();
+
+   std::unique_ptr<iPixelAnalysis> pAnlys;
+   if(op == "find-unattested-color")
+      pAnlys.reset(new unattestedColorFinder(argEvaluator(m_sTable,n.arg).getColor()));
+   else
+      throw std::runtime_error("unknown analysis");
+
+   m_log.s().s() << "running pixel analysis " << op << " " << std::endl;
+   auto& attr = n.root().fetch<graphicsAttribute>();
+
+   pixelAnalyzer pa(attr.pCanvas,m_sTable,m_log);
+   pa.run(*pAnlys.get(),n.varName);
 
    visitChildren(n);
 }

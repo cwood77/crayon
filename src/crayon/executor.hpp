@@ -83,6 +83,7 @@ public:
    virtual void visit(nudgeNode& n);
 
    virtual void visit(pixelTransformNode& n);
+   virtual void visit(pixelAnalysisNode& n);
 
    virtual void visit(writeTagNode& n);
    virtual void visit(readTagNode& n);

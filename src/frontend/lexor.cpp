@@ -64,6 +64,7 @@ lexor::lexor(const char *pText)
    m_words["with-font"]         = kHyphenatedWord;
    m_words["write-tag"]         = kHyphenatedWord;
    m_words["xfrm-pixels"]       = kHyphenatedWord;
+   m_words["anlyz-pixels"]      = kHyphenatedWord;
 
    advance();
 }

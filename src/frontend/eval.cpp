@@ -54,6 +54,18 @@ size_t argEvaluator::computeBitFlags(symbolTable& st, const std::list<std::strin
    return ans;
 }
 
+std::string argEvaluator::fmtColor(size_t c)
+{
+   std::stringstream value;
+   value
+      << "rgb{"
+      << (int)GetRValue(c) << ","
+      << (int)GetGValue(c) << ","
+      << (int)GetBValue(c) << "}"
+   ;
+   return value.str();
+}
+
 std::string argEvaluator::fmtPoint(const point& p)
 {
    std::stringstream value;

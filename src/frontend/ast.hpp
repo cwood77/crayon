@@ -434,6 +434,16 @@ public:
    std::string arg;
 };
 
+class pixelAnalysisNode : public scriptNode {
+public:
+   virtual const char *getName() const { return "pixelAnalysisNode"; }
+   virtual void acceptVisitor(iNodeVisitor& v) { v.visit(*this); }
+
+   std::string op;
+   std::string arg;
+   std::string varName;
+};
+
 // tags -----------------------------------------------------------
 
 class writeTagNode : public scriptNode {

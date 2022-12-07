@@ -1,0 +1,6 @@
+load-image r"map2.bmp":
+   anlyz-pixels find-unattested-color rgb{255,255,255} -> myCol
+   echo "color to use is {$myCol}"
+
+   xfrm-pixels mono-unless rgb{255,255,255}
+   save-image r"out-map2.bmp"
