@@ -1,0 +1,3 @@
+load-image r"map.bmp":
+   anlyz-pixels find-unattested-color rgb{255,255,255} -> myCol
+   echo "color to use is {$myCol}"

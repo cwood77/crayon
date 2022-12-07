@@ -1,6 +1,11 @@
 load-image r"x.bmp":
-   select-object 3 hilight :
+   survey-objects:
+      foreach -> i:
+         select idx $i:
+            box
+
       save-image r"out-found.bmp"
 
-      crop
-      save-image r"out-found3.bmp"
+      select idx 3:
+         crop
+         save-image r"out-found3.bmp"

@@ -1,0 +1,9 @@
+foreach-file r"*.cray" -> f:
+   echo "found file {$f} with wildcard {$f.match}"
+
+define x = rect[tl,br]{pnt{0,0},pnt{100,100}}
+nudge left-in $x 5px -> y
+echo "x={$x}"
+echo "y={$y}"
+
+#nudge up-by-half $pt $snip -> newPt

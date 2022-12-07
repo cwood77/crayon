@@ -12,7 +12,8 @@ public:
       kColon,
       kIndent,
       kRelPath,
-      kEOI
+      kEOI,
+      kIllegal
    };
 
    enum modes {

@@ -2,9 +2,12 @@
 #include "graphicsApi.hpp"
 #include <list>
 #include <map>
+#include <memory>
 #include <set>
 
+class iSymbol;
 class log;
+class symbolTable;
 
 class iPixelCriteria {
 public:
@@ -19,6 +22,26 @@ public:
 
 private:
    double m_minLightness;
+};
+
+class notPixelCriteria : public iPixelCriteria {
+public:
+   explicit notPixelCriteria(iPixelCriteria& inner) : m_pInner(&inner) {}
+
+   virtual bool isEligible(COLORREF c) { return !m_pInner->isEligible(c); }
+
+private:
+   std::unique_ptr<iPixelCriteria> m_pInner;
+};
+
+class isPixelCriteria : public iPixelCriteria {
+public:
+   explicit isPixelCriteria(COLORREF x) : m_x(x) {}
+
+   virtual bool isEligible(COLORREF c) { return m_x == c; }
+
+private:
+   COLORREF m_x;
 };
 
 class framer {
@@ -41,12 +64,15 @@ public:
    void unmark(const point& p);
 
 private:
-   bool isAdjacentPixelIn(const point& p);
+   bool isAdjacentPixelIn(const point& p, bool later = false);
+   void reconsiderLater(const point& p);
+   void reconsider();
 
    iCanvas& m_canvas;
    long m_w;
    long m_h;
    std::set<point> m_inFrame;
+   std::set<point> m_later;
    COLORREF m_frameColor;
 };
 
@@ -64,21 +90,30 @@ private:
    log& m_log;
 };
 
-class objectFinder {
+class objectSurvey {
 public:
-   static rect run(iCanvas& c, size_t n, bool dbgHilight, log& Log);
+   objectSurvey(iCanvas& c, log& l);
+
+   size_t getNumFoundObjects() const { return m_objects.size(); }
+
+   rect& findObject(size_t n);
+   rect& findObjectByTag(const std::string& tag);
+   rect superset();
+
+   void consumeTags() { m_consumeTags = true; }
+   std::string getTag(size_t n);
 
 private:
-   objectFinder(iCanvas& c, log& l);
-
-   rect _run(size_t n, bool dbgHilight);
+   void run();
    size_t findAdjacentMembership(const point& p);
    void addToObject(const point& p, size_t i);
    size_t mergeObjectsIf(size_t oldObj, size_t newObj);
 
+   void makeBounds(size_t bndsIdx, size_t objId);
    void makeBounds(size_t id, const point& p);
 
-   void hilight(const rect& r, COLORREF c);
+   void storeAndTrimTagIf(size_t bndsIdx, size_t objId);
+   size_t countPixels(iCanvas& c, long y, long w);
 
    iCanvas& m_canvas;
    log& m_log;
@@ -88,7 +123,10 @@ private:
    size_t m_nextObjId;
    std::map<size_t,std::set<point> > m_objects;
    std::map<point,size_t> m_map;
+   std::map<size_t,long> m_objectTagHeight;
    std::map<size_t,rect> m_bounds;
+   bool m_consumeTags;
+   std::map<size_t,std::string> m_tags;
 };
 
 class whiskerSurvey {
@@ -108,6 +146,7 @@ private:
    void categorizeHoriz();
    void markVertWhisker(long x, long y, COLORREF c);
    void markHorizWhisker(long x, long y, COLORREF c);
+   void dupWhiskerError(bool h, COLORREF col, long old, long nu);
 
    iCanvas& m_canvas;
    log& m_log;
@@ -167,6 +206,64 @@ public:
    void run(iPixelTransform& t);
 
 private:
+   iCanvas& m_c;
+   log& m_l;
+};
+
+class iPixelAnalysis {
+public:
+   virtual void addPixel(COLORREF c) = 0;
+   virtual iSymbol& complete() = 0;
+};
+
+class unattestedColorFinder : public iPixelAnalysis {
+public:
+   explicit unattestedColorFinder(COLORREF c) : m_col(c) {}
+
+   virtual void addPixel(COLORREF c) { m_attested.insert(c); }
+   virtual iSymbol& complete();
+
+private:
+   COLORREF m_col;
+   std::set<COLORREF> m_attested;
+};
+
+class pixelAnalyzer {
+public:
+   pixelAnalyzer(iCanvas& c, symbolTable& s, log& l)
+   : m_c(c), m_sTable(s), m_l(l) {}
+
+   void run(iPixelAnalysis& a, const std::string& varName);
+
+private:
+   iCanvas& m_c;
+   symbolTable& m_sTable;
+   log& m_l;
+};
+
+class tagWriter {
+public:
+   static const COLORREF tagBgCol;
+
+   tagWriter(iCanvas& c, log& l) : m_c(c), m_l(l) {}
+
+   long write(const std::string& text);
+   std::string readIf();
+
+private:
+   iCanvas& m_c;
+   log& m_l;
+};
+
+class tagReader {
+public:
+   tagReader(iCanvas& c, log& l) : m_c(c), m_l(l) {}
+
+   std::string readIf();
+
+private:
+   static char getTagChar(COLORREF c, bool& isValid);
+
    iCanvas& m_c;
    log& m_l;
 };

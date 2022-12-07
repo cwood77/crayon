@@ -54,6 +54,38 @@ size_t argEvaluator::computeBitFlags(symbolTable& st, const std::list<std::strin
    return ans;
 }
 
+std::string argEvaluator::fmtColor(size_t c)
+{
+   std::stringstream value;
+   value
+      << "rgb{"
+      << (int)GetRValue(c) << ","
+      << (int)GetGValue(c) << ","
+      << (int)GetBValue(c) << "}"
+   ;
+   return value.str();
+}
+
+std::string argEvaluator::fmtPoint(const point& p)
+{
+   std::stringstream value;
+   value
+      << "pnt{" << p.x << "," << p.y << "}"
+   ;
+   return value.str();
+}
+
+std::string argEvaluator::fmtRect(const rect& r)
+{
+   std::stringstream value;
+   value
+      << "rect[tl,br]{pnt{" << r.x << "," << r.y << "},"
+      << "pnt{" << (r.x+r.w-1) << "," << (r.y+r.h-1) << "}"
+      << "}"
+   ;
+   return value.str();
+}
+
 // expand variables
 // expansion forms:
 //    simple:       $g[0].f
@@ -193,12 +225,26 @@ void argEvaluator::getFont(std::string& face, size_t& pnt)
 {
    std::string in = getString();
 
-   if(::strncmp(in.c_str(),"font{\"",6)!=0)
+   if(::strncmp(in.c_str(),"font{'",6)!=0)
       throw std::runtime_error("invalid font syntax");
    char buffer[MAX_PATH];
-   auto rval = ::sscanf(in.c_str()+6,"%[^\"]\",%llu",buffer,&pnt);
+   auto rval = ::sscanf(in.c_str()+6,"%[^']',%llu",buffer,&pnt);
    if(rval != 2) throw std::runtime_error("can't parse font");
    face = buffer;
+}
+
+size_t argEvaluator::getPixelCount()
+{
+   std::string in = getString();
+
+   double x;
+   char units[MAX_PATH];
+   int rval = ::sscanf(in.c_str(),"%lf%s",&x,units);
+   if(rval != 2)
+      throw std::runtime_error("failed to parse measurment");
+   if(std::string(units) != "px")
+      throw std::runtime_error("unknown units: " + std::string(units));
+   return (size_t)x;
 }
 
 #ifdef cdwTestBuild
@@ -263,13 +309,13 @@ cdwTest(interpolation_oneRefBrace)
 cdwTest(interpolation_fancy)
 {
    std::list<std::string> parts;
-   expandInterpolationParts("font{{$typeface},10}",parts);
+   expandInterpolationParts("font{'{$typeface}',10}",parts);
 
    std::stringstream expected,actual;
    expected
-      << "font{" << std::endl
+      << "font{'" << std::endl
       << "$typeface" << std::endl
-      << ",10}" << std::endl
+      << "',10}" << std::endl
    ;
    for(auto s : parts)
       actual << s << std::endl;

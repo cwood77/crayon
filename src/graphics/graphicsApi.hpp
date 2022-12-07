@@ -48,6 +48,7 @@ public:
    bool is(COLORREF c) const
    {
       return
+         0 == (0xFF000000 & c) &&
          r == GetRValue(c) &&
          g == GetGValue(c) &&
          b == GetBValue(c) ;
@@ -206,6 +207,9 @@ public:
    explicit autoReleasePtr(T *pPtr = NULL) : m_pPtr(pPtr), m_isTemp(false)
    { if(m_pPtr) m_pPtr->addref(); }
 
+   autoReleasePtr(const autoReleasePtr& source) : m_pPtr(source.m_pPtr), m_isTemp(false)
+   { if(m_pPtr) m_pPtr->addref(); }
+
    ~autoReleasePtr()
    { reset(NULL); }
 
@@ -269,3 +273,12 @@ private: \
 
 // adjust b by +/-d but ceil/floor b at 255/0
 BYTE adjByteBndChk(BYTE b, long d);
+
+// misc
+void drawBox(const RECT& r, COLORREF col, iCanvas& can);
+void drawBox(const RECT& r, COLORREF col, COLORREF fillCol, iCanvas& can);
+
+inline void drawBox(const rect& r, COLORREF col, iCanvas& can)
+{ drawBox(r.toRect(),col,can); }
+inline void drawBox(const rect& r, COLORREF col, COLORREF fillCol, iCanvas& can)
+{ drawBox(r.toRect(),col,fillCol,can); }

@@ -1,6 +1,7 @@
 #pragma once
 #include <string>
 
+std::string getPathDirIf(const std::string& path);
 std::string getPathExtLowered(const std::string& path);
 std::wstring widen(const std::string& s);
 std::string createTempFilePath(const std::string& sSeed, size_t nSeed);

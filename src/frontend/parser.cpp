@@ -122,23 +122,72 @@ void parser::parseImageBlock(scriptNode& n)
       m_indent++;
       parseFrameBlock(*pNoob);
    }
-   else if(m_l.isHText("select-object"))
+   else if(m_l.isHText("survey-objects"))
    {
       m_l.advance();
-      auto *pNoob = new selectObjectNode;
-
-      parseArgOpt(pNoob->n);
-
-      parseArgOpt(pNoob->hilight);
+      auto *pNoob = new surveyObjectsNode;
 
       m_l.demandAndEat(lexor::kColon);
       n.addChild(*pNoob);
       m_indent++;
       parseImageBlock(*pNoob);
    }
+   else if(m_l.isHText("foreach"))
+   {
+      m_l.advance();
+      auto *pNoob = new foreachObjectNode;
+
+      m_l.demandAndEat(lexor::kArrow);
+      parseArgReq(pNoob->varName);
+
+      m_l.demandAndEat(lexor::kColon);
+      n.addChild(*pNoob);
+      m_indent++;
+      parseImageBlock(*pNoob);
+   }
+   else if(m_l.isHText("select"))
+   {
+      m_l.advance();
+      auto *pNoob = new selectObjectNode;
+
+      parseArgReq(pNoob->method);
+      parseArgReq(pNoob->arg);
+
+      m_l.demandAndEat(lexor::kColon);
+      n.addChild(*pNoob);
+      m_indent++;
+      parseImageBlock(*pNoob);
+   }
+   else if(m_l.isHText("select-object"))
+   {
+      m_l.advance();
+      auto *pNoob = new selectObjectNodeOLD;
+
+      parseArgOpt(pNoob->n);
+
+      parseArgOpt(pNoob->hilight);
+      parseArgOpt(pNoob->withTags);
+
+      m_l.demandAndEat(lexor::kColon);
+      n.addChild(*pNoob);
+      m_indent++;
+      parseImageBlock(*pNoob);
+   }
+   else if(m_l.isHText("box"))
+   {
+      m_l.advance();
+      auto *pNoob = new boxNode;
+
+      parseArgOpt(pNoob->outlineCol);
+      parseArgOpt(pNoob->rect);
+      parseArgOpt(pNoob->fillCol);
+
+      n.addChild(*pNoob);
+      parseImageBlock(n);
+   }
    else if(m_l.isHText("crop"))
    {
-      if(!dynamic_cast<selectObjectNode*>(&n))
+      if(!dynamic_cast<selectObjectNodeOLD*>(&n) && !dynamic_cast<selectObjectNode*>(&n))
          throw std::runtime_error("crop without select-object will have no effect");
 
       m_l.advance();
@@ -206,12 +255,50 @@ void parser::parseImageBlock(scriptNode& n)
       n.addChild(*pNoob);
       parseImageBlock(n);
    }
+   else if(m_l.isHText("anlyz-pixels"))
+   {
+      m_l.advance();
+      auto *pNoob = new pixelAnalysisNode;
+
+      parseArgReq(pNoob->op);
+
+      parseArgOpt(pNoob->arg);
+
+      m_l.demandAndEat(lexor::kArrow);
+
+      parseArgReq(pNoob->varName);
+
+      n.addChild(*pNoob);
+      parseImageBlock(n);
+   }
    else if(m_l.isHText("get-dims"))
    {
       m_l.advance();
       auto *pNoob = new getDimsNode;
 
       parseArgOpt(pNoob->obj);
+
+      m_l.demandAndEat(lexor::kArrow);
+
+      parseArgReq(pNoob->varName);
+
+      n.addChild(*pNoob);
+      parseImageBlock(n);
+   }
+   else if(m_l.isHText("write-tag"))
+   {
+      m_l.advance();
+      auto *pNoob = new writeTagNode;
+
+      parseArgReq(pNoob->text);
+
+      n.addChild(*pNoob);
+      parseImageBlock(n);
+   }
+   else if(m_l.isHText("read-tag"))
+   {
+      m_l.advance();
+      auto *pNoob = new readTagNode;
 
       m_l.demandAndEat(lexor::kArrow);
 
@@ -239,7 +326,8 @@ bool parser::closeOrContinueBlock(scriptNode& n)
       {
          // close the block(s)
          auto *pClose = dynamic_cast<iBlockNode&>(n).createCloseNode();
-         n.addChild(*pClose);
+         if(pClose)
+            n.addChild(*pClose);
          m_indent--;
          return true; // remember the indents I've already eaten (m_indentsEaten)
                       // this is only meaningful if m_indent was > 1
@@ -415,6 +503,27 @@ bool parser::parseAnywhere(scriptNode& n, bool inImageBlock)
          parseForeachBlock(*pNoob);
       return true;
    }
+   else if(m_l.isHText("foreach-file"))
+   {
+      m_l.advance();
+      auto *pNoob = new foreachFileNode;
+
+      parsePathReq(pNoob->pattern);
+      parseArgOpt(pNoob->allowNone);
+
+      m_l.demandAndEat(lexor::kArrow);
+
+      parseArgReq(pNoob->varName);
+
+      m_l.demandAndEat(lexor::kColon);
+      n.addChild(*pNoob);
+      m_indent++;
+      if(inImageBlock)
+         parseImageBlock(*pNoob);
+      else
+         parseForeachBlock(*pNoob);
+      return true;
+   }
    else if(m_l.isHText("sweep"))
    {
       m_l.advance();
@@ -473,6 +582,58 @@ bool parser::parseAnywhere(scriptNode& n, bool inImageBlock)
       auto *pNoob = new errorNode;
 
       parseArgOpt(pNoob->text);
+
+      n.addChild(*pNoob);
+      return true;
+   }
+   else if(m_l.isHText("accrue"))
+   {
+      m_l.advance();
+      auto *pNoob = new accrueNode;
+
+      parseArgReq(pNoob->schema);
+      while(m_l.getCurrentToken() == lexor::kQuotedText)
+      {
+         pNoob->values.push_back(m_l.getCurrentLexeme());
+         m_l.advance();
+      }
+
+      m_l.demandAndEat(lexor::kArrow);
+      parseArgReq(pNoob->varName);
+
+      n.addChild(*pNoob);
+      return true;
+   }
+   else if(m_l.isHText("foreach-elt"))
+   {
+      m_l.advance();
+      auto *pNoob = new foreachEltNode;
+
+      parseArgReq(pNoob->arrayVarName);
+
+      m_l.demandAndEat(lexor::kArrow);
+      parseArgReq(pNoob->eltVarName);
+
+      m_l.demandAndEat(lexor::kColon);
+      n.addChild(*pNoob);
+      m_indent++;
+      if(inImageBlock)
+         parseImageBlock(*pNoob);
+      else
+         parseForeachBlock(*pNoob);
+      return true;
+   }
+   else if(m_l.isHText("nudge"))
+   {
+      m_l.advance();
+      auto *pNoob = new nudgeNode;
+
+      parseArgReq(pNoob->mode);
+      parseArgReq(pNoob->in);
+      parseArgReq(pNoob->amt);
+
+      m_l.demandAndEat(lexor::kArrow);
+      parseArgReq(pNoob->varName);
 
       n.addChild(*pNoob);
       return true;
@@ -575,9 +736,9 @@ cdwTest(parser_indent)
       << "         saveImageNode(Q:\\bar)" << std::endl
       << "         closeImageNode" << std::endl
       << "      loadImageNode(Q:\\foo)" << std::endl
-      << "         selectObjectNode(0,)" << std::endl
-      << "            selectObjectNode(0,)" << std::endl
-      << "               selectObjectNode(0,)" << std::endl
+      << "         selectObjectNodeOLD(0,)" << std::endl
+      << "            selectObjectNodeOLD(0,)" << std::endl
+      << "               selectObjectNodeOLD(0,)" << std::endl
       << "                  deselectObjectNode" << std::endl
       << "               deselectObjectNode" << std::endl
       << "            deselectObjectNode" << std::endl

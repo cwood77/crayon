@@ -3,6 +3,7 @@
 rem unit
 bin\out\debug\crayon test > nul
 if not errorlevel 0 goto fail
+rem goto win
 
 del testdata\out-*.bmp > nul 2>&1
 
@@ -20,6 +21,12 @@ if not errorlevel 0 goto fail
 fc /b testdata\expected-scribbleWithOverlay.bmp testdata\out-scribbleWithOverlay.bmp
 if not errorlevel 0 goto fail
 fc /b testdata\expected-scribbleWithOverlayDeFramed.bmp testdata\out-scribbleWithOverlayDeFramed.bmp
+if not errorlevel 0 goto fail
+
+rem different frame shapes
+bin\out\debug\crayon testdata\irregular-frame.cray > nul
+if not errorlevel 0 goto fail
+fc /b testdata\expected-stardeframed.bmp testdata\out-stardeframed.bmp
 if not errorlevel 0 goto fail
 
 rem find object
@@ -59,6 +66,28 @@ if not errorlevel 0 goto fail
 rem if
 bin\out\debug\crayon testdata\if.cray > nul 2>&1
 if errorlevel 0 goto fail
+
+rem tags
+bin\out\debug\crayon testdata\tag.cray > nul 2>&1
+if not errorlevel 0 goto fail
+fc /b testdata\expected-tag.bmp testdata\out-tag.bmp
+if not errorlevel 0 goto fail
+fc /b testdata\expected-tagselect.bmp testdata\out-tagselect.bmp
+if not errorlevel 0 goto fail
+
+rem outline
+bin\out\debug\crayon testdata\outline.cray > nul 2>&1
+if not errorlevel 0 goto fail
+fc /b testdata\expected-outline-0.93.bmp testdata\out-outline-0.93.bmp
+if not errorlevel 0 goto fail
+
+rem xfrm
+bin\out\debug\crayon testdata\xfrm.cray > nul 2>&1
+if not errorlevel 0 goto fail
+fc /b testdata\expected-nerd-blue80.bmp testdata\out-nerd-blue80.bmp
+if not errorlevel 0 goto fail
+fc /b testdata\expected-nerd-mono0.6.bmp testdata\out-nerd-mono0.6.bmp
+if not errorlevel 0 goto fail
 
 :win
 echo all clear

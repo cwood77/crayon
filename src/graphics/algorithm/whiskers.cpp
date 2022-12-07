@@ -42,11 +42,17 @@ void whiskerSurvey::categorize()
 {
    categorizeVert();
    categorizeHoriz();
+
    m_log.s().s() << "center appears to be at (" << m_center.x << "," << m_center.y << ")" << std::endl;
+
+   m_log.s().s() << "found " << m_horizWhiskers.size() << " horiz whisker(s)" << std::endl;
+   m_log.s().s() << "found " << m_vertWhiskers.size() << " vert whisker(s)" << std::endl;
 }
 
 void whiskerSurvey::categorizeVert()
 {
+   const COLORREF white = RGB(255,255,255);
+
    long w,h;
    m_canvas.getDims(w,h);
 
@@ -61,8 +67,8 @@ void whiskerSurvey::categorizeVert()
          COLORREF pix = m_canvas.getPixel(point(x,y));
          if(x)
          {
-            bool twoInARow = (pix == last);
-            if(twoInARow && pix != RGB(255,255,255))
+            bool twoInARow = (pix != white && last != white);
+            if(twoInARow)
             {
                done = true; // no longer looking at whiskers!
                m_center.y = ((h-y) / 2) + y;
@@ -80,6 +86,8 @@ void whiskerSurvey::categorizeVert()
 
 void whiskerSurvey::categorizeHoriz()
 {
+   const COLORREF white = RGB(255,255,255);
+
    long w,h;
    m_canvas.getDims(w,h);
 
@@ -94,8 +102,8 @@ void whiskerSurvey::categorizeHoriz()
          COLORREF pix = m_canvas.getPixel(point(x,y));
          if(y)
          {
-            bool twoInARow = (pix == last);
-            if(twoInARow && pix != RGB(255,255,255))
+            bool twoInARow = (pix != white && last != white);
+            if(twoInARow)
             {
                done = true; // no longer looking at whiskers!
                m_center.x = ((w-x) / 2) + x;
@@ -115,7 +123,7 @@ void whiskerSurvey::markVertWhisker(long x, long y, COLORREF c)
 {
    bool noob = (m_vertWhiskers.find(c) == m_vertWhiskers.end());
    if(!noob && m_vertWhiskers[c] != x)
-      throw std::runtime_error("two whiskers with the same color?");
+      dupWhiskerError(false,c,m_vertWhiskers[c],x);
    else
       m_vertWhiskers[c] = x;
    m_whiskerPoints.push_back(point(x,y));
@@ -125,8 +133,23 @@ void whiskerSurvey::markHorizWhisker(long x, long y, COLORREF c)
 {
    bool noob = (m_horizWhiskers.find(c) == m_horizWhiskers.end());
    if(!noob && m_horizWhiskers[c] != y)
-      throw std::runtime_error("two whiskers with the same color?");
+      dupWhiskerError(true,c,m_horizWhiskers[c],y);
    else
       m_horizWhiskers[c] = y;
    m_whiskerPoints.push_back(point(x,y));
+}
+
+void whiskerSurvey::dupWhiskerError(bool h, COLORREF col, long old, long nu)
+{
+   std::stringstream stream;
+   stream
+      << "two whiskers found with the same color!" << std::endl
+      << "  direction: " << (h ? "horiz" : "vert") << std::endl
+      << "  color: RGB("
+         << (size_t)GetRValue(col) << ","
+         << (size_t)GetGValue(col) << ","
+         << (size_t)GetBValue(col) << ")" << std::endl
+      << "  previously found at " << (h ? "Y=" : "X=") << old << ", but now " << nu;
+   ;
+   throw std::runtime_error(stream.str());
 }

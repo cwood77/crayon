@@ -21,11 +21,11 @@ std::string assemblePathParts(std::list<std::string>& words, size_t n)
    return stream.str();
 }
 
-void computeParentPaths(const std::string& exePath, const std::string& scriptPath, std::list<std::string>& parents)
+void computeParentPaths(const std::string& basePath, const std::string& scriptPath, std::list<std::string>& parents)
 {
    std::string adjustedPath = scriptPath;
    if(adjustedPath.length() < 2 || adjustedPath.c_str()[1] != ':')
-      adjustedPath = exePath + "\\..\\" + scriptPath;
+      adjustedPath = basePath + "\\..\\" + scriptPath;
 
    std::list<std::string> words;
 
@@ -62,10 +62,10 @@ void crawler::crawl(const std::string& scriptPath, std::list<std::string>& addtl
 {
    Log.s().s() << "crawling up dirtree from " << scriptPath << std::endl;
 
-   char exePath[MAX_PATH];
-   ::GetModuleFileName(NULL,exePath,MAX_PATH);
+   char basePath[MAX_PATH];
+   ::GetCurrentDirectoryA(MAX_PATH,basePath);
    std::list<std::string> searchPaths;
-   computeParentPaths(exePath,scriptPath,searchPaths);
+   computeParentPaths(basePath,scriptPath,searchPaths);
 
    for(auto searchPath : searchPaths)
    {

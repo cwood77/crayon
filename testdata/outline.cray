@@ -1,15 +1,22 @@
-sweep real 0.88 < 1.0 +0.05 -> l :
-
-   echo "=========> attemping lightness {$l}"
-
-   load-image r"nerd.bmp" :
-      select-object 0 :
+load-image r"nerd.bmp":
+   survey-objects:
+      select idx 0:
          crop
+   snip -> nerd
 
-      survey-frame:
-         fill rgb{0,0,255}
-         tighten min-lightness $l
-         loosen rgb{0,0,0}
-         loosen rgb{255,0,0}
-         loosen rgb{0,0,0}
-      save-image r"out-outline-{$l}.bmp"
+#sweep real 0.88 < 1.0 +0.05 -> l:
+define l = 0.93
+
+echo "=========> attemping lightness {$l}"
+
+new-image $nerd:
+   overlay $nerd
+
+   survey-frame:
+      fill rgb{0,0,255}
+      tighten min-lightness $l
+      loosen rgb{0,0,0}
+      loosen rgb{255,0,0}
+      loosen rgb{0,0,0}
+
+   save-image r"out-outline-{$l}.bmp"

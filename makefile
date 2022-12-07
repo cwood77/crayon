@@ -80,6 +80,7 @@ $(CMN_RELEASE_OBJ): $(OBJ_DIR)/release/%.o: src/%.cpp
 CRAYON_SRC = \
 	src/crayon/cmnTest.cpp \
 	src/crayon/executor.cpp \
+	src/crayon/fileFinder.cpp \
 	src/crayon/log.cpp \
 	src/crayon/main.cpp \
 	src/crayon/stringFileParser.cpp \
@@ -94,7 +95,9 @@ CRAYON_SRC = \
 	src/frontend/parser.cpp \
 	src/graphics/algorithm/find.cpp \
 	src/graphics/algorithm/frame.cpp \
+	src/graphics/algorithm/analysis.cpp \
 	src/graphics/algorithm/outline.cpp \
+	src/graphics/algorithm/tag.cpp \
 	src/graphics/algorithm/transform.cpp \
 	src/graphics/algorithm/whiskers.cpp \
 	src/graphics/graphicsApi.cpp \

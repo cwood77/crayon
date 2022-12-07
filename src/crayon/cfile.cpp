@@ -37,6 +37,8 @@ void inCFile::seek(size_t i)
       case 2:
          orig = SEEK_END;
          break;
+      default:
+         throw std::runtime_error("unknown arg to see");
    }
    ::fseek(m_fp,0,orig);
 }

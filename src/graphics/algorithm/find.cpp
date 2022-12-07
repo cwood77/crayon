@@ -1,21 +1,83 @@
 #include "../../crayon/log.hpp"
 #include "../algorithm.hpp"
 
-rect objectFinder::run(iCanvas& c, size_t n, bool dbgHilight, log& l)
-{
-   objectFinder self(c,l);
-   return self._run(n,dbgHilight);
-}
-
-objectFinder::objectFinder(iCanvas& c, log& l)
+objectSurvey::objectSurvey(iCanvas& c, log& l)
 : m_canvas(c)
 , m_log(l)
 , m_nextObjId(1)
+, m_consumeTags(false)
 {
    m_canvas.getDims(m_w,m_h);
+   run();
 }
 
-rect objectFinder::_run(size_t n, bool dbgHilight)
+rect& objectSurvey::findObject(size_t n)
+{
+   if(n >= m_objects.size())
+      throw std::runtime_error("object index out of bounds");
+
+   auto it = m_bounds.find(n);
+   if(it==m_bounds.end())
+   {
+      // lazy-create the bounds
+
+      // objects get created and destroyed/merged during find, so
+      // object IDs do not strictly correlate to n (i.e. bounds indicies)
+      auto oit = m_objects.begin();
+      for(size_t i=0;i<n;i++,++oit);
+
+      makeBounds(n,oit->first);
+      storeAndTrimTagIf(n,oit->first);
+
+      it = m_bounds.find(n);
+   }
+
+   return it->second;
+}
+
+rect& objectSurvey::findObjectByTag(const std::string& tag)
+{
+   // let findObject do all the work
+   for(size_t i=0;i<getNumFoundObjects();i++)
+      if(getTag(i) == tag)
+         return findObject(i);
+   throw std::runtime_error("tag not found: " + tag);
+}
+
+rect objectSurvey::superset()
+{
+   rect rval;
+   bool first = true;
+
+   for(size_t i=0;i<getNumFoundObjects();i++)
+   {
+      auto& r = findObject(i);
+      if(first)
+      {
+         rval.setOrigin(point(r.x,r.y));
+         first = false;
+      }
+      else
+         rval.growToInclude(point(r.x,r.y));
+      rval.growToInclude(point(r.x+r.w-1,r.y+r.h-1));
+   }
+
+   return rval;
+}
+
+std::string objectSurvey::getTag(size_t n)
+{
+   auto it = m_tags.find(n);
+   if(it == m_tags.end())
+   {
+      // let findObject do all the work
+      findObject(n);
+      it = m_tags.find(n);
+   }
+   return it->second;
+}
+
+void objectSurvey::run()
 {
    for(long y=0;y<m_h;y++)
    {
@@ -29,40 +91,11 @@ rect objectFinder::_run(size_t n, bool dbgHilight)
          addToObject(point(x,y),objId);
       }
    }
-
-   m_log.s().s() << "found " << m_objects.size() << " object(s)" << std::endl;
-   for(auto it=m_objects.begin();it!=m_objects.end();++it)
-   {
-      for(auto pt : it->second)
-         makeBounds(it->first,pt);
-
-      auto& r = m_bounds[it->first];
-      /*
-      m_log.s().s() << "object " << it->first << " {"
-         << r.x << ","
-         << r.y << ","
-         << r.w << ","
-         << r.h << "}" << std::endl;
-         */
-
-      if(dbgHilight)
-         hilight(r,RGB(0,255,0));
-   }
-
-   if(n >= m_bounds.size())
-      throw std::runtime_error("object index out of bounds");
-   else
-   {
-      auto it = m_bounds.begin();
-      for(size_t i=0;i<n;i++)
-         ++it;
-      return it->second;
-   }
 }
 
 // b/c of the direction of the sweep, it's only worth looking above and to the left
 // for precedent
-size_t objectFinder::findAdjacentMembership(const point& p)
+size_t objectSurvey::findAdjacentMembership(const point& p)
 {
    size_t ans = 0;
 
@@ -93,18 +126,15 @@ size_t objectFinder::findAdjacentMembership(const point& p)
    return ans;
 }
 
-void objectFinder::addToObject(const point& p, size_t i)
+void objectSurvey::addToObject(const point& p, size_t i)
 {
    if(i == 0)
-   {
       i = m_nextObjId++;
-      //m_log.s().s() << "[find-object] found new object " << i << " starting at (" << p.x << "," << p.y << ")" << std::endl;
-   }
    m_objects[i].insert(p);
    m_map[p] = i;
 }
 
-size_t objectFinder::mergeObjectsIf(size_t oldObj, size_t newObj)
+size_t objectSurvey::mergeObjectsIf(size_t oldObj, size_t newObj)
 {
    // winer is the smaller of the two
    size_t loser = oldObj;
@@ -118,8 +148,6 @@ size_t objectFinder::mergeObjectsIf(size_t oldObj, size_t newObj)
    if(winer == 0 || loser == winer)
       return loser;
 
-   //m_log.s().s() << "[find-object] merging objects " << winer << " <- " << loser << std::endl;
-
    // move all newObj's pnts to oldObj
    std::set<point>& lPnts = m_objects[loser];
    for(auto p : lPnts)
@@ -131,7 +159,23 @@ size_t objectFinder::mergeObjectsIf(size_t oldObj, size_t newObj)
    return winer;
 }
 
-void objectFinder::makeBounds(size_t id, const point& p)
+// calculate bounds of this object by considering each member
+// point, and skipping the tagHeight
+void objectSurvey::makeBounds(size_t bndsIdx, size_t objId)
+{
+   long th = 0;
+   auto it = m_objectTagHeight.find(objId);
+   bool hasTh = (it!=m_objectTagHeight.end());
+   if(hasTh)
+      th = it->second;
+
+   auto& pts = m_objects[objId];
+   for(auto pt : pts)
+      if(!hasTh || pt.y > th)
+         makeBounds(bndsIdx,pt);
+}
+
+void objectSurvey::makeBounds(size_t id, const point& p)
 {
    auto it = m_bounds.find(id);
    bool noob = (it == m_bounds.end());
@@ -142,19 +186,38 @@ void objectFinder::makeBounds(size_t id, const point& p)
       r.growToInclude(p);
 }
 
-void objectFinder::hilight(const rect& r, COLORREF c)
+void objectSurvey::storeAndTrimTagIf(size_t bndsIdx, size_t objId)
 {
-   // h lines
-   for(long x=r.x;x<r.x+r.w;x++)
+   rect r = m_bounds[bndsIdx];
+   autoReleasePtr<iCanvas> pSub(m_canvas.subset(r));
+   auto tag = tagReader(pSub,m_log).readIf();
+   if(!tag.empty() && m_consumeTags)
    {
-      m_canvas.setPixel(point(x,r.y),c);
-      m_canvas.setPixel(point(x,r.y+r.h-1),c);
+      // remove the tag from the object
+      size_t tagWidth = countPixels(pSub,0,r.w);
+      size_t tagHeight = 1;
+      long y=1;
+      for(;y<r.h && countPixels(pSub,y,r.w)==tagWidth;y++) tagHeight++;
+      size_t lineHeight = 0;
+      for(;y<r.h && countPixels(pSub,y,r.w)==1;y++) lineHeight++;
+
+      // record height to omit, and recalcuate the bounds
+      m_objectTagHeight[objId] = r.y + tagHeight + lineHeight - 1;
+      m_bounds.erase(bndsIdx);
+      makeBounds(bndsIdx,objId);
    }
 
-   // vlines
-   for(long y=r.y;y<r.y+r.h;y++)
+   m_tags[bndsIdx] = tag;
+}
+
+size_t objectSurvey::countPixels(iCanvas& c, long y, long w)
+{
+   size_t n = 0;
+   for(long x=0;x<w;x++)
    {
-      m_canvas.setPixel(point(r.x,y),c);
-      m_canvas.setPixel(point(r.x+r.w-1,y),c);
+      auto col = c.getPixel(point(x,y));
+      if(col != RGB(255,255,255))
+         n++;
    }
+   return n;
 }
