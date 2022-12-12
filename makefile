@@ -179,4 +179,4 @@ $(GDIPLUSAPI_RELEASE_OBJ): $(OBJ_DIR)/release/%.o: src/%.cpp
 
 # ----------------------------------------------------------------------
 systemtest:
-	@cmd.exe /c systemtest.bat
+	@cmd /c systemtest.bat
