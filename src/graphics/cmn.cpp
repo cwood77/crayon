@@ -52,6 +52,41 @@ RECT rect::toRect() const
    return r;
 }
 
+colorInfo& colorInfo::fromRgb(COLORREF c)
+{
+   // all formulae taken from https://www.rapidtables.com/convert/color/rgb-to-hsv.html
+
+   double r = GetRValue(c) / 255.0;
+   double g = GetGValue(c) / 255.0;
+   double b = GetBValue(c) / 255.0;
+
+   auto Cmax = r > g ? r : g;
+   Cmax = Cmax > b ? Cmax : b;
+   auto Cmin = r < g ? r : g;
+   Cmin = Cmin < b ? Cmin : b;
+   auto delta = Cmax - Cmin;
+
+   // HSV (paintbrush uses this)
+   if(delta == 0.0)
+      hue = 0;
+   else if(Cmax == r)
+      hue = 60 * ::fmod((g-b)/delta,6);
+   else if(Cmax == g)
+      hue = 60 * ((b-r)/delta + 2);
+   else if(Cmax == b)
+      hue = 60 * ((r-g)/delta + 4);
+   if(Cmax == 0)
+      sat = 0;
+   else
+      sat = delta / Cmax;
+   val = Cmax;
+
+   // HSI
+   lightness = (Cmax + Cmin) / 2.0;
+
+   return *this;
+}
+
 BYTE adjByteBndChk(BYTE b, long d)
 {
    long x = (long)b + d;

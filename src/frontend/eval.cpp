@@ -221,6 +221,29 @@ rect argEvaluator::getRect()
       throw std::runtime_error("invalid rect syntax");
 }
 
+colorRange argEvaluator::getColorRange()
+{
+   std::string in = getString();
+
+   if(::strncmp(in.c_str(),"colrange[rgb+/-hsv]{rgb{",24)==0)
+   {
+      unsigned long r,g,b;
+      double h,s,v;
+      auto rval = ::sscanf(in.c_str()+24,"%lu,%lu,%lu}+/-hsv{%lf,%lf,%lf}}",
+         &r,&g,&b,&h,&s,&v);
+      if(rval != 6) throw std::runtime_error("can't parse color range");
+
+      colorRange cr;
+      cr.base.fromRgb(RGB(r,g,b));
+      cr.hDelta = h;
+      cr.sDelta = s;
+      cr.vDelta = v;
+      return cr;
+   }
+   else
+      throw std::runtime_error("invalid color range syntax");
+}
+
 void argEvaluator::getFont(std::string& face, size_t& pnt)
 {
    std::string in = getString();

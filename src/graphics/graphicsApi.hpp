@@ -72,6 +72,25 @@ public:
 };
 #pragma pack(pop)
 
+class colorInfo {
+public:
+   colorInfo& fromRgb(COLORREF c);
+
+   double lightness;
+
+   double hue;
+   double sat;
+   double val;
+};
+
+class colorRange {
+public:
+   colorInfo base;
+   double hDelta;
+   double sDelta;
+   double vDelta;
+};
+
 class iSnippet {
 public:
    virtual ~iSnippet() {}

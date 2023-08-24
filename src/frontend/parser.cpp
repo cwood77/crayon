@@ -251,6 +251,7 @@ void parser::parseImageBlock(scriptNode& n)
       parseArgReq(pNoob->op);
 
       parseArgReq(pNoob->arg);
+      parseArgOpt(pNoob->arg2);
 
       n.addChild(*pNoob);
       parseImageBlock(n);

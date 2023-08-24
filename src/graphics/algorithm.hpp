@@ -44,6 +44,16 @@ private:
    COLORREF m_x;
 };
 
+class inColorRangeCriteria : public iPixelCriteria {
+public:
+   explicit inColorRangeCriteria(const colorRange& cr) : m_cr(cr) {}
+
+   virtual bool isEligible(COLORREF c);
+
+private:
+   colorRange m_cr;
+};
+
 class framer {
 public:
    explicit framer(iCanvas& c);
@@ -197,6 +207,18 @@ public:
 
 private:
    iPixelCriteria& m_c;
+};
+
+class toColor : public iPixelTransform {
+public:
+   toColor(iPixelCriteria& c, COLORREF destCol)
+   : m_c(c), m_destCol(destCol) {}
+
+   virtual COLORREF run(COLORREF c) { return m_c.isEligible(c) ? m_destCol : c; }
+
+private:
+   iPixelCriteria& m_c;
+   COLORREF m_destCol;
 };
 
 class pixelTransformer {

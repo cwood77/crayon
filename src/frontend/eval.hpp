@@ -23,7 +23,7 @@ public:
    // variable expansion
    std::string getString();
 
-   // pods
+   // PODs
    long getInt();
    double getReal();
    bool getFlag(const std::string& name);
@@ -36,6 +36,7 @@ public:
    size_t getColor();
    point getPoint();
    rect getRect();
+   colorRange getColorRange();
    void getFont(std::string& face, size_t& pnt);
 
    // measurement

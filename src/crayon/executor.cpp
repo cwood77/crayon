@@ -764,6 +764,16 @@ void executor::visit(nudgeNode& n)
       pt.y -= up;
       m_sTable.overwrite(varName,*new stringSymbol(argEvaluator::fmtPoint(pt)));
    }
+   else if(mode == "left-by-half")
+   {
+      auto pt = argEvaluator(m_sTable,n.in).getPoint();
+      auto& pSnip = m_sTable.demand(n.amt).as<snipSymbol>().pSnippet;
+      long w,h;
+      pSnip->getDims(w,h);
+      long left = w / 2.0;
+      pt.x -= left;
+      m_sTable.overwrite(varName,*new stringSymbol(argEvaluator::fmtPoint(pt)));
+   }
    else if(mode == "right-by-width")
    {
       auto pt = argEvaluator(m_sTable,n.in).getPoint();
@@ -805,6 +815,13 @@ void executor::visit(pixelTransformNode& n)
             *new isPixelCriteria(
                argEvaluator(m_sTable,n.arg).getColor())));
       pXfrm.reset(new toMonochromeShift(*pCri.get()));
+   }
+   else if(op == "to-color")
+   {
+      auto range = argEvaluator(m_sTable,n.arg).getColorRange();
+      auto destCol = argEvaluator(m_sTable,n.arg2).getColor();
+      pCri.reset(new inColorRangeCriteria(range));
+      pXfrm.reset(new toColor(*pCri.get(),destCol));
    }
    else
       throw std::runtime_error("unknown transform");

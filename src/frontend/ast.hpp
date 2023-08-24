@@ -432,6 +432,7 @@ public:
 
    std::string op;
    std::string arg;
+   std::string arg2;
 };
 
 class pixelAnalysisNode : public scriptNode {

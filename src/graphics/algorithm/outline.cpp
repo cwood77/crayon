@@ -3,18 +3,7 @@
 
 bool lightnessPixelCriteria::isEligible(COLORREF c)
 {
-   // lightness
-   double r = GetRValue(c) / 255.0;
-   double g = GetGValue(c) / 255.0;
-   double b = GetBValue(c) / 255.0;
-
-   auto Cmax = r > g ? r : g;
-   Cmax = Cmax > b ? Cmax : b;
-   auto Cmin = r < g ? r : g;
-   Cmin = Cmin < b ? Cmin : b;
-
-   double lightness = (Cmax + Cmin) / 2.0;
-   return m_minLightness < lightness;
+   return m_minLightness < colorInfo().fromRgb(c).lightness;
 }
 
 void outliner::encroach(iPixelCriteria& c, COLORREF col)
