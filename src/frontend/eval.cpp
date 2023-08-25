@@ -173,6 +173,9 @@ size_t argEvaluator::getColor()
 {
    std::string in = getString();
 
+   if(in == "nocol")
+      return 0xFFFFFFFF;
+
    if(::strncmp(in.c_str(),"rgb{",4)!=0)
       throw std::runtime_error("invalid color syntax");
    unsigned long r,g,b;
@@ -184,6 +187,30 @@ size_t argEvaluator::getColor()
 point argEvaluator::getPoint()
 {
    std::string in = getString();
+
+   if(::strncmp(in.c_str(),"pnt[center:tl,dims]{pnt{",24)==0)
+   {
+      unsigned long x,y;
+      rect r;
+      parsePointAndRect(in.c_str()+24,x,y,r);
+
+      return point(
+         x + (r.w / 2),
+         y + (r.h / 2)
+      );
+   }
+
+   if(::strncmp(in.c_str(),"pnt[tl:center,dims]{pnt{",24)==0)
+   {
+      unsigned long x,y;
+      rect r;
+      parsePointAndRect(in.c_str()+24,x,y,r);
+
+      return point(
+         x - (r.w / 2),
+         y - (r.h / 2)
+      );
+   }
 
    if(::strncmp(in.c_str(),"pnt{",4)!=0)
       throw std::runtime_error("invalid point syntax");
@@ -270,6 +297,17 @@ size_t argEvaluator::getPixelCount()
    return (size_t)x;
 }
 
+void argEvaluator::parsePointAndRect(const std::string& text, unsigned long& x, unsigned long& y, rect& r)
+{
+   int n = 0;
+   auto rval = ::sscanf(text.c_str(),"%lu,%lu%n",&x,&y,&n);
+   if(rval != 2 || !n) throw std::runtime_error("can't parse point (191)");
+   if(::strncmp(text.c_str()+n,"},",2)!=0)
+      throw std::runtime_error("invalid point syntax (193)");
+
+   r = argEvaluator(m_sTable,text.c_str()+n+2).getRect();
+}
+
 #ifdef cdwTestBuild
 
 cdwTest(interpolation_empty)
@@ -344,6 +382,21 @@ cdwTest(interpolation_fancy)
       actual << s << std::endl;
 
    cdwAssertEqu(expected.str(),actual.str());
+}
+
+cdwTest(point_center)
+{
+   symbolTable sTable;
+
+   auto pt = argEvaluator(sTable,"pnt[center:tl,dims]{pnt{1,2},rect[tl,br]{pnt{2,2},pnt{4,6}}}").getPoint();
+
+   cdwAssertEqu(2,pt.x);
+   cdwAssertEqu(4,pt.y);
+
+   pt = argEvaluator(sTable,"pnt[tl:center,dims]{pnt{2,4},rect[tl,br]{pnt{2,2},pnt{4,6}}}").getPoint();
+
+   cdwAssertEqu(1,pt.x);
+   cdwAssertEqu(2,pt.y);
 }
 
 #endif // cdwTestBuild

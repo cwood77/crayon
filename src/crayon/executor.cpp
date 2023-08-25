@@ -755,6 +755,20 @@ void executor::visit(nudgeNode& n)
       pt.y -= amt;
       m_sTable.overwrite(varName,*new stringSymbol(argEvaluator::fmtPoint(pt)));
    }
+   else if(mode == "down")
+   {
+      auto pt = argEvaluator(m_sTable,n.in).getPoint();
+      auto amt = argEvaluator(m_sTable,n.amt).getPixelCount();
+      pt.y += amt;
+      m_sTable.overwrite(varName,*new stringSymbol(argEvaluator::fmtPoint(pt)));
+   }
+   else if(mode == "left")
+   {
+      auto pt = argEvaluator(m_sTable,n.in).getPoint();
+      auto amt = argEvaluator(m_sTable,n.amt).getPixelCount();
+      pt.x -= amt;
+      m_sTable.overwrite(varName,*new stringSymbol(argEvaluator::fmtPoint(pt)));
+   }
    else if(mode == "right")
    {
       auto pt = argEvaluator(m_sTable,n.in).getPoint();

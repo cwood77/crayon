@@ -43,6 +43,8 @@ public:
    size_t getPixelCount();
 
 private:
+   void parsePointAndRect(const std::string& text, unsigned long& x, unsigned long& y, rect& r);
+
    iSymbolTable& m_sTable;
    const std::string& m_in;
 };

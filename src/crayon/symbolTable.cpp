@@ -5,7 +5,9 @@
 
 std::string snipSymbol::asString() const
 {
-   throw std::runtime_error("can't convert a snippet to a string");
+   long w,h;
+   m_pSnippet->getDims(w,h);
+   return argEvaluator::fmtRect(rect(0,0,w,h));
 }
 
 iSweepableSymbol *iSweepableSymbol::create(const std::string& type)

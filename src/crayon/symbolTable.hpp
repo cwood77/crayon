@@ -35,7 +35,7 @@ public:
    virtual iSymbol *clone() const { return new snipSymbol(*this); }
 
 protected:
-   autoReleasePtr<iSnippet> m_pSnippet;
+   mutable autoReleasePtr<iSnippet> m_pSnippet;
 };
 
 class iSweepableSymbol : public iSymbol {
