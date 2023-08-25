@@ -8,7 +8,6 @@ namespace {
 
 std::string assemblePathParts(std::list<std::string>& words, size_t n)
 {
-   bool needsTrailingSlashForDriveRoot = (n==1);
    std::stringstream stream;
    for(auto it=words.begin();n;++it,--n)
    {
@@ -16,16 +15,21 @@ std::string assemblePathParts(std::list<std::string>& words, size_t n)
          stream << "\\";
       stream << *it;
    }
-   if(needsTrailingSlashForDriveRoot && false)
-      stream << "\\";
    return stream.str();
 }
 
 void computeParentPaths(const std::string& basePath, const std::string& scriptPath, std::list<std::string>& parents)
 {
+   // compute an adjustedPath that is the absolute path to the script
+   // if the script is provied as relative, then use the pwd (basePath) to absolutize
    std::string adjustedPath = scriptPath;
    if(adjustedPath.length() < 2 || adjustedPath.c_str()[1] != ':')
-      adjustedPath = basePath + "\\..\\" + scriptPath;
+   {
+      if(basePath.c_str()[basePath.length()-1] == '\\')
+         adjustedPath = basePath + scriptPath;
+      else
+         adjustedPath = basePath + "\\" + scriptPath;
+   }
 
    std::list<std::string> words;
 
@@ -71,6 +75,7 @@ void crawler::crawl(const std::string& scriptPath, std::list<std::string>& addtl
    {
       Log.s().s() << "searching " << searchPath << std::endl;
 
+      std::set<std::string> files;
       WIN32_FIND_DATA fData;
       HANDLE hFind = ::FindFirstFile((searchPath + "\\*.crayi").c_str(),&fData);
       if(hFind == INVALID_HANDLE_VALUE)
@@ -79,8 +84,12 @@ void crawler::crawl(const std::string& scriptPath, std::list<std::string>& addtl
       {
          std::string fullPath = searchPath + "\\" + fData.cFileName;
          Log.s().s() << "  found " << fullPath << std::endl;
-         addtlScripts.push_back(fullPath);
+         files.insert(fullPath);
       } while(::FindNextFile(hFind,&fData));
+
+      // use a set just in case FindFirstFile isn't returning in alpha order
+      for(auto& file : files)
+         addtlScripts.push_back(file);
    }
 }
 
@@ -89,7 +98,7 @@ void crawler::crawl(const std::string& scriptPath, std::list<std::string>& addtl
 cdwTest(computeParentPaths_absolute)
 {
    std::list<std::string> parents;
-   computeParentPaths("Y:\\crayon.exe","X:\\1\\2\\3\\4.cray",parents);
+   computeParentPaths("Y:\\","X:\\1\\2\\3\\4.cray",parents);
 
    std::stringstream expected,actual;
    expected
@@ -107,7 +116,24 @@ cdwTest(computeParentPaths_absolute)
 cdwTest(computeParentPaths_relative)
 {
    std::list<std::string> parents;
-   computeParentPaths("Y:\\crayon.exe","3/4.cray",parents);
+   computeParentPaths("Y:\\1","3/4.cray",parents);
+
+   std::stringstream expected,actual;
+   expected
+      << "Y:" << std::endl
+      << "Y:\\1" << std::endl
+      << "Y:\\1\\3" << std::endl
+   ;
+   for(auto s : parents)
+      actual << s << std::endl;
+
+   cdwAssertEqu(expected.str(),actual.str());
+}
+
+cdwTest(computeParentPaths_relative_rootDir)
+{
+   std::list<std::string> parents;
+   computeParentPaths("Y:\\","3/4.cray",parents);
 
    std::stringstream expected,actual;
    expected
