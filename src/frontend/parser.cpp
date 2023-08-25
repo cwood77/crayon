@@ -488,8 +488,8 @@ bool parser::parseAnywhere(scriptNode& n, bool inImageBlock)
       auto *pNoob = new foreachStringSetNode;
 
       parsePathReq(pNoob->filePath);
-
       parseArgReq(pNoob->schema);
+      parseArgOpt(pNoob->allowMissing);
 
       m_l.demandAndEat(lexor::kArrow);
 

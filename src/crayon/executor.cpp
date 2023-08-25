@@ -44,11 +44,12 @@ void executor::visit(foreachStringSetNode& n)
 {
    auto path = argEvaluator(m_sTable,n.filePath).getString();
    auto schema = argEvaluator(m_sTable,n.schema).getSet();
+   bool allowMissing = argEvaluator(m_sTable,n.allowMissing).getFlag("allowMissing");
 
    m_log.s().s() << "pulling strings from '" << path << "'" << std::endl;
 
    std::list<std::list<std::string> > stringSet;
-   stringFileParser::parse(path,schema,stringSet);
+   stringFileParser::parse(path,schema,allowMissing,stringSet);
    m_log.s().s() << "found " << stringSet.size() << " tuple(s)" << std::endl;
 
    for(auto tuple : stringSet)

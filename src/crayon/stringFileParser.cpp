@@ -3,9 +3,9 @@
 #include <cstring>
 #include <fstream>
 
-void stringFileParser::parse(const std::string& path, std::list<std::string>& schema, std::list<std::list<std::string> >& set)
+void stringFileParser::parse(const std::string& path, std::list<std::string>& schema, bool allowMissing, std::list<std::list<std::string> >& set)
 {
-   stringFileParser self(set);
+   stringFileParser self(set,allowMissing);
    self.categorizeSchema(schema);
    std::ifstream stream(path.c_str());
    if(!stream.good())
@@ -78,13 +78,35 @@ void stringFileParser::flushCurrentTags()
       return;
 
    if(m_currentSections.size() != m_sectionsInUse.size())
-      throw std::runtime_error("one of the requested tags was not found");
+   {
+      if(m_allowMissing)
+         fillInMissing();
+      else
+         throw std::runtime_error("one of the requested tags was not found");
+   }
 
    std::list<std::string> set;
    for(auto it=m_currentSections.begin();it!=m_currentSections.end();++it)
       set.push_back(it->second);
    m_set.push_back(set);
    m_currentSections.clear();
+}
+
+void stringFileParser::fillInMissing()
+{
+   auto it = m_sectionsInUse.begin();
+   for(;it!=m_sectionsInUse.end();++it)
+   {
+      bool has = (m_currentSections.find(it->second)!=m_currentSections.end());
+      if(has)
+         continue;
+
+      // fill it in
+      m_currentSections[it->second];
+   }
+
+   if(m_currentSections.size() != m_sectionsInUse.size())
+      throw std::runtime_error("ISE 109");
 }
 
 #ifdef cdwTestBuild
@@ -100,7 +122,7 @@ cdwTest(stringFileParser_acceptance)
    schema.push_back("bar");
 
    std::list<std::list<std::string> > set,expected;
-   stringFileParser::parse("testdata\\unittest-strings.txt",schema,set);
+   stringFileParser::parse("testdata\\unittest-strings.txt",schema,/*missing?*/false,set);
 
    {
       std::list<std::string> x;
@@ -168,13 +190,16 @@ cdwTest(stringFileParser_illegal)
    try
    {
       std::list<std::list<std::string> > set;
-      stringFileParser::parse("testdata\\unittest-strings.txt",schema,set);
+      stringFileParser::parse("testdata\\unittest-strings.txt",schema,/*misisng?*/false,set);
       cdwAssertEqu("true","false");
    }
    catch(std::exception& x)
    {
       cdwAssertEqu("true","true");
    }
+
+   std::list<std::list<std::string> > set;
+   stringFileParser::parse("testdata\\unittest-strings.txt",schema,/*misisng?*/true,set);
 }
 
 #endif // cdwTestBuild

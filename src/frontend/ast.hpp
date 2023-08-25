@@ -111,6 +111,7 @@ public:
 
    std::string filePath;
    std::string schema;
+   std::string allowMissing;
    std::string varName;
 };
 
