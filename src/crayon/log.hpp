@@ -9,7 +9,12 @@ public:
    explicit tmpLog(log& l) : m_log(l) {}
    ~tmpLog();
 
-   std::ostream& s() { return m_s; }
+   // use s() or r() depending on whether you're writing a whole line
+   //
+   // with indenting
+   std::ostream& s();
+   // without indenting
+   std::ostream& r() { return m_s; }
 
 private:
    log& m_log;
@@ -82,4 +87,9 @@ private:
 inline tmpLog::~tmpLog()
 {
    m_log.write(m_s.str());
+}
+
+inline std::ostream& tmpLog::s()
+{
+   return m_s << indent(m_log);
 }

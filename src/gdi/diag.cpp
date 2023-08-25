@@ -8,50 +8,50 @@ static int CALLBACK diagCallback(
 {
    log& Log = *(log*)lParam;
 
-   Log.s().s() << indent(Log) << lpelfe->lfFaceName << " {" << std::endl;
+   Log.s().s() << lpelfe->lfFaceName << " {" << std::endl;
    {
       autoIndent _a(Log);
 
-      Log.s().s() << indent(Log) << "FontType=" << FontType << std::endl;
+      Log.s().s() << "FontType=" << FontType << std::endl;
 #define cdwDiagField(__field__) "LOGFONT::" << #__field__ << " = " << (LONG)lpelfe->__field__
-      Log.s().s() << indent(Log) << cdwDiagField(lfHeight) << std::endl;
-      Log.s().s() << indent(Log) << cdwDiagField(lfWidth) << std::endl;
-      Log.s().s() << indent(Log) << cdwDiagField(lfEscapement) << std::endl;
-      Log.s().s() << indent(Log) << cdwDiagField(lfOrientation) << std::endl;
-      Log.s().s() << indent(Log) << cdwDiagField(lfWeight) << std::endl;
-      Log.s().s() << indent(Log) << cdwDiagField(lfItalic) << std::endl;
-      Log.s().s() << indent(Log) << cdwDiagField(lfUnderline) << std::endl;
-      Log.s().s() << indent(Log) << cdwDiagField(lfStrikeOut) << std::endl;
-      Log.s().s() << indent(Log) << cdwDiagField(lfCharSet) << std::endl;
-      Log.s().s() << indent(Log) << cdwDiagField(lfOutPrecision) << std::endl;
-      Log.s().s() << indent(Log) << cdwDiagField(lfClipPrecision) << std::endl;
-      Log.s().s() << indent(Log) << cdwDiagField(lfQuality) << std::endl;
-      Log.s().s() << indent(Log) << cdwDiagField(lfPitchAndFamily) << std::endl;
+      Log.s().s() << cdwDiagField(lfHeight) << std::endl;
+      Log.s().s() << cdwDiagField(lfWidth) << std::endl;
+      Log.s().s() << cdwDiagField(lfEscapement) << std::endl;
+      Log.s().s() << cdwDiagField(lfOrientation) << std::endl;
+      Log.s().s() << cdwDiagField(lfWeight) << std::endl;
+      Log.s().s() << cdwDiagField(lfItalic) << std::endl;
+      Log.s().s() << cdwDiagField(lfUnderline) << std::endl;
+      Log.s().s() << cdwDiagField(lfStrikeOut) << std::endl;
+      Log.s().s() << cdwDiagField(lfCharSet) << std::endl;
+      Log.s().s() << cdwDiagField(lfOutPrecision) << std::endl;
+      Log.s().s() << cdwDiagField(lfClipPrecision) << std::endl;
+      Log.s().s() << cdwDiagField(lfQuality) << std::endl;
+      Log.s().s() << cdwDiagField(lfPitchAndFamily) << std::endl;
 #undef cdwDiagField
 #define cdwDiagField(__field__) "TEXTMETRICA::" << #__field__ << " = " << (LONG)lpntme->__field__
-      Log.s().s() << indent(Log) << cdwDiagField(tmHeight) << std::endl;
-      Log.s().s() << indent(Log) << cdwDiagField(tmAscent) << std::endl;
-      Log.s().s() << indent(Log) << cdwDiagField(tmDescent) << std::endl;
-      Log.s().s() << indent(Log) << cdwDiagField(tmInternalLeading) << std::endl;
-      Log.s().s() << indent(Log) << cdwDiagField(tmExternalLeading) << std::endl;
-      Log.s().s() << indent(Log) << cdwDiagField(tmAveCharWidth) << std::endl;
-      Log.s().s() << indent(Log) << cdwDiagField(tmMaxCharWidth) << std::endl;
-      Log.s().s() << indent(Log) << cdwDiagField(tmWeight) << std::endl;
-      Log.s().s() << indent(Log) << cdwDiagField(tmOverhang) << std::endl;
-      Log.s().s() << indent(Log) << cdwDiagField(tmDigitizedAspectX) << std::endl;
-      Log.s().s() << indent(Log) << cdwDiagField(tmDigitizedAspectY) << std::endl;
-      Log.s().s() << indent(Log) << cdwDiagField(tmFirstChar) << std::endl;
-      Log.s().s() << indent(Log) << cdwDiagField(tmLastChar) << std::endl;
-      Log.s().s() << indent(Log) << cdwDiagField(tmDefaultChar) << std::endl;
-      Log.s().s() << indent(Log) << cdwDiagField(tmBreakChar) << std::endl;
-      Log.s().s() << indent(Log) << cdwDiagField(tmItalic) << std::endl;
-      Log.s().s() << indent(Log) << cdwDiagField(tmUnderlined) << std::endl;
-      Log.s().s() << indent(Log) << cdwDiagField(tmStruckOut) << std::endl;
-      Log.s().s() << indent(Log) << cdwDiagField(tmPitchAndFamily) << std::endl;
-      Log.s().s() << indent(Log) << cdwDiagField(tmCharSet) << std::endl;
+      Log.s().s() << cdwDiagField(tmHeight) << std::endl;
+      Log.s().s() << cdwDiagField(tmAscent) << std::endl;
+      Log.s().s() << cdwDiagField(tmDescent) << std::endl;
+      Log.s().s() << cdwDiagField(tmInternalLeading) << std::endl;
+      Log.s().s() << cdwDiagField(tmExternalLeading) << std::endl;
+      Log.s().s() << cdwDiagField(tmAveCharWidth) << std::endl;
+      Log.s().s() << cdwDiagField(tmMaxCharWidth) << std::endl;
+      Log.s().s() << cdwDiagField(tmWeight) << std::endl;
+      Log.s().s() << cdwDiagField(tmOverhang) << std::endl;
+      Log.s().s() << cdwDiagField(tmDigitizedAspectX) << std::endl;
+      Log.s().s() << cdwDiagField(tmDigitizedAspectY) << std::endl;
+      Log.s().s() << cdwDiagField(tmFirstChar) << std::endl;
+      Log.s().s() << cdwDiagField(tmLastChar) << std::endl;
+      Log.s().s() << cdwDiagField(tmDefaultChar) << std::endl;
+      Log.s().s() << cdwDiagField(tmBreakChar) << std::endl;
+      Log.s().s() << cdwDiagField(tmItalic) << std::endl;
+      Log.s().s() << cdwDiagField(tmUnderlined) << std::endl;
+      Log.s().s() << cdwDiagField(tmStruckOut) << std::endl;
+      Log.s().s() << cdwDiagField(tmPitchAndFamily) << std::endl;
+      Log.s().s() << cdwDiagField(tmCharSet) << std::endl;
 #undef cdwDiagField
    }
-   Log.s().s() << indent(Log) << "}" << std::endl;
+   Log.s().s() << "}" << std::endl;
 
    return 1; // continue
 }
