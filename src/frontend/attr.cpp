@@ -11,13 +11,14 @@ attributeStore::~attributeStore()
 
 attributeStoreBinding::attributeStoreBinding(scriptNode& n, attributeStore& a)
 : m_n(n)
+, m_pOldStore(n.pAttrs)
 {
    m_n.pAttrs = &a;
 }
 
 attributeStoreBinding::~attributeStoreBinding()
 {
-   m_n.pAttrs = NULL;
+   m_n.pAttrs = m_pOldStore;
 }
 
 #ifdef cdwTestBuild

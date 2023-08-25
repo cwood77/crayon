@@ -22,6 +22,11 @@ public:
       return *dynamic_cast<T*>(pA);
    }
 
+   template<class T> void overwrite(scriptNode& node, T *attr)
+   {
+      m_map[&node][typeid(T).name()] = attr;
+   }
+
 private:
    std::map<scriptNode*,std::map<std::string,attribute*> > m_map;
 };
@@ -33,4 +38,5 @@ public:
 
 private:
    scriptNode& m_n;
+   attributeStore *m_pOldStore;
 };

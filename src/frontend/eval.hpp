@@ -4,12 +4,12 @@
 #include <map>
 #include <string>
 
-class symbolTable;
+class iSymbolTable;
 
 class argEvaluator {
 public:
    static size_t computeBitFlags(
-      symbolTable& st,
+      iSymbolTable& st,
       const std::list<std::string>& options,
       std::map<std::string,size_t>& table);
 
@@ -17,7 +17,7 @@ public:
    static std::string fmtPoint(const point& p);
    static std::string fmtRect(const rect& r);
 
-   argEvaluator(symbolTable& st, const std::string& in)
+   argEvaluator(iSymbolTable& st, const std::string& in)
    : m_sTable(st), m_in(in) {}
 
    // variable expansion
@@ -43,6 +43,6 @@ public:
    size_t getPixelCount();
 
 private:
-   symbolTable& m_sTable;
+   iSymbolTable& m_sTable;
    const std::string& m_in;
 };

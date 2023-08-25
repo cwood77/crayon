@@ -6,6 +6,7 @@
 #include "../graphics/graphicsApi.hpp"
 #include "cfile.hpp"
 #include "executor.hpp"
+#include "imageCache.hpp"
 #include "log.hpp"
 #include "symbolTable.hpp"
 #include "test.hpp"
@@ -77,10 +78,15 @@ int main(int argc, const char *argv[])
             }
          }
 
-         // execute
+         // optimize
          symbolTable sTable;
-         executor xfrm(Log,errLog,graf,sTable);
-         pRoot->acceptVisitor(xfrm);
+         deferredImageCalculator defCalc(Log,errLog,graf,sTable);
+         imageCacheFinder optimizer(defCalc,Log);
+         pRoot->acceptVisitor(optimizer);
+
+         // execute
+         executor exec(Log,errLog,graf,sTable);
+         pRoot->acceptVisitor(exec);
 
          // teardown
          graf.markSuccess();

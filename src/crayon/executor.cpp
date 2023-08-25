@@ -3,6 +3,7 @@
 #include "../graphics/snippet.hpp"
 #include "executor.hpp"
 #include "fileFinder.hpp"
+#include "imageCache.hpp"
 #include "log.hpp"
 #include "path.hpp"
 #include "stringFileParser.hpp"
@@ -161,11 +162,15 @@ void executor::visit(foreachEltNode& n)
 
 void executor::visit(loadImageNode& n)
 {
+   auto& cache = n.fetch<imageCacheAttribute>();
    auto path = argEvaluator(m_sTable,n.path).getString();
-   m_log.s().s() << "loading image '" << path << "'" << std::endl;
-   auto& attr = n.root().fetch<graphicsAttribute>();
+
+   if(cache.isCached() && cache.pCalculator->shouldSkip(cache,path))
+      return;
 
    // open the API
+   m_log.s().s() << "loading image '" << path << "'" << std::endl;
+   auto& attr = n.root().fetch<graphicsAttribute>();
    if(attr.pApi)
       throw std::runtime_error("graphics API already in use during load");
    attr.pApi.reset(m_gFac.open(0));
@@ -176,6 +181,9 @@ void executor::visit(loadImageNode& n)
    attr.pCanvas.reset(attr.pImage.get());
 
    visitChildren(n);
+
+   if(cache.isCached())
+      cache.pCalculator->cacheResult(cache,path);
 }
 
 void executor::visit(newImageNode& n)
@@ -198,7 +206,7 @@ void executor::visit(newImageNode& n)
       if(pSnip)
       {
          long w,h;
-         pSnip->pSnippet->getDims(w,h);
+         pSnip->getSnippet()->getDims(w,h);
          dims = rect(0,0,w,h);
       }
    }
@@ -272,7 +280,7 @@ void executor::visit(snipNode& n)
       pXfrm.reset(new rotateTransform(argEvaluator(m_sTable,n.xfrm).getReal()));
 
    snippetAllocator sAlloc;
-   pVar->pSnippet.reset(attr.pCanvas->snip(sAlloc,*pXfrm.get()));
+   pVar->setSnippet(*attr.pCanvas->snip(sAlloc,*pXfrm.get()));
 
    auto varName = argEvaluator(m_sTable,n.varName).getString();
    m_sTable.overwrite(varName,*pVar.release());
@@ -286,7 +294,7 @@ void executor::visit(overlayNode& n)
    m_log.s().s() << "overlaying image from var " << n.varName  << std::endl;
    auto& attr = n.root().fetch<graphicsAttribute>();
 
-   auto& pSnip = m_sTable.demand(n.varName).as<snipSymbol>().pSnippet;
+   auto pSnip = m_sTable.demand(n.varName).as<snipSymbol>().getSnippet();
 
    auto origin = argEvaluator(m_sTable,n.pnt).getPoint();
    autoReleasePtr<iCanvas> pCan;
@@ -307,7 +315,7 @@ void executor::visit(overlayNode& n)
       // otherwise just reuse
       pCan.reset(attr.pCanvas.get());
 
-   pCan->overlay(pSnip,argEvaluator(m_sTable,n.transparent).getColor());
+   pCan->overlay(*pSnip,argEvaluator(m_sTable,n.transparent).getColor());
    pCan.reset();
 
    visitChildren(n);
@@ -434,7 +442,7 @@ void executor::visit(getDimsNode& n)
    long w,h;
    if(!n.obj.empty())
    {
-      auto& pSnip = m_sTable.demand(n.obj).as<snipSymbol>().pSnippet;
+      auto pSnip = m_sTable.demand(n.obj).as<snipSymbol>().getSnippet();
       pSnip->getDims(w,h);
    }
    else
@@ -757,7 +765,7 @@ void executor::visit(nudgeNode& n)
    else if(mode == "up-by-half")
    {
       auto pt = argEvaluator(m_sTable,n.in).getPoint();
-      auto& pSnip = m_sTable.demand(n.amt).as<snipSymbol>().pSnippet;
+      auto pSnip = m_sTable.demand(n.amt).as<snipSymbol>().getSnippet();
       long w,h;
       pSnip->getDims(w,h);
       long up = h / 2.0;
@@ -767,7 +775,7 @@ void executor::visit(nudgeNode& n)
    else if(mode == "left-by-half")
    {
       auto pt = argEvaluator(m_sTable,n.in).getPoint();
-      auto& pSnip = m_sTable.demand(n.amt).as<snipSymbol>().pSnippet;
+      auto pSnip = m_sTable.demand(n.amt).as<snipSymbol>().getSnippet();
       long w,h;
       pSnip->getDims(w,h);
       long left = w / 2.0;
@@ -777,7 +785,7 @@ void executor::visit(nudgeNode& n)
    else if(mode == "right-by-width")
    {
       auto pt = argEvaluator(m_sTable,n.in).getPoint();
-      auto& pSnip = m_sTable.demand(n.amt).as<snipSymbol>().pSnippet;
+      auto pSnip = m_sTable.demand(n.amt).as<snipSymbol>().getSnippet();
       long w,h;
       pSnip->getDims(w,h);
       pt.x += w;

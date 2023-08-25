@@ -28,10 +28,14 @@ public:
 
 class snipSymbol : public iSymbol {
 public:
-   autoReleasePtr<iSnippet> pSnippet;
+   virtual iSnippet *getSnippet() { return m_pSnippet.get(); }
+   virtual void setSnippet(iSnippet& x) { m_pSnippet.reset(&x); }
 
    virtual std::string asString() const;
    virtual iSymbol *clone() const { return new snipSymbol(*this); }
+
+protected:
+   autoReleasePtr<iSnippet> m_pSnippet;
 };
 
 class iSweepableSymbol : public iSymbol {
@@ -77,13 +81,21 @@ public:
    virtual iSymbol *clone() const;
 };
 
-class symbolTable {
+class iSymbolTable {
+public:
+   virtual ~iSymbolTable() {}
+   virtual void overwrite(const std::string& name, iSymbol& s) = 0;
+   virtual iSymbol& demand(const std::string& name) = 0;
+   virtual iSymbol *fetch(const std::string& name) = 0;
+};
+
+class symbolTable : public iSymbolTable {
 public:
    ~symbolTable();
 
-   void overwrite(const std::string& name, iSymbol& s);
-   iSymbol& demand(const std::string& name);
-   iSymbol *fetch(const std::string& name);
+   virtual void overwrite(const std::string& name, iSymbol& s);
+   virtual iSymbol& demand(const std::string& name);
+   virtual iSymbol *fetch(const std::string& name);
 
 private:
    std::map<std::string,iSymbol*> m_pSymbols;

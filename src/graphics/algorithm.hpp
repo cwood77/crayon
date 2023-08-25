@@ -7,7 +7,7 @@
 
 class iSymbol;
 class log;
-class symbolTable;
+class iSymbolTable;
 
 class iPixelCriteria {
 public:
@@ -252,14 +252,14 @@ private:
 
 class pixelAnalyzer {
 public:
-   pixelAnalyzer(iCanvas& c, symbolTable& s, log& l)
+   pixelAnalyzer(iCanvas& c, iSymbolTable& s, log& l)
    : m_c(c), m_sTable(s), m_l(l) {}
 
    void run(iPixelAnalysis& a, const std::string& varName);
 
 private:
    iCanvas& m_c;
-   symbolTable& m_sTable;
+   iSymbolTable& m_sTable;
    log& m_l;
 };
 

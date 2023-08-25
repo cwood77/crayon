@@ -81,6 +81,7 @@ CRAYON_SRC = \
 	src/crayon/cmnTest.cpp \
 	src/crayon/executor.cpp \
 	src/crayon/fileFinder.cpp \
+	src/crayon/imageCache.cpp \
 	src/crayon/log.cpp \
 	src/crayon/main.cpp \
 	src/crayon/stringFileParser.cpp \

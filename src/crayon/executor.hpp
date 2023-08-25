@@ -5,7 +5,7 @@
 #include <memory>
 
 class log;
-class symbolTable;
+class iSymbolTable;
 
 class graphicsAttribute : public attribute {
 public:
@@ -32,7 +32,7 @@ public:
 
 class executor : public iNodeVisitor {
 public:
-   executor(log& l, log& errLog, graphicsApiFactory& g, symbolTable& sTable)
+   executor(log& l, log& errLog, graphicsApiFactory& g, iSymbolTable& sTable)
    : m_log(l), m_errLog(errLog), m_gFac(g), m_sTable(sTable) {}
 
    virtual void visit(scriptNode& n) { visitChildren(n); }
@@ -94,5 +94,5 @@ private:
    log& m_log;
    log& m_errLog;
    graphicsApiFactory& m_gFac;
-   symbolTable& m_sTable;
+   iSymbolTable& m_sTable;
 };
