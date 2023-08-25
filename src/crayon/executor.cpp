@@ -7,6 +7,7 @@
 #include "log.hpp"
 #include "path.hpp"
 #include "stringFileParser.hpp"
+#include "stringSplitter.hpp"
 #include "symbolTable.hpp"
 #include <memory>
 
@@ -146,6 +147,32 @@ void executor::visit(accrueNode& n)
       elt[*nit] = m_sTable.demand(*vit).clone();
 
    visitChildren(n);
+}
+
+void executor::visit(splitNode& n)
+{
+   auto in      = argEvaluator(m_sTable,n.in).getString();
+   auto schema  = argEvaluator(m_sTable,n.schema).getSet();
+   auto delim   = argEvaluator(m_sTable,n.delim).getString();
+   if(delim.empty())
+      delim = " ";
+
+   std::list<std::string> values;
+   stringSplitter::split(in,schema,delim,values);
+
+   auto varName = argEvaluator(m_sTable,n.varName).getString();
+   auto sit = schema.begin();
+
+   m_log.s().s() << "splitting string {" << std::endl;
+   for(auto value : values)
+   {
+      autoIndent _a(m_log);
+      std::string fullName = varName + "." + *sit;
+      m_log.s().s() << fullName << " = " << value << std::endl;
+      m_sTable.overwrite(fullName,*new stringSymbol(value));
+      ++sit;
+   }
+   m_log.s().s() << "}" << std::endl;
 }
 
 void executor::visit(foreachEltNode& n)

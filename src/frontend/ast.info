@@ -17,6 +17,7 @@ cdwAstNode(ifNode,scriptNode)
 cdwAstNode(echoNode,scriptNode)
 cdwAstNode(errorNode,scriptNode)
 cdwAstNode(accrueNode,scriptNode)
+cdwAstNode(splitNode,scriptNode)
 cdwAstNode(foreachEltNode,scriptNode)
 
 // images

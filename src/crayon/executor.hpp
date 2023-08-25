@@ -46,6 +46,7 @@ public:
    virtual void visit(echoNode& n);
    virtual void visit(errorNode& n);
    virtual void visit(accrueNode& n);
+   virtual void visit(splitNode& n);
    virtual void visit(foreachEltNode& n);
 
    virtual void visit(loadImageNode& n);

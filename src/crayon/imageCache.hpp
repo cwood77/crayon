@@ -73,6 +73,7 @@ public:
    virtual void visit(echoNode& n) { ineligible(); }
    virtual void visit(errorNode& n) { ineligible(); }
    virtual void visit(accrueNode& n) { ineligible(); }
+   virtual void visit(splitNode& n) { ineligible(); }
    virtual void visit(foreachEltNode& n) { ineligible(); visitChildren(n); }
    virtual void visit(loadImageNode& n);
    virtual void visit(newImageNode& n) { ineligible(); visitChildren(n); }

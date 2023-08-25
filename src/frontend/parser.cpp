@@ -639,6 +639,21 @@ bool parser::parseAnywhere(scriptNode& n, bool inImageBlock)
       n.addChild(*pNoob);
       return true;
    }
+   else if(m_l.isHText("split-string"))
+   {
+      m_l.advance();
+      auto *pNoob = new splitNode;
+
+      parseArgReq(pNoob->in);
+      parseArgReq(pNoob->schema);
+      parseArgOpt(pNoob->delim);
+
+      m_l.demandAndEat(lexor::kArrow);
+      parseArgReq(pNoob->varName);
+
+      n.addChild(*pNoob);
+      return true;
+   }
    else
       return false;
 }

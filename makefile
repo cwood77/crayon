@@ -85,6 +85,7 @@ CRAYON_SRC = \
 	src/crayon/log.cpp \
 	src/crayon/main.cpp \
 	src/crayon/stringFileParser.cpp \
+	src/crayon/stringSplitter.cpp \
 	src/crayon/symbolTable.cpp \
 	src/crayon/test.cpp \
 	src/frontend/ast.cpp \

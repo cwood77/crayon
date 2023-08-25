@@ -161,6 +161,17 @@ public:
    std::string varName;
 };
 
+class splitNode : public scriptNode {
+public:
+   virtual const char *getName() const { return "splitNode"; }
+   virtual void acceptVisitor(iNodeVisitor& v) { v.visit(*this); }
+
+   std::string in;
+   std::string schema;
+   std::string delim;
+   std::string varName;
+};
+
 class foreachEltNode : public scriptNode, public iBlockNode {
 public:
    virtual const char *getName() const { return "foreachEltNode"; }

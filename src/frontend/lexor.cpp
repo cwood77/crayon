@@ -55,6 +55,7 @@ lexor::lexor(const char *pText)
    m_words["select"]            = kHyphenatedWord;
    m_words["select-object"]     = kHyphenatedWord;
    m_words["snip"]              = kHyphenatedWord;
+   m_words["split-string"]      = kHyphenatedWord;
    m_words["survey-frame"]      = kHyphenatedWord;
    m_words["survey-objects"]    = kHyphenatedWord;
    m_words["survey-whiskers"]   = kHyphenatedWord;
