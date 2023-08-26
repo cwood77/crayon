@@ -45,6 +45,7 @@ lexor::lexor(const char *pText)
    m_words["foreach-stringset"] = kHyphenatedWord;
    m_words["get-dims"]          = kHyphenatedWord;
    m_words["if"]                = kHyphenatedWord;
+   m_words["inside"]            = kHyphenatedWord;
    m_words["load-image"]        = kHyphenatedWord;
    m_words["loosen"]            = kHyphenatedWord;
    m_words["new-image"]         = kHyphenatedWord;

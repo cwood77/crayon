@@ -84,7 +84,7 @@ void imageCacheFinder::visit(loadImageNode& n)
    ineligible();
    m_pEvalTree = &n;
    visitChildren(n);
-   if(!m_pEvalTree)
+   if(!m_pEvalTree || m_snipName.empty())
       return;
 
    m_log.s().s() << "flagging an load image to be deferred: " << m_snipName << " => " << m_pEvalTree->path << std::endl;

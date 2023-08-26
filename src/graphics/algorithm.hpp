@@ -73,6 +73,9 @@ public:
    void markIn(const point& p);
    void unmark(const point& p);
 
+   // defined as the rect with the outermost bounds of any point inside the frame
+   rect calculateInside();
+
 private:
    bool isAdjacentPixelIn(const point& p, bool later = false);
    void reconsiderLater(const point& p);

@@ -393,6 +393,13 @@ public:
    std::string color;
 };
 
+class selectInsideFrameNode : public scriptNode, public iBlockNode {
+public:
+   virtual const char *getName() const { return "selectInsideFrameNode"; }
+   virtual void acceptVisitor(iNodeVisitor& v) { v.visit(*this); }
+   virtual scriptNode *createCloseNode();
+};
+
 // demarcation -----------------------------------------------------------
 
 class surveyWhiskersNode : public scriptNode, public iBlockNode {

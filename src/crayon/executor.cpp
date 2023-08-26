@@ -710,6 +710,19 @@ void executor::visit(loosenNode& n)
    visitChildren(n);
 }
 
+void executor::visit(selectInsideFrameNode& n)
+{
+   m_log.s().s() << "identifying frame inside (this could take a while)" << std::endl;
+
+   auto& attr = n.root().fetch<graphicsAttribute>();
+   auto& fattr = n.demandAncestor<surveyFrameNode>().fetch<frameAttribute>();
+
+   auto r = fattr.pFramer->calculateInside();
+   attr.pCanvas.reset(attr.pCanvas->subset(r));
+
+   visitChildren(n);
+}
+
 void executor::visit(surveyWhiskersNode& n)
 {
    m_log.s().s() << "finding whiskers" << std::endl;

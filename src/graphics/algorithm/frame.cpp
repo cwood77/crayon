@@ -83,6 +83,60 @@ void framer::unmark(const point& p)
    m_inFrame.erase(p);
 }
 
+rect framer::calculateInside()
+{
+   // assume you're a rectangular frame!
+
+   rect ans;
+
+   const point *pA = NULL;
+   for(auto& pt : m_inFrame)
+   {
+      const point *pB = &pt;
+
+      if(pA) // otherwise don't have two points yet
+      {
+         // consider two subsequent points: A, and B
+         if(pA->y == pB->y && pA->x+1 != pB->x)
+         {
+            // if A and B have identical Y but nonconsecutive X then
+            //    A.X+1 is rect's left
+            // and
+            //    B.X-1 is rect's right
+            // end
+            //    Y is rect's top
+            ans.x = pA->x+1;
+            ans.w = ((pB->x-1) - (pA->x+1) + 1);
+            ans.y = pA->y;
+            break;
+         }
+      }
+      pA = pB;
+   }
+
+   pA = NULL;
+   auto it = m_inFrame.rbegin();
+   for(;it!=m_inFrame.rend();++it)
+   {
+      const point *pB = &*it;
+
+      if(pA) // otherwise don't have two points yet
+      {
+         // when working backwards,
+         if(pA->y == pB->y && pB->x+1 != pA->x)
+         {
+            // if A and B have identical Y but nonconsecutive X then
+            //    Y is rect's bottom
+            ans.h = (pA->y - ans.y + 1);
+            break;
+         }
+      }
+      pA = pB;
+   }
+
+   return ans;
+}
+
 bool framer::isAdjacentPixelIn(const point& p, bool later)
 {
    if(p.x)

@@ -76,6 +76,7 @@ public:
    virtual void visit(fillNode& n);
    virtual void visit(tightenNode& n);
    virtual void visit(loosenNode& n);
+   virtual void visit(selectInsideFrameNode& n);
 
    virtual void visit(surveyWhiskersNode& n);
    virtual void visit(desurveyWhiskersNode& n);

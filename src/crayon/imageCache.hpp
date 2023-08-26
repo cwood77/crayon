@@ -98,6 +98,7 @@ public:
    virtual void visit(fillNode& n) { allowed(); }
    virtual void visit(tightenNode& n) { allowed(); }
    virtual void visit(loosenNode& n) { allowed(); }
+   virtual void visit(selectInsideFrameNode& n) { allowed(); visitChildren(n); }
    virtual void visit(surveyWhiskersNode& n) { allowed(); visitChildren(n); }
    virtual void visit(desurveyWhiskersNode& n) { allowed(); }
    virtual void visit(findWhiskerPointNode& n) { ineligible(); }

@@ -15,7 +15,7 @@ public:
 
 inline bool operator<(const point& lhs, const point& rhs)
 {
-   return (lhs.x == rhs.x) ? lhs.y < rhs.y : lhs.x < rhs.x;
+   return (lhs.y == rhs.y) ? lhs.x < rhs.x : lhs.y < rhs.y;
 }
 
 class polPoint {

@@ -386,6 +386,16 @@ void parser::parseFrameBlock(scriptNode& n)
       n.addChild(*pNoob);
       parseFrameBlock(n);
    }
+   else if(m_l.isHText("inside"))
+   {
+      m_l.advance();
+      auto *pNoob = new selectInsideFrameNode;
+
+      m_l.demandAndEat(lexor::kColon);
+      n.addChild(*pNoob);
+      m_indent++;
+      parseImageBlock(*pNoob);
+   }
    else
       m_l.error("expected frame-level token");
 

@@ -52,6 +52,7 @@ cdwAstNode(desurveyFrameNode,scriptNode)
 cdwAstNode(fillNode,scriptNode)
 cdwAstNode(tightenNode,scriptNode)
 cdwAstNode(loosenNode,scriptNode)
+cdwAstBlockNode(selectInsideFrameNode,scriptNode,deselectObjectNode)
 
 // demarcation
 cdwAstBlockNode(surveyWhiskersNode,scriptNode,desurveyWhiskersNode)
